@@ -9,6 +9,7 @@ class Account(models.Model):
     Tracked accounts. This includes bank accounts, investments, cash assets, etc.
     """
     name = models.CharField(
+        max_length=256,
         help_text="Name of this account"
     )
     user = models.ForeignKey(
@@ -26,9 +27,11 @@ class Movement(models.Model):
         Account,
         related_name='movements_out',
         on_delete=models.SET_NULL,  # possibly replace this with a function that fills the description
-        blank=True
+        blank=True,
+        null=True
     )
     source_description = models.CharField(
+        max_length=512,
         help_text="Description for source esp. when source is None"
     )
     # destination - both source and destination could be within tracked accounts or external (?)
@@ -36,12 +39,15 @@ class Movement(models.Model):
         Account,
         related_name='movements_in',
         on_delete=models.SET_NULL,  # possibly replace this with a function that fills the description
-        blank=True
+        blank=True,
+        null=True
     )
     destination_description = models.CharField(
+        max_length=512,
         help_text="Description for destination esp. when destination is None"
     )
     amount = models.DecimalField(
+        max_digits=30,
         decimal_places=2
     )
 

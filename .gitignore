@@ -6,6 +6,7 @@
 *._DS_Store
 media/
 *production_settings.py
+logfile
 
 node_modules/*
 assets/bundles/*
