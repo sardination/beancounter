@@ -1,10 +1,6 @@
-from __future__ import unicode_literals
-
 from django.db import models
 
 from userinfo.models import User
-
-# Create your models here.
 
 # TODO: finish a money tracking framework by end of week of 7/7
 
