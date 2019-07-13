@@ -18,11 +18,22 @@ class Account(models.Model):
         on_delete=models.CASCADE,
         blank=False
     )
+    value = models.DecimalField(
+        max_digits=50,
+        decimal_places=2,
+        help_text="Total amount of money in this account"
+    )
 
 class Movement(models.Model):
     """
     Any type of movement of money. This could be a transaction, a transfer, a deposit, etc.
     """
+    user = models.ForeignKey(
+        User,
+        related_name='movements',
+        on_delete=models.CASCADE,
+        blank=False
+    )
     source = models.ForeignKey(
         Account,
         related_name='movements_out',

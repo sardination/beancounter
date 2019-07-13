@@ -1,3 +1,9 @@
 from django.shortcuts import render
+from django.views.generic.base import TemplateView
 
-# Create your views here.
+
+class AddMovementView(TemplateView):
+    """
+    View to add a money movement
+    """
+    template_name = "base.html"
