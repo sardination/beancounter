@@ -5,7 +5,7 @@
 *.DS_Store
 *._DS_Store
 media/
-*production_settings.py
+*settings.py
 logfile
 
 node_modules/*
