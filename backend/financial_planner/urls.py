@@ -18,8 +18,13 @@ from django.urls import (
     include,
     path,
 )
+from django.views.generic.base import TemplateView
+
+from financial_planner.views import IndexView
+
 
 urlpatterns = [
+    path('', IndexView.as_view(), name='index'),
     path('admin/', admin.site.urls),
     path('money/', include('money.urls')),
 ]
