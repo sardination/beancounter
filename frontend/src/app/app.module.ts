@@ -1,6 +1,7 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { WageCalculatorComponent } from './wage-calculator/wage-calculator.component';
@@ -12,6 +13,7 @@ import { WageCalculatorComponent } from './wage-calculator/wage-calculator.compo
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     ReactiveFormsModule,
   ],
   providers: [],

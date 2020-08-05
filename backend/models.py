@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from server import db
+from .app import db
 
 
 class User(db.Model):
