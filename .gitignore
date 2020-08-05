@@ -1,18 +1,5 @@
-*migrations*
-*__pycache__*
-*secrets.py
-*.DS_STORE
-*.DS_Store
-*._DS_Store
-media/
-*settings.py
-logfile
+__pycache__
+.DS_Store
 
-node_modules/*
-assets/bundles/*
-webpack-stats.json
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+*/migrations/versions
+settings.py
