@@ -1,0 +1,9 @@
+<ul class="transactions">
+  <li *ngFor="let transaction of transactions"
+    (click)="onSelect(transaction)"
+    [class.selected]="transaction === selectedTransaction">
+    <span class="badge">{{transaction.id}}</span> {{ transaction.seller }} - ${{ transaction.amount | number: '1.2-2' }} - {{ transaction.buyer }}
+  </li>
+</ul>
+
+<app-transaction-detail [transaction]="selectedTransaction"></app-transaction-detail>

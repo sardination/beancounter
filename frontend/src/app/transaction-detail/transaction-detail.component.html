@@ -1,0 +1,10 @@
+<div *ngIf="transaction">
+    <h2>Transaction {{ transaction.id }} Details</h2>
+    <div><span>seller: </span>{{ transaction.seller }}</div>
+    <div><span>buyer: </span>{{ transaction.buyer }}</div>
+    <div>
+      <label>amount:
+        <input [(ngModel)]="transaction.amount" placeholder="amount"/>
+      </label>
+    </div>
+</div>

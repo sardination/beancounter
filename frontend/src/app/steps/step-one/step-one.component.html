@@ -1,0 +1,8 @@
+<h2>Step One</h2>
+
+<label>Start Date:
+    <input #updatedStartDate type="date" value="{{ startDate }}" />
+</label>
+<button (click)="updateStartDate(updatedStartDate.value)">Update</button>
+
+<app-prior-income-list></app-prior-income-list>
