@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -19,7 +19,8 @@ export class ApiEndpointService {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
-    })
+    }),
+    params: new HttpParams()
   };
 
   constructor(private http: HttpClient) { }
@@ -30,16 +31,34 @@ export class ApiEndpointService {
 
   // retrieval functions
   getPriorIncomes(): Observable<PriorIncome[]> {
-      var endpointUrl = this.createEndpointUrl('prior-income')
+      var endpointUrl = this.createEndpointUrl('prior-income');
       return this.http.get<PriorIncome[]>(endpointUrl);
   }
 
   addPriorIncome(priorIncome: PriorIncome): Observable<PriorIncome> {
-      var endpointUrl = this.createEndpointUrl('prior-income')
+      var endpointUrl = this.createEndpointUrl('prior-income');
       return this.http.post<PriorIncome>(endpointUrl, priorIncome, this.httpOptions).pipe(
           tap((newPriorIncome: PriorIncome) => console.log(`added prior income with id=${newPriorIncome.id}`)),
           catchError(this.handleError<PriorIncome>('addPriorIncome'))
       );
+  }
+
+  updatePriorIncome(priorIncome: PriorIncome): Observable<PriorIncome> {
+    var endpointUrl = this.createEndpointUrl('prior-income');
+      return this.http.put<PriorIncome>(endpointUrl, priorIncome, this.httpOptions).pipe(
+          tap((newPriorIncome: PriorIncome) => console.log(`updated prior income with id=${newPriorIncome.id}`)),
+          catchError(this.handleError<PriorIncome>('updatePriorIncome'))
+      );
+  }
+
+  deletePriorIncome(priorIncome: PriorIncome): Observable<PriorIncome> {
+    var endpointUrl = this.createEndpointUrl('prior-income');
+    var options = this.httpOptions;
+    options.params = new HttpParams().set('id', priorIncome.id.toString());
+    return this.http.delete<PriorIncome>(endpointUrl, this.httpOptions).pipe(
+      tap((removedPriorIncome: PriorIncome) => console.log(`removed prior income with id=${removedPriorIncome.id}`)),
+      catchError(this.handleError<PriorIncome>('deletePriorIncome'))
+    );
   }
 
   getInfo(title: string): any {

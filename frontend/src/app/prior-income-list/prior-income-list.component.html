@@ -1,18 +1,65 @@
-<h3>Your Starting Income</h3>
+<h3>Your Starting Income: ${{ totalPriorIncome() | number: '1.2-2' }}</h3>
 
 <button (click)="addNewEmptyIncome()">Add Income</button>
-<table mat-table [dataSource]="priorIncomes">
+<table mat-table [dataSource]="tableDataSource">
     <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-        <td mat-cell *matCellDef="let priorIncome">{{ priorIncome.date }}</td>
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let priorIncome">
+            <div *ngIf="priorIncome !== editingIncome; else editDate">
+                {{ priorIncome.date }}
+            </div>
+            <ng-template #editDate>
+                <input [formControl]="editingIncomeDate" type="date"/>
+            </ng-template>
+        </td>
     </ng-container>
+
     <ng-container matColumnDef="amount">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
-        <td mat-cell *matCellDef="let priorIncome">${{ priorIncome.amount | number: '1.2-2' }}</td>
+        <th mat-header-cell *matHeaderCellDef>Amount</th>
+        <td mat-cell *matCellDef="let priorIncome">
+            <div *ngIf="priorIncome !== editingIncome; else editAmount">
+                ${{ priorIncome.amount | number: '1.2-2' }}
+            </div>
+            <ng-template #editAmount>
+                <input [formControl]="editingIncomeAmount" type="number" min="0" step="any" />
+            </ng-template>
+        </td>
     </ng-container>
+
     <ng-container matColumnDef="description">
         <th mat-header-cell *matHeaderCellDef>Description</th>
-        <td mat-cell *matCellDef="let priorIncome">{{ priorIncome.description }}</td>
+        <td mat-cell *matCellDef="let priorIncome">
+            <div *ngIf="priorIncome != editingIncome; else editDescription">
+                {{ priorIncome.description }}
+            </div>
+            <ng-template #editDescription>
+                <input [formControl]="editingIncomeDescription" type="text"/>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let priorIncome">
+            <div *ngIf="priorIncome !== editingIncome; else submitEdited">
+                <button (click)="editIncome(priorIncome)">Edit</button>
+            </div>
+            <ng-template #submitEdited>
+                <button (click)="updatePriorIncome()">Submit</button>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let priorIncome">
+            <div *ngIf="priorIncome !== editingIncome; else cancelEdit">
+                <button (click)="deleteIncome(priorIncome)">Delete</button>
+            </div>
+            <ng-template #cancelEdit>
+                <button (click)="cancelEditIncome()">Cancel</button>
+            </ng-template>
+        </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
