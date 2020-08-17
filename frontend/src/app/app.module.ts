@@ -14,6 +14,7 @@ import { TransactionDetailComponent } from './transaction-detail/transaction-det
 import { AppRoutingModule } from './app-routing.module';
 import { StepOneComponent } from './steps/step-one/step-one.component';
 import { PriorIncomeListComponent } from './prior-income-list/prior-income-list.component';
+import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { PriorIncomeListComponent } from './prior-income-list/prior-income-list.
     TransactionsComponent,
     TransactionDetailComponent,
     StepOneComponent,
-    PriorIncomeListComponent
+    PriorIncomeListComponent,
+    BalanceSheetComponent
   ],
   imports: [
     BrowserModule,

@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
 import { PriorIncome } from '../interfaces/prior-income';
-import { ApiEndpointService } from '../services/api-endpoint.service';
+import { PriorIncomeService } from '../services/prior-income.service';
 
 @Component({
   selector: 'app-prior-income-list',
@@ -22,14 +22,14 @@ export class PriorIncomeListComponent implements OnInit {
     editingIncomeAmount: FormControl;
     editingIncomeDescription: FormControl;
 
-  constructor(private apiEndpointService: ApiEndpointService) { }
+  constructor(private priorIncomeService: PriorIncomeService) { }
 
   ngOnInit(): void {
       this.getPriorIncomes();
   }
 
   getPriorIncomes(): void {
-    this.apiEndpointService.getPriorIncomes()
+    this.priorIncomeService.getPriorIncomes()
       .subscribe(priorIncomes => {
         this.priorIncomes = priorIncomes;
         this.tableDataSource = new MatTableDataSource(this.priorIncomes);
@@ -43,14 +43,14 @@ export class PriorIncomeListComponent implements OnInit {
 
       if (!priorIncome.date || !priorIncome.amount || !priorIncome.description) return;
       if (!priorIncome.id) {
-        this.apiEndpointService.addPriorIncome(priorIncome)
+        this.priorIncomeService.addPriorIncome(priorIncome)
             .subscribe(newPriorIncome => {
                 this.priorIncomes.push(newPriorIncome);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
             })
       } else {
-        this.apiEndpointService.updatePriorIncome(priorIncome)
+        this.priorIncomeService.updatePriorIncome(priorIncome)
             .subscribe(updatedPriorIncome => {
                 priorIncome = updatedPriorIncome;
                 this.tableDataSource.data = this.priorIncomes;
@@ -108,7 +108,7 @@ export class PriorIncomeListComponent implements OnInit {
   }
 
   deleteIncome(priorIncome: PriorIncome): void {
-    this.apiEndpointService.deletePriorIncome(priorIncome)
+    this.priorIncomeService.deletePriorIncome(priorIncome)
         .subscribe(deletedPriorIncome => {
           this.priorIncomes.splice(this.priorIncomes.indexOf(deletedPriorIncome), 1);
           if (this.editingIncome == null) {

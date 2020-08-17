@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ApiEndpointService } from '../../services/api-endpoint.service';
+import { InfoService } from '../../services/info.service';
 
 @Component({
   selector: 'app-step-one',
@@ -11,20 +11,20 @@ export class StepOneComponent implements OnInit {
 
     startDate: Date;
 
-  constructor(private apiEndpointService: ApiEndpointService) { }
+  constructor(private infoService: InfoService) { }
 
   ngOnInit(): void {
       this.getStartDate();
   }
 
   getStartDate(): void {
-      this.apiEndpointService.getInfo("start_date")
+      this.infoService.getInfo("start_date")
           .subscribe(info => this.startDate = info.value);
   }
 
   updateStartDate(date: Date): void {
       if (!date) return;
-      this.apiEndpointService.updateInfo("start_date", date)
+      this.infoService.updateInfo("start_date", date)
           .subscribe(info => {
               this.startDate = info.value;
           })
