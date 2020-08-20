@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 
-import { ApiEndpointService } from '../services/api-endpoint.service';
+import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
+import { BalanceSheetService } from '../services/api-object.service';
 
 @Component({
   selector: 'app-balance-sheet',
@@ -9,9 +11,31 @@ import { ApiEndpointService } from '../services/api-endpoint.service';
 })
 export class BalanceSheetComponent implements OnInit {
 
-  constructor() { }
+  balanceSheetEntries: BalanceSheetEntry[];
+
+  assetDataSource: MatTableDataSource<BalanceSheetEntry>;
+  liabilityDataSource: MatTableDataSource<BalanceSheetEntry>;
+  columnsToDisplay = ['value', 'description'];
+
+  constructor(private balanceSheetService: BalanceSheetService) { }
 
   ngOnInit(): void {
+      this.getBalanceSheetEntries();
+  }
+
+  getAssets(): BalanceSheetEntry[] {
+      return this.balanceSheetEntries.filter(entry => entry.entry_type.includes("asset"));
+  }
+
+  getLiabilities(): BalanceSheetEntry[] {
+      return this.balanceSheetEntries.filter(entry => entry.entry_type == "liability");
+  }
+
+  getBalanceSheetEntries(): void {
+      this.balanceSheetService.getObjects()
+          .subscribe(balanceSheetEntries => {
+              this.balanceSheetEntries = balanceSheetEntries;
+          })
   }
 
 }

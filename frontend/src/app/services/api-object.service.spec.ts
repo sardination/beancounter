@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PriorIncomeService } from './prior-income.service';
+import { ApiObjectService } from './api-object.service';
 
-describe('PriorIncomeService', () => {
-  let service: PriorIncomeService;
+describe('ApiObjectService', () => {
+  let service: ApiObjectService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PriorIncomeService);
+    service = TestBed.inject(ApiObjectService);
   });
 
   it('should be created', () => {

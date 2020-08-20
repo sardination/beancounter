@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppComponent } from './app.component';
 import { WageCalculatorComponent } from './wage-calculator/wage-calculator.component';
@@ -13,8 +14,9 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionDetailComponent } from './transaction-detail/transaction-detail.component';
 import { AppRoutingModule } from './app-routing.module';
 import { StepOneComponent } from './steps/step-one/step-one.component';
-import { PriorIncomeListComponent } from './prior-income-list/prior-income-list.component';
+import { PriorIncomeComponent } from './prior-income/prior-income.component';
 import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
+import { PriorIncomeTableComponent } from './prior-income/prior-income-table/prior-income-table.component';
 
 @NgModule({
   declarations: [
@@ -23,8 +25,9 @@ import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
     TransactionsComponent,
     TransactionDetailComponent,
     StepOneComponent,
-    PriorIncomeListComponent,
-    BalanceSheetComponent
+    PriorIncomeComponent,
+    BalanceSheetComponent,
+    PriorIncomeTableComponent
   ],
   imports: [
     BrowserModule,
@@ -35,6 +38,7 @@ import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
     BrowserAnimationsModule,
     MatTableModule,
     MatTabsModule,
+    FlexLayoutModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -4,9 +4,6 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
-// endpoint interfaces
-import { Transaction } from '../interfaces/transaction';
-
 
 @Injectable({
   providedIn: 'root'
@@ -26,14 +23,8 @@ export class ApiEndpointService {
     this.apiUrl = `${this.apiUrl}/${apiExtension}`;
   }
 
-  protected createEndpointUrl(endpoint): string {
-      return `${this.apiUrl}/${endpoint}`;
-  }
-
-  // TODO: remove
-  getTransactions(): Observable<Transaction[]> {
-      var endpointUrl = this.createEndpointUrl('transactions')
-      return this.http.get<Transaction[]>(endpointUrl);
+  createEndpoint(endpoint: string) {
+    return `${this.apiUrl}/${endpoint}`;
   }
 
   // error handling

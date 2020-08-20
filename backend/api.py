@@ -16,6 +16,7 @@ from models import (
     PriorIncome,
 )
 from schemas import (
+    BalanceSheetEntrySchema,
     InfoSchema,
     PriorIncomeSchema,
 )
@@ -44,6 +45,7 @@ class InfoResource(Resource):
         db.session.commit()
 
         return info_schema.dump(info)
+
 
 prior_incomes_schema = PriorIncomeSchema(many=True)
 prior_income_schema = PriorIncomeSchema()
@@ -106,6 +108,17 @@ class PriorIncomeResource(Resource):
         return prior_income_schema.dump(prior_income)
 
 
+balance_sheet_entries_schema = BalanceSheetEntrySchema(many=True)
+balance_sheet_entry_schema = BalanceSheetEntry()
+class BalanceSheetEntryResource(Resource):
+    def get(self):
+        balance_sheet_entries = BalanceSheetEntry.query.all()
+        return balance_sheet_entries_schema.dump(balance_sheet_entries)
+
+    def post(self):
+        pass
+
+
 class Transactions(Resource):
     def get(self):
         return [
@@ -128,3 +141,4 @@ class Transactions(Resource):
 api.add_resource(Transactions, "/transactions")
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
+api.add_resource(BalanceSheetEntryResource, "/balance-sheet")

@@ -25,8 +25,8 @@ export class TransactionsComponent implements OnInit {
 
   getTransactions(): void {
     // this.transactions = this.transactionService.getTransactions();
-    this.apiEndpointService.getTransactions()
-      .subscribe(transactions => this.transactions = transactions);
+    // this.apiEndpointService.getTransactions()
+    //   .subscribe(transactions => this.transactions = transactions);
   }
 
 }

@@ -1,5 +1,3 @@
-<h3>Your Starting Income: ${{ totalPriorIncome() | number: '1.2-2' }}</h3>
-
 <button (click)="addNewEmptyIncome()">Add Income</button>
 <table mat-table [dataSource]="tableDataSource">
     <ng-container matColumnDef="date">
@@ -21,7 +19,7 @@
                 ${{ priorIncome.amount | number: '1.2-2' }}
             </div>
             <ng-template #editAmount>
-                <input [formControl]="editingIncomeAmount" type="number" min="0" step="any" />
+                <input [formControl]="editingIncomeAmount" type="number" min="0" step="0.01" />
             </ng-template>
         </td>
     </ng-container>
@@ -42,7 +40,7 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let priorIncome">
             <div *ngIf="priorIncome !== editingIncome; else submitEdited">
-                <button (click)="editIncome(priorIncome)">Edit</button>
+                <button (click)="selectEditingIncome(priorIncome)">Edit</button>
             </div>
             <ng-template #submitEdited>
                 <button (click)="updatePriorIncome()">Submit</button>
@@ -65,36 +63,3 @@
     <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
     <tr mat-row *matRowDef="let rowData; columns: columnsToDisplay"></tr>
 </table>
-
-<!-- <table>
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr mat-row>
-            <td>
-                <input #newIncomeDate type="date" />
-            </td>
-            <td>
-                <input #newIncomeAmount type="number" min="0" step="any" />
-            </td>
-            <td>
-                <input #newIncomeDescription />
-            </td>
-            <td>
-                <button (click)="addPriorIncome(newIncomeDate.value, newIncomeAmount.value, newIncomeDescription.value)">Add</button>
-            </td>
-        </tr>
-        <tr *ngFor="let priorIncome of priorIncomes">
-            <td>{{ priorIncome.date }}</td>
-            <td>{{ priorIncome.amount }}</td>
-            <td>{{ priorIncome.description }}</td>
-            <td><button>Edit</button></td>
-            <td><button>Delete</button></td>
-        </tr>
-    </tbody>
-</table> -->

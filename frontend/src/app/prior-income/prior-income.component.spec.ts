@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PriorIncomeListComponent } from './prior-income-list.component';
+import { PriorIncomeComponent } from './prior-income.component';
 
 describe('PriorIncomeListComponent', () => {
-  let component: PriorIncomeListComponent;
-  let fixture: ComponentFixture<PriorIncomeListComponent>;
+  let component: PriorIncomeComponent;
+  let fixture: ComponentFixture<PriorIncomeComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PriorIncomeListComponent ]
+      declarations: [ PriorIncomeComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PriorIncomeListComponent);
+    fixture = TestBed.createComponent(PriorIncomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

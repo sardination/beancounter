@@ -33,7 +33,7 @@ class PriorIncome(db.Model):
     __tablename__ = 'prior_income'
 
     id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer, nullable=False)
+    amount = db.Column(db.Integer, nullable=False) # stored in cents
     description = db.Column(db.String(512), nullable=False) # description of earning situation
     date = db.Column(db.Date, nullable=False) # nearest or exact date of earning
 
@@ -47,7 +47,7 @@ class BalanceSheetEntry(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     entry_type = db.Column(db.Enum(BalanceSheetEntryEnum), nullable=False) # type of asset or liability
-    value = db.Column(db.Integer, nullable=False) # value (liabilities are stored in positive form here)
+    value = db.Column(db.Integer, nullable=False) # value (liabilities are stored in positive form here), in cents
     description = db.Column(db.String(512), nullable=False) # description of what the asset/liability is
 
 

@@ -1,39 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
-import { PriorIncome } from '../interfaces/prior-income';
-import { PriorIncomeService } from '../services/prior-income.service';
+import { PriorIncomeService } from '../../services/api-object.service';
+
+import { PriorIncome } from '../../interfaces/prior-income';
 
 @Component({
-  selector: 'app-prior-income-list',
-  templateUrl: './prior-income-list.component.html',
-  styleUrls: ['./prior-income-list.component.css']
+  selector: 'app-prior-income-table',
+  templateUrl: './prior-income-table.component.html',
+  styleUrls: ['./prior-income-table.component.css']
 })
-export class PriorIncomeListComponent implements OnInit {
+export class PriorIncomeTableComponent implements OnInit, OnChanges {
 
-    priorIncomes: PriorIncome[];
-    editingIncome: PriorIncome;
+  @Input() priorIncomes: PriorIncome[];
+  editingIncome: PriorIncome;
 
-    tableDataSource: MatTableDataSource<PriorIncome>;
-    columnsToDisplay = ['date', 'amount', 'description', 'edit', 'delete'];
+  tableDataSource: MatTableDataSource<PriorIncome>;
+  columnsToDisplay = ['date', 'amount', 'description', 'edit', 'delete'];
 
-    editingIncomeDate: FormControl;
-    editingIncomeAmount: FormControl;
-    editingIncomeDescription: FormControl;
+  editingIncomeDate: FormControl;
+  editingIncomeAmount: FormControl;
+  editingIncomeDescription: FormControl;
 
-  constructor(private priorIncomeService: PriorIncomeService) { }
-
-  ngOnInit(): void {
-      this.getPriorIncomes();
+  constructor(private priorIncomeService: PriorIncomeService) {
   }
 
-  getPriorIncomes(): void {
-    this.priorIncomeService.getPriorIncomes()
-      .subscribe(priorIncomes => {
-        this.priorIncomes = priorIncomes;
-        this.tableDataSource = new MatTableDataSource(this.priorIncomes);
-      });
+  ngOnInit(): void {
+    this.tableDataSource = new MatTableDataSource<PriorIncome>(this.priorIncomes);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.priorIncomes.currentValue) {
+      this.tableDataSource.data = changes.priorIncomes.currentValue;
+      this.tableDataSource._updateChangeSubscription();
+    }
   }
 
   updatePriorIncome(): void {
@@ -43,14 +44,14 @@ export class PriorIncomeListComponent implements OnInit {
 
       if (!priorIncome.date || !priorIncome.amount || !priorIncome.description) return;
       if (!priorIncome.id) {
-        this.priorIncomeService.addPriorIncome(priorIncome)
+        this.priorIncomeService.addObject(priorIncome)
             .subscribe(newPriorIncome => {
                 this.priorIncomes.push(newPriorIncome);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
             })
       } else {
-        this.priorIncomeService.updatePriorIncome(priorIncome)
+        this.priorIncomeService.updateObject(priorIncome)
             .subscribe(updatedPriorIncome => {
                 priorIncome = updatedPriorIncome;
                 this.tableDataSource.data = this.priorIncomes;
@@ -60,6 +61,8 @@ export class PriorIncomeListComponent implements OnInit {
   }
 
   selectEditingIncome(editingIncome: PriorIncome): void {
+    this.setFormControls(editingIncome);
+    this.tableDataSource.data = this.priorIncomes;
     this.editingIncome = editingIncome;
   }
 
@@ -97,18 +100,13 @@ export class PriorIncomeListComponent implements OnInit {
     this.tableDataSource.data = [emptyIncome].concat(this.priorIncomes);
   }
 
-  editIncome(priorIncome: PriorIncome): void {
-    this.setFormControls(priorIncome);
-    this.editingIncome = priorIncome;
-  }
-
   cancelEditIncome(): void {
     this.tableDataSource.data = this.priorIncomes;
     this.editingIncome = null;
   }
 
   deleteIncome(priorIncome: PriorIncome): void {
-    this.priorIncomeService.deletePriorIncome(priorIncome)
+    this.priorIncomeService.deleteObject(priorIncome)
         .subscribe(deletedPriorIncome => {
           this.priorIncomes.splice(this.priorIncomes.indexOf(deletedPriorIncome), 1);
           if (this.editingIncome == null) {
@@ -118,11 +116,6 @@ export class PriorIncomeListComponent implements OnInit {
           }
           this.tableDataSource._updateChangeSubscription();
         })
-  }
-
-  totalPriorIncome(): number {
-    if (this.priorIncomes == undefined) return 0;
-    return this.priorIncomes.reduce((sum, current) => sum + current.amount, 0);
   }
 
 }

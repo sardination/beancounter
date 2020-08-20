@@ -1,4 +1,5 @@
 from models import (
+    BalanceSheetEntry,
     Info,
     PriorIncome,
 )
@@ -16,6 +17,7 @@ class InfoSchema(SQLAlchemySchema):
     title = auto_field()
     value = auto_field()
 
+
 class PriorIncomeSchema(SQLAlchemySchema):
     class Meta:
         model = PriorIncome
@@ -24,3 +26,13 @@ class PriorIncomeSchema(SQLAlchemySchema):
     amount = auto_field()
     description = auto_field()
     date = auto_field()
+
+
+class BalanceSheetEntrySchema(SQLAlchemySchema):
+    class Meta:
+        model = BalanceSheetEntry
+
+    id = auto_field()
+    entry_type = auto_field()
+    value = auto_field()
+    description = auto_field()

@@ -16,14 +16,12 @@ export class InfoService extends ApiEndpointService {
   }
 
   getInfo(title: string): any {
-      var endpointUrl = this.createEndpointUrl(title);
-      return this.http.get(endpointUrl);
+      return this.http.get(this.createEndpoint(title));
   }
 
   updateInfo(title: string, value: any): any {
       title = title.trim();
-      var endpointUrl = this.createEndpointUrl(title);
-      return this.http.post(endpointUrl, {"value": value}, this.httpOptions).pipe(
+      return this.http.post(this.createEndpoint(title), {"value": value}, this.httpOptions).pipe(
           tap((newInfo: any) => console.log(`updated ${newInfo.title} with value ${newInfo.value}`)),
           catchError(this.handleError('updateValue'))
       );
