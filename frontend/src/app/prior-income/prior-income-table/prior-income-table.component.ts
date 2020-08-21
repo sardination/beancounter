@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
@@ -37,6 +37,36 @@ export class PriorIncomeTableComponent implements OnInit, OnChanges {
     }
   }
 
+  selectEditingIncome(editingIncome: PriorIncome): void {
+    this.setFormControls(editingIncome);
+    this.tableDataSource.data = this.priorIncomes;
+    this.editingIncome = editingIncome;
+  }
+
+  zeroFormControls(): void {
+    this.editingIncomeDate = new FormControl();
+    this.editingIncomeAmount = new FormControl(0);
+    this.editingIncomeDescription = new FormControl("");
+  }
+
+  setFormControls(priorIncome: PriorIncome): void {
+    this.editingIncomeDate = new FormControl(priorIncome.date);
+    this.editingIncomeAmount = new FormControl(priorIncome.amount);
+    this.editingIncomeDescription = new FormControl(priorIncome.description);
+  }
+
+  addNewEmptyIncome(): void {
+    this.zeroFormControls();
+    var emptyIncome: PriorIncome;
+    this.editingIncome = emptyIncome;
+    this.tableDataSource.data = [emptyIncome].concat(this.priorIncomes);
+  }
+
+  cancelEditIncome(): void {
+    this.tableDataSource.data = this.priorIncomes;
+    this.editingIncome = null;
+  }
+
   updatePriorIncome(): void {
       this.tableDataSource.data = this.priorIncomes;
       this.updateEditingIncomeFromFormControls();
@@ -60,24 +90,6 @@ export class PriorIncomeTableComponent implements OnInit, OnChanges {
       }
   }
 
-  selectEditingIncome(editingIncome: PriorIncome): void {
-    this.setFormControls(editingIncome);
-    this.tableDataSource.data = this.priorIncomes;
-    this.editingIncome = editingIncome;
-  }
-
-  zeroFormControls(): void {
-    this.editingIncomeDate = new FormControl();
-    this.editingIncomeAmount = new FormControl(0);
-    this.editingIncomeDescription = new FormControl("");
-  }
-
-  setFormControls(priorIncome: PriorIncome): void {
-    this.editingIncomeDate = new FormControl(priorIncome.date);
-    this.editingIncomeAmount = new FormControl(priorIncome.amount);
-    this.editingIncomeDescription = new FormControl(priorIncome.description);
-  }
-
   updateEditingIncomeFromFormControls(): void {
     if (this.editingIncome == undefined) {
       this.editingIncome =  {
@@ -91,18 +103,6 @@ export class PriorIncomeTableComponent implements OnInit, OnChanges {
       this.editingIncome.amount = this.editingIncomeAmount.value;
       this.editingIncome.description = this.editingIncomeDescription.value.trim();
     }
-  }
-
-  addNewEmptyIncome(): void {
-    this.zeroFormControls();
-    var emptyIncome: PriorIncome;
-    this.editingIncome = emptyIncome;
-    this.tableDataSource.data = [emptyIncome].concat(this.priorIncomes);
-  }
-
-  cancelEditIncome(): void {
-    this.tableDataSource.data = this.priorIncomes;
-    this.editingIncome = null;
   }
 
   deleteIncome(priorIncome: PriorIncome): void {

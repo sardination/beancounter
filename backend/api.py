@@ -55,7 +55,7 @@ class PriorIncomeResource(Resource):
         return prior_incomes_schema.dump(prior_incomes)
 
     def post(self):
-        amount = request.json['amount']
+        amount = request.json['amount'] # passed in as dollars and cents, stored as cents
         description = request.json['description']
         date = request.json['date']
 
@@ -109,14 +109,32 @@ class PriorIncomeResource(Resource):
 
 
 balance_sheet_entries_schema = BalanceSheetEntrySchema(many=True)
-balance_sheet_entry_schema = BalanceSheetEntry()
+balance_sheet_entry_schema = BalanceSheetEntrySchema()
 class BalanceSheetEntryResource(Resource):
     def get(self):
         balance_sheet_entries = BalanceSheetEntry.query.all()
         return balance_sheet_entries_schema.dump(balance_sheet_entries)
 
     def post(self):
-        pass
+        entry_type = request.json['entry_type']
+        value = request.json['value']
+        description = request.json['description']
+
+        if value <= 0:
+            return abort(400, description='Value must be greater than 0.')
+
+        new_entry = BalanceSheetEntry(
+            entry_type=entry_type,
+            value=value,
+            description=description
+        )
+        db.session.add(new_entry)
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError as e:
+            return abort(400, description='Bad model arguments')
+
+        return balance_sheet_entry_schema.dump(new_entry)
 
 
 class Transactions(Resource):

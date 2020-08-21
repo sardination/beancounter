@@ -5,6 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDividerModule } from '@angular/material/divider';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
@@ -15,8 +20,9 @@ import { TransactionDetailComponent } from './transaction-detail/transaction-det
 import { AppRoutingModule } from './app-routing.module';
 import { StepOneComponent } from './steps/step-one/step-one.component';
 import { PriorIncomeComponent } from './prior-income/prior-income.component';
-import { BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
+import { AddEntryDialog, BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PriorIncomeTableComponent } from './prior-income/prior-income-table/prior-income-table.component';
+import { BalanceSheetEntryTableComponent } from './balance-sheet/balance-sheet-entry-table/balance-sheet-entry-table.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +33,9 @@ import { PriorIncomeTableComponent } from './prior-income/prior-income-table/pri
     StepOneComponent,
     PriorIncomeComponent,
     BalanceSheetComponent,
-    PriorIncomeTableComponent
+    AddEntryDialog,
+    PriorIncomeTableComponent,
+    BalanceSheetEntryTableComponent
   ],
   imports: [
     BrowserModule,
@@ -38,9 +46,17 @@ import { PriorIncomeTableComponent } from './prior-income/prior-income-table/pri
     BrowserAnimationsModule,
     MatTableModule,
     MatTabsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDividerModule,
     FlexLayoutModule,
   ],
-  providers: [],
+  entryComponents: [
+    AddEntryDialog,
+  ],
+  providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
