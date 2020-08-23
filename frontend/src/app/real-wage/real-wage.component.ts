@@ -47,15 +47,17 @@ export class RealWageComponent implements OnInit {
       if (!transaction.value || !transaction.hours || !transaction.transaction_type || !transaction.description) return;
       this.weeklyJobTransactionService.addObject(transaction)
           .subscribe(newTransaction => {
-              this.weeklyJobTransactions.unshift(newTransaction);
+              // this.weeklyJobTransactions.unshift(newTransaction);
+              this.weeklyJobTransactions = [newTransaction].concat(this.weeklyJobTransactions);
           })
   }
 
   deleteJobTransaction(transaction: WeeklyJobTransaction): void {
       this.weeklyJobTransactionService.deleteObject(transaction)
-        .subscribe(deletedTransaction => {
-          this.weeklyJobTransactions.splice(this.weeklyJobTransactions.indexOf(deletedTransaction), 1);
-        })
+          .subscribe(deletedTransaction => {
+            this.weeklyJobTransactions.splice(this.weeklyJobTransactions.indexOf(deletedTransaction), 1);
+            this.weeklyJobTransactions = [].concat(this.weeklyJobTransactions);
+          })
   }
 
 }
