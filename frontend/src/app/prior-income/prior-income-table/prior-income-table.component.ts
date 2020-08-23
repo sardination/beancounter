@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
@@ -11,9 +11,20 @@ import { PriorIncome } from '../../interfaces/prior-income';
   templateUrl: './prior-income-table.component.html',
   styleUrls: ['./prior-income-table.component.css']
 })
-export class PriorIncomeTableComponent implements OnInit, OnChanges {
+export class PriorIncomeTableComponent implements OnInit {
 
-  @Input() priorIncomes: PriorIncome[];
+  @Input()
+  get priorIncomes(): PriorIncome[] { return this._priorIncomes; };
+  set priorIncomes(priorIncomes: PriorIncome[]) {
+    this._priorIncomes = priorIncomes;
+    if (!this.tableDataSource) {
+      this.tableDataSource = new MatTableDataSource<PriorIncome>(this._priorIncomes);
+    } else {
+      this.tableDataSource.data = this._priorIncomes;
+      this.tableDataSource._updateChangeSubscription();
+    }
+  };
+  private _priorIncomes: PriorIncome[];
   editingIncome: PriorIncome;
 
   tableDataSource: MatTableDataSource<PriorIncome>;
@@ -28,13 +39,6 @@ export class PriorIncomeTableComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.tableDataSource = new MatTableDataSource<PriorIncome>(this.priorIncomes);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.priorIncomes.currentValue) {
-      this.tableDataSource.data = changes.priorIncomes.currentValue;
-      this.tableDataSource._updateChangeSubscription();
-    }
   }
 
   selectEditingIncome(editingIncome: PriorIncome): void {

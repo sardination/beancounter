@@ -14,15 +14,26 @@ from models import (
     BalanceSheetEntry,
     Info,
     PriorIncome,
+    WeeklyJobTransaction,
 )
 from schemas import (
     BalanceSheetEntrySchema,
     InfoSchema,
     PriorIncomeSchema,
+    WeeklyJobTransactionSchema,
 )
 
 
 api = Api(app)
+
+
+def try_commit(row, schema):
+    try:
+        db.session.commit()
+    except exc.SQLAlchemyError:
+        return abort(400, description='Bad model arguments')
+
+    return schema.dump(row)
 
 
 info_schema = InfoSchema()
@@ -55,9 +66,11 @@ class PriorIncomeResource(Resource):
         return prior_incomes_schema.dump(prior_incomes)
 
     def post(self):
-        amount = request.json['amount'] # passed in as dollars and cents, stored as cents
-        description = request.json['description']
-        date = request.json['date']
+        request_dict = prior_income_schema.load(request.json)
+
+        amount = request_dict['amount']
+        description = request_dict['description']
+        date = request_dict['date']
 
         if amount <= 0:
             return abort(400, description='Income amount must be greater than 0')
@@ -68,20 +81,18 @@ class PriorIncomeResource(Resource):
             date=date
         )
         db.session.add(new_prior_income)
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError:
-            return abort(400, description='Bad model arguments')
 
-        return prior_income_schema.dump(new_prior_income)
+        return try_commit(new_prior_income, prior_income_schema)
 
     def put(self):
-        id = request.json.get('id')
+        request_dict = prior_income_schema.load(request.json)
+
+        id = request_dict.get('id')
         if id is None:
             return abort(400, description='No id for prior income')
-        amount = request.json['amount']
-        description = request.json['description']
-        date = request.json['date']
+        amount = request_dict['amount']
+        description = request_dict['description']
+        date = request_dict['date']
 
         if amount <= 0:
             return abort(400, description='Income amount must be greater than 0')
@@ -116,9 +127,11 @@ class BalanceSheetEntryResource(Resource):
         return balance_sheet_entries_schema.dump(balance_sheet_entries)
 
     def post(self):
-        entry_type = request.json['entry_type']
-        value = request.json['value']
-        description = request.json['description']
+        request_dict = balance_sheet_entry_schema.load(request.json)
+
+        entry_type = request_dict['entry_type']
+        value = request_dict['value']
+        description = request_dict['description']
 
         if value <= 0:
             return abort(400, description='Value must be greater than 0.')
@@ -129,12 +142,57 @@ class BalanceSheetEntryResource(Resource):
             description=description
         )
         db.session.add(new_entry)
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError as e:
-            return abort(400, description='Bad model arguments')
 
-        return balance_sheet_entry_schema.dump(new_entry)
+        return try_commit(new_entry, balance_sheet_entry_schema)
+
+    def delete(self):
+        id = request.args.get('id')
+        if id is None:
+            return abort(400, description='No id to delete')
+        entry = BalanceSheetEntry.query.filter_by(id=id).first_or_404()
+        db.session.delete(entry)
+        db.session.commit()
+
+        return balance_sheet_entry_schema.dump(entry)
+
+
+weekly_job_transactions_schema = WeeklyJobTransactionSchema(many=True)
+weekly_job_transaction_schema = WeeklyJobTransactionSchema()
+class WeeklyJobTransactionResource(Resource):
+    def get(self):
+        weekly_job_transactions = WeeklyJobTransaction.query.all()
+        return weekly_job_transactions_schema.dump(weekly_job_transactions)
+
+    def post(self):
+        request_dict = weekly_job_transaction_schema.load(request.json)
+
+        transaction_type = request_dict['transaction_type']
+        value = request_dict['value']
+        hours = request_dict['hours']
+        description = request_dict['description']
+
+        if value <= 0 or hours <= 0:
+            return abort(400, description='Value and hours must be greater than 0.')
+
+        new_transaction = WeeklyJobTransaction(
+            transaction_type=transaction_type,
+            value=value,
+            hours=hours,
+            description=description
+        )
+        db.session.add(new_transaction)
+
+        return try_commit(new_transaction, weekly_job_transaction_schema)
+
+    def delete(self):
+        id = request.args.get('id')
+        if id is None:
+            return abort(400, description='No id to delete')
+        transaction = WeeklyJobTransaction.query.filter_by(id=id).first_or_404()
+        db.session.delete(transaction)
+        db.session.commit()
+
+        return weekly_job_transaction_schema.dump(transaction)
 
 
 class Transactions(Resource):
@@ -160,3 +218,4 @@ api.add_resource(Transactions, "/transactions")
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
 api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
+api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")

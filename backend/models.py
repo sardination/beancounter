@@ -2,7 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from app import db
-from enums import BalanceSheetEntryEnum
+from enums import (
+    BalanceSheetEntryType,
+    TransactionType,
+)
 
 
 class Info(db.Model):
@@ -46,10 +49,24 @@ class BalanceSheetEntry(db.Model):
     __tablename__ = 'balance_sheet_entry'
 
     id = db.Column(db.Integer, primary_key=True)
-    entry_type = db.Column(db.Enum(BalanceSheetEntryEnum), nullable=False) # type of asset or liability
+    entry_type = db.Column(db.Enum(BalanceSheetEntryType), nullable=False) # type of asset or liability
     value = db.Column(db.Integer, nullable=False) # value (liabilities are stored in positive form here), in cents
     description = db.Column(db.String(512), nullable=False) # description of what the asset/liability is
 
+
+# STEP 2 - real hourly wage and daily transaction tracking
+class WeeklyJobTransaction(db.Model):
+    """
+    Job-related income or expenditure and hours spent every week
+    """
+
+    __tablename__ = 'weekly_job_transaction'
+
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_type = db.Column(db.Enum(TransactionType), nullable=False) # income or expenditure
+    value = db.Column(db.Integer, nullable=False) # positive, cents
+    hours = db.Column(db.Integer, nullable=False) # hours spent on this transaction every week
+    description = db.Column(db.String(50), nullable=False)
 
 
 

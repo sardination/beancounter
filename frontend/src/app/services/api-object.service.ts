@@ -7,6 +7,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { ApiEndpointService } from './api-endpoint.service';
 import { PriorIncome } from '../interfaces/prior-income';
 import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
+import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 
 
 @Injectable({
@@ -64,5 +65,14 @@ export class PriorIncomeService extends ApiObjectService<PriorIncome> {
 export class BalanceSheetService extends ApiObjectService<BalanceSheetEntry> {
     constructor (protected http: HttpClient) {
         super(http, 'balance-sheet', 'balance sheet');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WeeklyJobTransactionService extends ApiObjectService<WeeklyJobTransaction> {
+    constructor (protected http: HttpClient) {
+        super(http, 'weekly-job-transaction', 'weekly job transaction');
     }
 }

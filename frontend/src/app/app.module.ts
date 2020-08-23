@@ -14,28 +14,29 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppComponent } from './app.component';
-import { WageCalculatorComponent } from './wage-calculator/wage-calculator.component';
-import { TransactionsComponent } from './transactions/transactions.component';
-import { TransactionDetailComponent } from './transaction-detail/transaction-detail.component';
 import { AppRoutingModule } from './app-routing.module';
 import { StepOneComponent } from './steps/step-one/step-one.component';
 import { PriorIncomeComponent } from './prior-income/prior-income.component';
 import { AddEntryDialog, BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PriorIncomeTableComponent } from './prior-income/prior-income-table/prior-income-table.component';
 import { BalanceSheetEntryTableComponent } from './balance-sheet/balance-sheet-entry-table/balance-sheet-entry-table.component';
+import { StepTwoComponent } from './steps/step-two/step-two.component';
+import { AddJobTransactionDialog, RealWageComponent } from './real-wage/real-wage.component';
+import { JobTransactionTableComponent } from './real-wage/job-transaction-table/job-transaction-table.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    WageCalculatorComponent,
-    TransactionsComponent,
-    TransactionDetailComponent,
     StepOneComponent,
     PriorIncomeComponent,
     BalanceSheetComponent,
     AddEntryDialog,
     PriorIncomeTableComponent,
-    BalanceSheetEntryTableComponent
+    BalanceSheetEntryTableComponent,
+    StepTwoComponent,
+    RealWageComponent,
+    JobTransactionTableComponent,
+    AddJobTransactionDialog
   ],
   imports: [
     BrowserModule,

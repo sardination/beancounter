@@ -1,5 +1,4 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
@@ -67,6 +66,13 @@ export class BalanceSheetComponent implements OnInit {
           .subscribe(newEntry => {
               this.balanceSheetEntries.unshift(newEntry);
           })
+  }
+
+  deleteEntry(entry: BalanceSheetEntry): void {
+    this.balanceSheetService.deleteObject(entry)
+        .subscribe(deletedEntry => {
+          this.balanceSheetEntries.splice(this.balanceSheetEntries.indexOf(deletedEntry), 1);
+        })
   }
 
 }

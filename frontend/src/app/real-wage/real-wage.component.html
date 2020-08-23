@@ -1,0 +1,7 @@
+<h3>Weekly Job Transactions</h3>
+
+<button mat-raised-button (click)="openAddJobTransactionDialog()">Add Weekly Job Transaction</button>
+<app-job-transaction-table
+    [weeklyJobTransactions]="weeklyJobTransactions"
+    (deleteTransactionEvent)="deleteJobTransaction($event)"
+></app-job-transaction-table>
