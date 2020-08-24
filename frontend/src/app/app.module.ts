@@ -23,6 +23,8 @@ import { BalanceSheetEntryTableComponent } from './balance-sheet/balance-sheet-e
 import { StepTwoComponent } from './steps/step-two/step-two.component';
 import { AddJobTransactionDialog, RealWageComponent } from './real-wage/real-wage.component';
 import { JobTransactionTableComponent } from './real-wage/job-transaction-table/job-transaction-table.component';
+import { DailyTransactionsComponent } from './daily-transactions/daily-transactions.component';
+import { DailyTransactionTableComponent } from './daily-transactions/daily-transaction-table/daily-transaction-table.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,9 @@ import { JobTransactionTableComponent } from './real-wage/job-transaction-table/
     StepTwoComponent,
     RealWageComponent,
     JobTransactionTableComponent,
-    AddJobTransactionDialog
+    AddJobTransactionDialog,
+    DailyTransactionsComponent,
+    DailyTransactionTableComponent
   ],
   imports: [
     BrowserModule,

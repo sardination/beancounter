@@ -21,6 +21,9 @@ export class JobTransactionTableComponent implements OnInit {
   get weeklyJobTransactions(): WeeklyJobTransaction[] { return this._weeklyJobTransactions };
   set weeklyJobTransactions(weeklyJobTransactions: WeeklyJobTransaction[]) {
     this._weeklyJobTransactions = weeklyJobTransactions
+    if (this._weeklyJobTransactions) {
+      this._weeklyJobTransactions = this.getIncomes().concat(this.getExpenditures());
+    }
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<WeeklyJobTransaction>(this._weeklyJobTransactions);
     } else {
@@ -42,6 +45,14 @@ export class JobTransactionTableComponent implements OnInit {
 
   deleteJobTransaction(transaction: WeeklyJobTransaction): void {
     this.deleteTransactionEvent.emit(transaction);
+  }
+
+  getIncomes(): WeeklyJobTransaction[] {
+    return this.weeklyJobTransactions.filter(transaction => transaction.transaction_type == "income");
+  }
+
+  getExpenditures(): WeeklyJobTransaction[] {
+    return this.weeklyJobTransactions.filter(transaction => transaction.transaction_type == "expenditure");
   }
 
 }

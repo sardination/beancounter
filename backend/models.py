@@ -69,6 +69,20 @@ class WeeklyJobTransaction(db.Model):
     description = db.Column(db.String(50), nullable=False)
 
 
+class Transaction(db.Model):
+    """
+    Any kind of daily transaction (income or expenditure)
+    """
+
+    __tablename__ = 'transaction'
+
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_type = db.Column(db.Enum(TransactionType), nullable=False) # income or expenditure
+    value = db.Column(db.Integer, nullable=False) # positive, cents
+    description = db.Column(db.String(512), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+
+
 
 # DON'T NEED USER MODEL BECAUSE THIS IS JUST FOR PERSONAL USE (at least for now!)
 # class User(db.Model):

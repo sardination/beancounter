@@ -21,7 +21,11 @@
         <th mat-header-cell *matHeaderCellDef>Value</th>
         <td mat-cell *matCellDef="let jobTransaction">
             <div>
-                {{ jobTransaction.value }}
+                <span *ngIf="jobTransaction.transaction_type == 'expenditure'; else incomeSpan">-</span>
+                <ng-template #incomeSpan>
+                    <span #incomeSpan>+</span>
+                </ng-template>
+                ${{ jobTransaction.value | number: '1.2-2' }}
             </div>
         </td>
     </ng-container>

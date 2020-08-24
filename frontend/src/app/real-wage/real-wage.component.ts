@@ -60,6 +60,20 @@ export class RealWageComponent implements OnInit {
           })
   }
 
+  calculateRealHourlyWage(): number {
+      if (!this.weeklyJobTransactions) {
+          return 0;
+      }
+      var totalIncome = this.weeklyJobTransactions.reduce((sum, current) => {
+          if (current.transaction_type == "income") {
+              return sum + current.value;
+          }
+          return sum - current.value;
+      }, 0);
+      var totalHours = this.weeklyJobTransactions.reduce((sum, current) => sum + current.hours, 0);
+      return totalIncome / totalHours;
+  }
+
 }
 
 @Component({

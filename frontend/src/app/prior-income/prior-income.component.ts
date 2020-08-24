@@ -24,7 +24,6 @@ export class PriorIncomeComponent implements OnInit {
     this.priorIncomeService.getObjects()
       .subscribe(priorIncomes => {
         this.priorIncomes = priorIncomes;
-        // this.tableDataSource = new MatTableDataSource(this.priorIncomes);
       });
   }
 

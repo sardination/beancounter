@@ -6,6 +6,7 @@ from models import (
     BalanceSheetEntry,
     Info,
     PriorIncome,
+    Transaction,
     WeeklyJobTransaction,
 )
 
@@ -89,6 +90,33 @@ class WeeklyJobTransactionSchema(SQLAlchemySchema):
     id = auto_field()
     transaction_type = EnumField(TransactionType)
     hours = auto_field()
+    value = fields.Float()
+    description = auto_field()
+
+    @post_load
+    def value_to_cents(self, data, **kwargs):
+        """
+        Convert de-serialized amount to cents before backend
+        """
+        data["value"] = data["value"] * 100
+        return data
+
+    @post_dump
+    def value_to_dollars(self, data, **kwargs):
+        """
+        Convert serialized amount to dollars before frontend
+        """
+        data["value"] = float(data["value"]) / 100
+        return data
+
+
+class TransactionSchema(SQLAlchemySchema):
+    class Meta:
+        model = Transaction
+
+    id = auto_field()
+    transaction_type = EnumField(TransactionType)
+    date = auto_field()
     value = fields.Float()
     description = auto_field()
 

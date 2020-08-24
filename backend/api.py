@@ -14,12 +14,14 @@ from models import (
     BalanceSheetEntry,
     Info,
     PriorIncome,
+    Transaction,
     WeeklyJobTransaction,
 )
 from schemas import (
     BalanceSheetEntrySchema,
     InfoSchema,
     PriorIncomeSchema,
+    TransactionSchema,
     WeeklyJobTransactionSchema,
 )
 
@@ -195,27 +197,73 @@ class WeeklyJobTransactionResource(Resource):
         return weekly_job_transaction_schema.dump(transaction)
 
 
-class Transactions(Resource):
+transactions_schema = TransactionSchema(many=True)
+transaction_schema = TransactionSchema()
+class TransactionResource(Resource):
     def get(self):
-        return [
-            {
-                "id": 1,
-                "seller": "suriya",
-                "buyer": "kaviya",
-                "amount": 5.55,
-                "item": "pillow"
-            },
-            {
-                "id": 2,
-                "seller": "kaviya",
-                "buyer": "zuko",
-                "amount": 2.00,
-                "item": "dental bone"
-            }]
+        transactions = Transaction.query.all()
+        return transactions_schema.dump(transactions)
+
+    def put(self):
+        request_dict = transaction_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for transaction')
+        value = request_dict['value']
+        description = request_dict['description']
+        date = request_dict['date']
+        transaction_type = request_dict['transaction_type']
+
+        if amount <= 0:
+            return abort(400, description='Income amount must be greater than 0')
+
+        transaction = Transaction.query.filter_by(id=id).first_or_404()
+        transaction.transaction_type = transaction_type
+        transaction.value = value
+        transaction.description = description
+        transaction.date = date
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            return abort(400, description='Bad model arguments')
+
+        return transaction_schema.dump(transaction)
+
+    def post(self):
+        request_dict = transaction_schema.load(request.json)
+
+        transaction_type = request_dict['transaction_type']
+        value = request_dict['value']
+        description = request_dict['description']
+        date = request_dict['date']
+
+        if value <= 0:
+            return abort(400, description='Value must be greater than 0.')
+
+        new_transaction = Transaction(
+            transaction_type=transaction_type,
+            value=value,
+            description=description,
+            date=date
+        )
+        db.session.add(new_transaction)
+
+        return try_commit(new_transaction, transaction_schema)
+
+    def delete(self):
+        id = request.args.get('id')
+        if id is None:
+            return abort(400, description='No id to delete')
+        transaction = Transaction.query.filter_by(id=id).first_or_404()
+        db.session.delete(transaction)
+        db.session.commit()
+
+        return transaction_schema.dump(transaction)
 
 
-api.add_resource(Transactions, "/transactions")
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
 api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
 api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
+api.add_resource(TransactionResource, "/transaction")

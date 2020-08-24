@@ -1,6 +1,7 @@
 export interface Transaction {
     id: number;
-    buyer: string;
-    seller: string;
-    amount: number;
+    transaction_type: 'income' | 'expenditure';
+    value: number;
+    date: Date;
+    description: string
 }
