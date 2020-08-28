@@ -9,6 +9,7 @@ import { PriorIncome } from '../interfaces/prior-income';
 import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
 import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 import { Transaction } from '../interfaces/transaction';
+import { TransactionCategory } from '../interfaces/transaction-category';
 
 
 @Injectable({
@@ -84,5 +85,14 @@ export class WeeklyJobTransactionService extends ApiObjectService<WeeklyJobTrans
 export class TransactionService extends ApiObjectService<Transaction> {
     constructor (protected http: HttpClient) {
         super(http, 'transaction', 'transaction');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TransactionCategoryService extends ApiObjectService<TransactionCategory> {
+    constructor (protected http: HttpClient) {
+        super(http, 'transaction-category', 'transaction category');
     }
 }

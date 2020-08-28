@@ -1,0 +1,48 @@
+<table mat-table [dataSource]="tableDataSource">
+    <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let transaction">
+            <div>
+                {{ transaction.date }}
+            </div>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let transaction">
+            <span *ngIf="transaction.transaction_type == 'income'; else transactionExpenditure">+</span>
+            <ng-template #transactionExpenditure>
+                <span>-</span>
+            </ng-template>
+            ${{ transaction.value | number: '1.2-2' }}
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let transaction">
+            {{ transaction.description }}
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="category">
+        <th mat-header-cell *matHeaderCellDef>Category</th>
+        <td mat-cell *matCellDef="let transaction">
+            <div>
+                <mat-form-field>
+                    <mat-label>Category</mat-label>
+                    <mat-select>
+                        <mat-option>Uncategorized</mat-option>
+                        <mat-option *ngFor="let category of categories" [value]="category.id">
+                            {{ category.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let rowData; columns: columnsToDisplay"></tr>
+</table>

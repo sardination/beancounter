@@ -1,0 +1,5 @@
+<ul>
+    <li *ngFor="let category of categories">
+        {{ category.name }} : ${{ categoryTotal(category) | number: '1.2-2' }}
+    </li>
+</ul>

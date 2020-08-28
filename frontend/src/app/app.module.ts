@@ -25,6 +25,9 @@ import { AddJobTransactionDialog, RealWageComponent } from './real-wage/real-wag
 import { JobTransactionTableComponent } from './real-wage/job-transaction-table/job-transaction-table.component';
 import { DailyTransactionsComponent } from './daily-transactions/daily-transactions.component';
 import { DailyTransactionTableComponent } from './daily-transactions/daily-transaction-table/daily-transaction-table.component';
+import { StepThreeComponent } from './steps/step-three/step-three.component';
+import { MonthlyTabulationComponent } from './monthly-tabulation/monthly-tabulation.component';
+import { CategoryTotalsComponent } from './category-totals/category-totals.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,10 @@ import { DailyTransactionTableComponent } from './daily-transactions/daily-trans
     JobTransactionTableComponent,
     AddJobTransactionDialog,
     DailyTransactionsComponent,
-    DailyTransactionTableComponent
+    DailyTransactionTableComponent,
+    StepThreeComponent,
+    MonthlyTabulationComponent,
+    CategoryTotalsComponent
   ],
   imports: [
     BrowserModule,
