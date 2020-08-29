@@ -32,9 +32,11 @@
             <div>
                 <mat-form-field>
                     <mat-label>Category</mat-label>
-                    <mat-select>
-                        <mat-option>Uncategorized</mat-option>
-                        <mat-option *ngFor="let category of categories" [value]="category.id">
+                    <mat-select
+                        (selectionChange)="updateTransactionCategory(transaction, $event.value)"
+                        [(value)]="transaction.category_id"
+                    >
+                        <mat-option *ngFor="let category of displayCategories" [value]="category.id">
                             {{ category.name }}
                         </mat-option>
                     </mat-select>

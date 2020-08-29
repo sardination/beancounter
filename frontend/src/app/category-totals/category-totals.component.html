@@ -1,5 +1,12 @@
 <ul>
-    <li *ngFor="let category of categories">
+    <li *ngFor="let category of displayCategories">
         {{ category.name }} : ${{ categoryTotal(category) | number: '1.2-2' }}
+    </li>
+    <li>
+        <mat-form-field>
+            <mat-label>New Category</mat-label>
+            <input matInput [formControl]="newCategoryFormControl" type="text"/>
+        </mat-form-field>
+        <button mat-button (click)="addCategory(newCategoryFormControl.value)">Create</button>
     </li>
 </ul>

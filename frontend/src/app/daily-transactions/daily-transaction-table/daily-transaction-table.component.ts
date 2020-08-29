@@ -17,7 +17,15 @@ export class DailyTransactionTableComponent implements OnInit {
   @Input()
   get transactions(): Transaction[] { return this._transactions };
   set transactions(transactions: Transaction[]) {
-    this._transactions = transactions;
+    this._transactions = transactions.sort((a, b) => {
+        if (a.date > b.date) {
+            return -1;
+        } else if (a.date < b.date) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
     } else {
@@ -93,6 +101,7 @@ export class DailyTransactionTableComponent implements OnInit {
         this.transactionService.addObject(transaction)
             .subscribe(newTransaction => {
                 this.transactions.push(newTransaction);
+                this.transactions = this.transactions;
                 this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })
@@ -100,6 +109,7 @@ export class DailyTransactionTableComponent implements OnInit {
         this.transactionService.updateObject(transaction)
             .subscribe(updatedTransaction => {
                 transaction = updatedTransaction;
+                this.transactions = this.transactions;
                 this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 
 import {
     TransactionService,
@@ -16,7 +16,14 @@ import { TransactionCategory } from '../../interfaces/transaction-category';
 export class StepThreeComponent implements OnInit {
 
    transactions: Transaction[] = [];
-   transactionCategories: TransactionCategory[] = [];
+
+   get transactionCategories(): TransactionCategory[] {
+       return this._transactionCategories;
+   }
+   set transactionCategories(transactionCategories: TransactionCategory[]) {
+       this._transactionCategories = transactionCategories.concat([]);
+   }
+   private _transactionCategories = [];
 
   constructor(
       private transactionCategoryService: TransactionCategoryService,
@@ -38,8 +45,12 @@ export class StepThreeComponent implements OnInit {
   getTransactionCategories(): void {
       this.transactionCategoryService.getObjects()
           .subscribe(transactionCategories => {
-              this.transactionCategories = transactionCategories;
+              this.setTransactionCategories(transactionCategories);
           })
+  }
+
+  setTransactionCategories(categories: TransactionCategory[]): void {
+      this.transactionCategories = categories;
   }
 
 }

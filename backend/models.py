@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 from app import db
 from enums import (
@@ -82,6 +84,26 @@ class Transaction(db.Model):
     description = db.Column(db.String(512), nullable=False)
     date = db.Column(db.Date, nullable=False)
 
+    # categorize transaction at the end of each month
+    category_id = db.Column(db.Integer, ForeignKey('transaction_category.id'))
+    category = relationship("TransactionCategory", back_populates="transactions")
+
+
+# STEP 3 - monthly tabulation and reconciliation
+class TransactionCategory(db.Model):
+    """
+    Income/spending categories to group individual transactions
+    into (eventually at the monthly level)
+    """
+
+    __tablename__ = 'transaction_category'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+
+    # categorized transactions
+    transactions = relationship("Transaction", back_populates="category")
+
 
 
 # DON'T NEED USER MODEL BECAUSE THIS IS JUST FOR PERSONAL USE (at least for now!)
@@ -97,25 +119,4 @@ class Transaction(db.Model):
 
 #     def __repr__(self):
 #         return '<User {}>'.format(self.username)
-
-
-# class Transaction(db.Model):
-
-#     __tablename__ = 'transaction'
-
-#     id = db.Column(db.Integer, primary_key=True)
-
-#     outgoing = db.Column(db.Boolean, nullable=False)
-#     transactor = db.Column(db.String(120), nullable=False)
-#     description = db.Column(db.String(512))
-
-#     def __repr__(self):
-#         source = self.user.username
-#         destination = self.transactor
-#         if not outgoing:
-#             destination = source
-#             source = self.transactor
-#         return '<Transaction {} -{}-> {}>'.format()
-
-
 

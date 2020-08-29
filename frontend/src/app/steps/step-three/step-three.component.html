@@ -3,6 +3,7 @@
 <app-category-totals
     [transactions]="transactions"
     [categories]="transactionCategories"
+    (updateCategories)="setTransactionCategories($event)"
 ></app-category-totals>
 
 <app-monthly-tabulation

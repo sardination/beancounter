@@ -15,6 +15,7 @@ from models import (
     Info,
     PriorIncome,
     Transaction,
+    TransactionCategory,
     WeeklyJobTransaction,
 )
 from schemas import (
@@ -22,6 +23,7 @@ from schemas import (
     InfoSchema,
     PriorIncomeSchema,
     TransactionSchema,
+    TransactionCategorySchema,
     WeeklyJobTransactionSchema,
 )
 
@@ -215,7 +217,9 @@ class TransactionResource(Resource):
         date = request_dict['date']
         transaction_type = request_dict['transaction_type']
 
-        if amount <= 0:
+        category_id = request_dict.get('category_id')
+
+        if value <= 0:
             return abort(400, description='Income amount must be greater than 0')
 
         transaction = Transaction.query.filter_by(id=id).first_or_404()
@@ -223,6 +227,8 @@ class TransactionResource(Resource):
         transaction.value = value
         transaction.description = description
         transaction.date = date
+        if category_id is not None:
+            transaction.category_id = category_id
         try:
             db.session.commit()
         except exc.SQLAlchemyError:
@@ -262,8 +268,30 @@ class TransactionResource(Resource):
         return transaction_schema.dump(transaction)
 
 
+transaction_categories_schema = TransactionCategorySchema(many=True)
+transaction_category_schema = TransactionCategorySchema()
+class TransactionCategoryResource(Resource):
+    def get(self):
+        categories = TransactionCategory.query.all()
+        return transaction_categories_schema.dump(categories)
+
+    def post(self):
+        request_dict = transaction_category_schema.load(request.json)
+
+        name = request_dict['name']
+
+        if len(name) == 0:
+            return abort(400, description='Supplied empty name for new category.')
+
+        new_category = TransactionCategory(name = name)
+        db.session.add(new_category)
+
+        return try_commit(new_category, transaction_category_schema)
+
+
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
 api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
 api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
 api.add_resource(TransactionResource, "/transaction")
+api.add_resource(TransactionCategoryResource, "/transaction-category")

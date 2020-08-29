@@ -5,6 +5,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
 
+import { TransactionService } from '../services/api-object.service';
+
 @Component({
   selector: 'app-monthly-tabulation',
   templateUrl: './monthly-tabulation.component.html',
@@ -15,7 +17,15 @@ export class MonthlyTabulationComponent implements OnInit {
   @Input()
   get transactions(): Transaction[] { return this._transactions };
   set transactions(transactions: Transaction[]) {
-    this._transactions = transactions;
+    this._transactions = transactions.sort((a, b) => {
+        if (a.date > b.date) {
+            return -1;
+        } else if (a.date < b.date) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
     } else {
@@ -26,14 +36,27 @@ export class MonthlyTabulationComponent implements OnInit {
   private _transactions: Transaction[];
 
   @Input()
-  categories: TransactionCategory[];
+  get categories(): TransactionCategory[] { return this._categories }
+  set categories(categories: TransactionCategory[]) {
+      console.log(categories)
+      this._categories = categories;
+      this.displayCategories = [{name: "uncategorized"} as TransactionCategory].concat(categories);
+  }
+  private _categories: TransactionCategory[];
+  displayCategories: TransactionCategory[];
 
   tableDataSource: MatTableDataSource<Transaction>;
   columnsToDisplay = ['date', 'value', 'description', 'category'];
 
-  constructor() { }
+  constructor(private transactionService: TransactionService) { }
 
   ngOnInit(): void {
+  }
+
+  updateTransactionCategory(transaction: Transaction, categoryID: number): void {
+      transaction.category_id = categoryID;
+      this.transactionService.updateObject(transaction)
+          .subscribe(newTransaction => transaction = newTransaction);
   }
 
 }

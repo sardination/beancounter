@@ -7,6 +7,7 @@ from models import (
     Info,
     PriorIncome,
     Transaction,
+    TransactionCategory,
     WeeklyJobTransaction,
 )
 
@@ -119,6 +120,7 @@ class TransactionSchema(SQLAlchemySchema):
     date = auto_field()
     value = fields.Float()
     description = auto_field()
+    category_id = auto_field()
 
     @post_load
     def value_to_cents(self, data, **kwargs):
@@ -135,3 +137,11 @@ class TransactionSchema(SQLAlchemySchema):
         """
         data["value"] = float(data["value"]) / 100
         return data
+
+
+class TransactionCategorySchema(SQLAlchemySchema):
+    class Meta:
+        model = TransactionCategory
+
+    id = auto_field()
+    name = auto_field()
