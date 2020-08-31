@@ -1,12 +1,38 @@
 <h2>Step Three</h2>
 
-<app-category-totals
-    [transactions]="transactions"
-    [categories]="transactionCategories"
-    (updateCategories)="setTransactionCategories($event)"
-></app-category-totals>
+<mat-sidenav-container>
+    <mat-sidenav mode="side" opened>
+        <mat-nav-list>
+            <mat-list-item *ngFor="let year of getYears()" (onClick)="selectYear(year)">
+                {{ year }}
+            </mat-list-item>
+        </mat-nav-list>
+    </mat-sidenav>
 
-<app-monthly-tabulation
-    [transactions]="transactions"
-    [categories]="transactionCategories">
-</app-monthly-tabulation>
+    <mat-sidenav-content>
+        <mat-sidenav-container>
+            <mat-sidenav mode="side" opened>
+                <mat-nav-list>
+                    <mat-list-item *ngFor="let month of getMonthsFromYear(selectedYear)" (onClick)="selectMonth(month)">
+                        {{ months[month] }}
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-sidenav>
+
+            <mat-sidenav-content>
+                <app-category-totals
+                    [transactions]="getTransactionsByMonth(selectedYear, selectedMonth)"
+                    [categories]="transactionCategories"
+                    (updateCategories)="setTransactionCategories($event)"
+                ></app-category-totals>
+
+                <app-monthly-tabulation
+                    [transactions]="getTransactionsByMonth(selectedYear, selectedMonth)"
+                    [categories]="transactionCategories">
+                </app-monthly-tabulation>
+            </mat-sidenav-content>
+
+        </mat-sidenav-container>
+    </mat-sidenav-content>
+
+</mat-sidenav-container>

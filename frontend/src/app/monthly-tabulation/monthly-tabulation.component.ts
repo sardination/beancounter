@@ -38,7 +38,6 @@ export class MonthlyTabulationComponent implements OnInit {
   @Input()
   get categories(): TransactionCategory[] { return this._categories }
   set categories(categories: TransactionCategory[]) {
-      console.log(categories)
       this._categories = categories;
       this.displayCategories = [{name: "uncategorized"} as TransactionCategory].concat(categories);
   }

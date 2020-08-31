@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 
 import { ApiEndpointService } from './api-endpoint.service';
 import { PriorIncome } from '../interfaces/prior-income';
@@ -85,6 +85,18 @@ export class WeeklyJobTransactionService extends ApiObjectService<WeeklyJobTrans
 export class TransactionService extends ApiObjectService<Transaction> {
     constructor (protected http: HttpClient) {
         super(http, 'transaction', 'transaction');
+    }
+
+    getObjects(): Observable<Transaction[]> {
+        return super.getObjects().pipe(
+            map(transactions => {
+              transactions.forEach(transaction => {
+                transaction.date = new Date(transaction.date);
+                return transaction;
+              });
+              return transactions;
+            })
+        );
     }
 }
 

@@ -4,7 +4,7 @@
         <th mat-header-cell *matHeaderCellDef>Date</th>
         <td mat-cell *matCellDef="let transaction">
             <div *ngIf="transaction !== editingTransaction; else editDate">
-                {{ transaction.date }}
+                {{ transaction.date | date }}
             </div>
             <ng-template #editDate>
                 <input [formControl]="editingTransactionDate" type="date"/>

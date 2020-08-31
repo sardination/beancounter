@@ -22,7 +22,8 @@ export class CategoryTotalsComponent implements OnInit {
   get categories(): TransactionCategory[] { return this._categories }
   set categories(categories: TransactionCategory[]) {
       this._categories = categories.concat([]);
-      this.displayCategories = [{name: "uncategorized"} as TransactionCategory].concat(categories)
+      this.displayCategories = [{name: "uncategorized"} as TransactionCategory].concat(categories);
+      // todo: perhaps sort by total? ...not necessary if using a graph
   }
   private _categories: TransactionCategory[];
   displayCategories: TransactionCategory[];
@@ -36,16 +37,17 @@ export class CategoryTotalsComponent implements OnInit {
   }
 
   categoryTotal(category: TransactionCategory): number {
+      var useTransactions;
       if (!category.id) {
-          return this.transactions.filter(transaction => {return !transaction.category_id})
-                     .reduce((sum, current) => {
-                         return (current.transaction_type == "income") ? (sum + current.value) : (sum - current.value);
-                     }, 0)
+          useTransactions = this.transactions.filter(transaction => !transaction.category_id);
+      } else {
+          useTransactions = this.transactions.filter(transaction => transaction.category_id == category.id);
       }
-      return this.transactions.filter(transaction => {return transaction.category_id == category.id})
-                 .reduce((sum, current) => {
-                     return (current.transaction_type == "income") ? (sum + current.value) : (sum - current.value);
-                 }, 0)
+      return useTransactions.reduce((sum, current) => {return sum + current.value}, 0);
+      // return useTransactions
+      //            .reduce((sum, current) => {
+      //                return (current.transaction_type == "income") ? (sum + current.value) : (sum - current.value);
+      //            }, 0)
   }
 
   addCategory(categoryName: string): void {

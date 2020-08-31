@@ -3,7 +3,7 @@
         <th mat-header-cell *matHeaderCellDef>Date</th>
         <td mat-cell *matCellDef="let transaction">
             <div>
-                {{ transaction.date }}
+                {{ transaction.date | date }}
             </div>
         </td>
     </ng-container>

@@ -25,6 +25,25 @@ export class StepThreeComponent implements OnInit {
    }
    private _transactionCategories = [];
 
+   months = [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June",
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+   ]
+   earliestDate: Date = new Date();
+   todayDate: Date = new Date();
+   selectedYear: number = this.todayDate.getFullYear();
+   selectedMonth: number = this.todayDate.getMonth();
+
   constructor(
       private transactionCategoryService: TransactionCategoryService,
       private transactionService: TransactionService
@@ -38,7 +57,12 @@ export class StepThreeComponent implements OnInit {
   getTransactions(): void {
       this.transactionService.getObjects()
           .subscribe(transactions => {
-              this.transactions = transactions;
+              this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
+              this.transactions.forEach(transaction => {
+                if (transaction.date < this.earliestDate) {
+                  this.earliestDate = transaction.date;
+                }
+              });
           })
   }
 
@@ -51,6 +75,42 @@ export class StepThreeComponent implements OnInit {
 
   setTransactionCategories(categories: TransactionCategory[]): void {
       this.transactionCategories = categories;
+  }
+
+  getTransactionsByMonth(year: number, month: number): Transaction[] {
+      return this.transactions.filter(transaction => {
+        return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
+      )
+  }
+
+  getMonthsFromYear(year: number): number[] {
+      var retArray: number[];
+      var startMonth = 0;
+      var endMonth = 11;
+      if (year == this.earliestDate.getFullYear()) {
+          startMonth = this.earliestDate.getMonth();
+      }
+      if (year == this.todayDate.getFullYear()) {
+          endMonth = this.todayDate.getMonth();
+      }
+      retArray = Array.from(Array(endMonth - startMonth + 1), (_,i) => i + startMonth);
+      retArray.reverse();
+      return retArray;
+  }
+
+  getYears(): number[] {
+      let startYear = this.earliestDate.getFullYear();
+      let endYear = this.todayDate.getFullYear();
+      let retArray = Array.from(Array(endYear - startYear + 1), (_,i) => i + startYear).reverse();
+      return retArray;
+  }
+
+  selectYear(year: number): void {
+      this.selectedYear = year;
+  }
+
+  selectMonth(month: number): void {
+      this.selectedMonth = month;
   }
 
 }
