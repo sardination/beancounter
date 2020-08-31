@@ -15,6 +15,7 @@ from marshmallow import (
     fields,
     post_dump,
     post_load,
+    pre_load,
 )
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import (
@@ -128,6 +129,14 @@ class TransactionSchema(SQLAlchemySchema):
         Convert de-serialized amount to cents before backend
         """
         data["value"] = data["value"] * 100
+        return data
+
+    @pre_load
+    def format_date(self, data, **kwargs):
+        """
+        Convert collected date format into datetime
+        """
+        data["date"] = data["date"][:10]
         return data
 
     @post_dump
