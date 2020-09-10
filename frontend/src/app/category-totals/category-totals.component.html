@@ -1,6 +1,6 @@
 <ul>
     <li *ngFor="let category of displayCategories">
-        {{ category.name }} : ${{ categoryTotal(category) | number: '1.2-2' }}
+        {{ category.name }} : ${{ categoryTotal(category) | number: '1.2-2' }} > {{ calculateLifeEnergyHours(category) | number: '1.2-2' }} hrs - <fa-icon [icon]=iconLabelFromCategoryId(category.id) (click)=changeCategoryFulfilment(category.id)></fa-icon>
     </li>
     <li>
         <mat-form-field>

@@ -3,7 +3,11 @@
 <mat-sidenav-container>
     <mat-sidenav mode="side" opened>
         <mat-nav-list>
-            <mat-list-item *ngFor="let year of getYears()" (onClick)="selectYear(year)">
+            <mat-list-item
+                *ngFor="let year of getYears()"
+                (click)="selectYear(year)"
+                [class.selected]="year === selectedYear"
+            >
                 {{ year }}
             </mat-list-item>
         </mat-nav-list>
@@ -13,7 +17,11 @@
         <mat-sidenav-container>
             <mat-sidenav mode="side" opened>
                 <mat-nav-list>
-                    <mat-list-item *ngFor="let month of getMonthsFromYear(selectedYear)" (onClick)="selectMonth(month)">
+                    <mat-list-item
+                        *ngFor="let month of getMonthsFromYear(selectedYear)"
+                        (click)="selectMonth(month)"
+                        [class.selected]="month === selectedMonth"
+                    >
                         {{ months[month] }}
                     </mat-list-item>
                 </mat-nav-list>
@@ -23,6 +31,8 @@
                 <app-category-totals
                     [transactions]="getTransactionsByMonth(selectedYear, selectedMonth)"
                     [categories]="transactionCategories"
+                    [monthCategories]="monthCategories"
+                    [selectedMonthInfo]="selectedMonthInfo"
                     (updateCategories)="setTransactionCategories($event)"
                 ></app-category-totals>
 
@@ -31,7 +41,6 @@
                     [categories]="transactionCategories">
                 </app-monthly-tabulation>
             </mat-sidenav-content>
-
         </mat-sidenav-container>
     </mat-sidenav-content>
 

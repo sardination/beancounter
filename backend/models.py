@@ -1,12 +1,16 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey
+from sqlalchemy import  (
+    ForeignKey,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from app import db
 from enums import (
     BalanceSheetEntryType,
     TransactionType,
+    FulfilmentType,
 )
 
 
@@ -16,6 +20,7 @@ class Info(db.Model):
 
     Info that is currently stored:
     * Start date (prior income will be counted up to this date)
+    * Real hourly wage
     """
 
     __tablename__ = 'info'
@@ -25,7 +30,8 @@ class Info(db.Model):
     value = db.Column(db.String(128), nullable=False) # while the value itself might not be a string, it is the most comprehensive
 
     permitted_titles = [
-        'start_date'
+        'start_date',
+        'real_hourly_wage', # stored in cents
     ]
 
 
@@ -103,6 +109,42 @@ class TransactionCategory(db.Model):
 
     # categorized transactions
     transactions = relationship("Transaction", back_populates="category")
+
+
+class MonthInfo(db.Model):
+    """
+    Total income and expenditure for the month
+    """
+
+    __tablename__ = 'month_info'
+
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer, nullable=False)
+    month = db.Column(db.Integer, nullable=False) # 1 = January, ..., 12 = December
+    income = db.Column(db.Integer, nullable=False, default=0) # in cents
+    expenditure = db.Column(db.Integer, nullable=False, default=0) # in cents
+
+    __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
+
+
+class MonthCategory(db.Model):
+    """
+    Month-category relation and fulfilment association
+    """
+
+    __tablename__ = 'category_month'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False)
+    month_info = relationship("MonthInfo")
+
+    category_id = db.Column(db.Integer, ForeignKey('transaction_category.id'), nullable=False)
+    category = relationship("TransactionCategory")
+
+    fulfilment = db.Column(db.Enum(FulfilmentType), nullable=False, default=FulfilmentType.neutral)
+
+    __table_args__ = (UniqueConstraint('month_info_id', 'category_id', name='_month_category_uc'),)
 
 
 

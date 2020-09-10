@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { WeeklyJobTransactionService } from '../services/api-object.service';
+import { InfoService } from '../services/info.service';
 
 import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 
@@ -13,14 +14,17 @@ import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 export class RealWageComponent implements OnInit {
 
   weeklyJobTransactions: WeeklyJobTransaction[];
+  realHourlyWage: number;
 
   constructor(
       private weeklyJobTransactionService: WeeklyJobTransactionService,
+      private infoService: InfoService,
       public addJobTransactionDialog: MatDialog
   ) { }
 
   ngOnInit(): void {
       this.getWeeklyJobTransactions();
+      this.getRealHourlyWage();
   }
 
   getWeeklyJobTransactions(): void {
@@ -30,16 +34,23 @@ export class RealWageComponent implements OnInit {
           })
   }
 
+  getRealHourlyWage(): void {
+      this.infoService.getInfo("real_hourly_wage")
+            .subscribe(info => {
+                this.realHourlyWage = Number(info.value);
+            })
+  }
+
   openAddJobTransactionDialog(): void {
     const dialogRef = this.addJobTransactionDialog.open(AddJobTransactionDialog, {
-      width: "250",
-      data: {} as WeeklyJobTransaction
+        width: "250",
+        data: {} as WeeklyJobTransaction
     });
 
     dialogRef.afterClosed().subscribe(newTransaction => {
-      if (newTransaction) {
-        this.addJobTransaction(newTransaction);
-      }
+        if (newTransaction) {
+            this.addJobTransaction(newTransaction);
+        }
     });
   }
 
@@ -47,8 +58,11 @@ export class RealWageComponent implements OnInit {
       if (!transaction.value || !transaction.hours || !transaction.transaction_type || !transaction.description) return;
       this.weeklyJobTransactionService.addObject(transaction)
           .subscribe(newTransaction => {
-              // this.weeklyJobTransactions.unshift(newTransaction);
               this.weeklyJobTransactions = [newTransaction].concat(this.weeklyJobTransactions);
+              this.infoService.updateInfo("real_hourly_wage", this.calculateRealHourlyWage().toString())
+                  .subscribe(info => {
+                      this.realHourlyWage = Number(info.value);
+                  })
           })
   }
 
@@ -57,11 +71,15 @@ export class RealWageComponent implements OnInit {
           .subscribe(deletedTransaction => {
             this.weeklyJobTransactions.splice(this.weeklyJobTransactions.indexOf(deletedTransaction), 1);
             this.weeklyJobTransactions = [].concat(this.weeklyJobTransactions);
+            this.infoService.updateInfo("real_hourly_wage", this.calculateRealHourlyWage().toString())
+                  .subscribe(info => {
+                      this.realHourlyWage = Number(info.value);
+                  })
           })
   }
 
   calculateRealHourlyWage(): number {
-      if (!this.weeklyJobTransactions) {
+      if (this.weeklyJobTransactions.length == 0) {
           return 0;
       }
       var totalIncome = this.weeklyJobTransactions.reduce((sum, current) => {
@@ -71,6 +89,9 @@ export class RealWageComponent implements OnInit {
           return sum - current.value;
       }, 0);
       var totalHours = this.weeklyJobTransactions.reduce((sum, current) => sum + current.hours, 0);
+      if (totalHours == 0) {
+        return totalIncome;
+      }
       return totalIncome / totalHours;
   }
 

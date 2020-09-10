@@ -1,6 +1,6 @@
 <h3>Weekly Job Transactions</h3>
 
-<p>Real hourly wage: ${{ calculateRealHourlyWage() | number: '1.2-2' }}/hr</p>
+<p>Real hourly wage: ${{ realHourlyWage | number: '1.2-2' }}/hr</p>
 
 <button mat-raised-button (click)="openAddJobTransactionDialog()">Add Weekly Job Transaction</button>
 <app-job-transaction-table

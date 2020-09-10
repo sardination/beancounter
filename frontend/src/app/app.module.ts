@@ -14,6 +14,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -67,6 +68,7 @@ import { CategoryTotalsComponent } from './category-totals/category-totals.compo
     MatSidenavModule,
     MatListModule,
     FlexLayoutModule,
+    FontAwesomeModule,
   ],
   entryComponents: [
     AddEntryDialog,

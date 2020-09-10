@@ -1,10 +1,13 @@
 from enums import (
     BalanceSheetEntryType,
+    FulfilmentType,
     TransactionType,
 )
 from models import (
     BalanceSheetEntry,
+    MonthCategory,
     Info,
+    MonthInfo,
     PriorIncome,
     Transaction,
     TransactionCategory,
@@ -46,7 +49,6 @@ class PriorIncomeSchema(SQLAlchemySchema):
         """
         Convert de-serialized amount to cents before backend
         """
-        print("POST LOAD", data)
         data["amount"] = data["amount"] * 100
         return data
 
@@ -154,3 +156,42 @@ class TransactionCategorySchema(SQLAlchemySchema):
 
     id = auto_field()
     name = auto_field()
+
+
+class MonthInfoSchema(SQLAlchemySchema):
+    class Meta:
+        model = MonthInfo
+
+    id = auto_field()
+    month = auto_field()
+    year = auto_field()
+    income = auto_field()
+    expenditure = auto_field()
+
+    @post_load
+    def values_to_cents(self, data, **kwargs):
+        """
+        Convert de-serialized amount to cents before backend
+        """
+        data["income"] = data["income"] * 100
+        data["expenditure"] = data["expenditure"] * 100
+        return data
+
+    @post_dump
+    def values_to_dollars(self, data, **kwargs):
+        """
+        Convert serialized amount to dollars before frontend
+        """
+        data["income"] = float(data["income"]) / 100
+        data["expenditure"] = float(data["expenditure"]) / 100
+        return data
+
+
+class MonthCategorySchema(SQLAlchemySchema):
+    class Meta:
+        model = MonthCategory
+
+    id = auto_field()
+    month_info_id = auto_field()
+    category_id = auto_field()
+    fulfilment = EnumField(FulfilmentType)

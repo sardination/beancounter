@@ -1,12 +1,16 @@
 import { Component, OnInit, Inject } from '@angular/core';
 
 import {
+    MonthCategoryService,
+    MonthInfoService,
     TransactionService,
     TransactionCategoryService
 } from '../../services/api-object.service';
 
 import { Transaction } from '../../interfaces/transaction';
 import { TransactionCategory } from '../../interfaces/transaction-category';
+import { MonthCategory } from '../../interfaces/month-category';
+import { MonthInfo } from '../../interfaces/month-info';
 
 @Component({
   selector: 'app-step-three',
@@ -15,6 +19,7 @@ import { TransactionCategory } from '../../interfaces/transaction-category';
 })
 export class StepThreeComponent implements OnInit {
 
+   selectedMonthInfo: MonthInfo;
    transactions: Transaction[] = [];
 
    get transactionCategories(): TransactionCategory[] {
@@ -41,15 +46,23 @@ export class StepThreeComponent implements OnInit {
    ]
    earliestDate: Date = new Date();
    todayDate: Date = new Date();
-   selectedYear: number = this.todayDate.getFullYear();
-   selectedMonth: number = this.todayDate.getMonth();
+   selectedYear: number;
+   selectedMonth: number;
+   realHourlyWage: number;
+
+   // key category_id, value month-category
+   monthCategories: Map<number, MonthCategory> = new Map<number, MonthCategory>();
 
   constructor(
       private transactionCategoryService: TransactionCategoryService,
-      private transactionService: TransactionService
+      private transactionService: TransactionService,
+      private monthCategoryService: MonthCategoryService,
+      private monthInfoService: MonthInfoService
    ) { }
 
   ngOnInit(): void {
+      this.selectYear(this.todayDate.getFullYear());
+      this.selectMonth(this.todayDate.getMonth());
       this.getTransactions();
       this.getTransactionCategories();
   }
@@ -59,9 +72,9 @@ export class StepThreeComponent implements OnInit {
           .subscribe(transactions => {
               this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
               this.transactions.forEach(transaction => {
-                if (transaction.date < this.earliestDate) {
-                  this.earliestDate = transaction.date;
-                }
+                  if (transaction.date < this.earliestDate) {
+                      this.earliestDate = transaction.date;
+                  }
               });
           })
   }
@@ -79,8 +92,20 @@ export class StepThreeComponent implements OnInit {
 
   getTransactionsByMonth(year: number, month: number): Transaction[] {
       return this.transactions.filter(transaction => {
-        return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
+          return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
       )
+  }
+
+  getMonthCategories(): void {
+      if (this.selectedMonthInfo == undefined) return;
+      this.monthCategoryService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
+          .subscribe(monthCategoriesList => {
+              let newMonthCategories: Map<number, MonthCategory> = new Map<number, MonthCategory>();
+              monthCategoriesList.forEach(monthCategory => {
+                  newMonthCategories.set(monthCategory.category_id, monthCategory);
+              })
+              this.monthCategories = newMonthCategories;
+          })
   }
 
   getMonthsFromYear(year: number): number[] {
@@ -106,11 +131,39 @@ export class StepThreeComponent implements OnInit {
   }
 
   selectYear(year: number): void {
+      if (this.selectedYear == year) return;
       this.selectedYear = year;
+      if (this.selectedMonth == undefined) return;
+      this.updateMonthInfoAndCategories();
   }
 
   selectMonth(month: number): void {
+      if (this.selectedMonth == month) return;
       this.selectedMonth = month;
+      if (this.selectedYear == undefined) return;
+      this.updateMonthInfoAndCategories();
+  }
+
+  updateMonthInfoAndCategories(): void {
+      this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth})
+          .subscribe(monthInfos => {
+              if (monthInfos.length > 0) {
+                this.selectedMonthInfo = monthInfos[0];
+                this.getMonthCategories();
+              } else if (monthInfos.length == 0) {
+                  var monthInfo: MonthInfo = {
+                      year: this.selectedYear,
+                      month: this.selectedMonth,
+                      income: 0,
+                      expenditure: 0
+                  } as MonthInfo;
+                  this.monthInfoService.addObject(monthInfo)
+                      .subscribe(newMonthInfo => {
+                          this.selectedMonthInfo = newMonthInfo;
+                          this.getMonthCategories();
+                      });
+              }
+          })
   }
 
 }

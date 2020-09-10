@@ -10,6 +10,8 @@ import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
 import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
+import { MonthInfo } from '../interfaces/month-info';
+import { MonthCategory } from '../interfaces/month-category';
 
 
 @Injectable({
@@ -26,6 +28,10 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
 
   getObjects(): Observable<T[]> {
       return this.http.get<T[]>(this.apiUrl);
+  }
+
+  getObjectsWithParams(params: any): Observable<T[]> {
+      return this.http.get<T[]>(this.apiUrl, {params: params});
   }
 
   addObject(object: T): Observable<T> {
@@ -106,5 +112,23 @@ export class TransactionService extends ApiObjectService<Transaction> {
 export class TransactionCategoryService extends ApiObjectService<TransactionCategory> {
     constructor (protected http: HttpClient) {
         super(http, 'transaction-category', 'transaction category');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MonthInfoService extends ApiObjectService<MonthInfo> {
+    constructor (protected http: HttpClient) {
+        super(http, 'month-info', 'month info');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MonthCategoryService extends ApiObjectService<MonthCategory> {
+    constructor (protected http: HttpClient) {
+        super(http, 'month-category', 'month-category relation');
     }
 }

@@ -12,7 +12,9 @@ from app import (
 )
 from models import (
     BalanceSheetEntry,
+    MonthCategory,
     Info,
+    MonthInfo,
     PriorIncome,
     Transaction,
     TransactionCategory,
@@ -20,7 +22,9 @@ from models import (
 )
 from schemas import (
     BalanceSheetEntrySchema,
+    MonthCategorySchema,
     InfoSchema,
+    MonthInfoSchema,
     PriorIncomeSchema,
     TransactionSchema,
     TransactionCategorySchema,
@@ -289,9 +293,117 @@ class TransactionCategoryResource(Resource):
         return try_commit(new_category, transaction_category_schema)
 
 
+def year_month_dict_from_request(request_dict):
+    if request_dict is None:
+        request_dict = {}
+    year = request_dict.get('year')
+    month = request_dict.get('month')
+
+    filter_kwargs = {}
+    try:
+        year = int(year)
+        filter_kwargs['year'] = year
+        month = int(month)
+        filter_kwargs['month'] = month
+    except (TypeError, ValueError):
+        pass
+
+    return filter_kwargs
+
+
+month_infos_schema = MonthInfoSchema(many=True)
+month_info_schema = MonthInfoSchema()
+class MonthInfoResource(Resource):
+    def get(self):
+        filter_kwargs = year_month_dict_from_request(request.args)
+
+        month_infos = MonthInfo.query.filter_by(**filter_kwargs).all()
+        return month_infos_schema.dump(month_infos)
+
+    def post(self):
+        request_dict = month_info_schema.load(request.json)
+
+        year = request_dict['year']
+        month = request_dict['month']
+        income = request_dict['income']
+        expenditure = request_dict['expenditure']
+
+        new_month_info = MonthInfo(
+            year=year,
+            month=month,
+            income=income,
+            expenditure=expenditure
+        )
+        db.session.add(new_month_info)
+
+        return try_commit(new_month_info, month_info_schema)
+
+month_categories_schema = MonthCategorySchema(many=True)
+month_category_schema = MonthCategorySchema()
+class MonthCategoryResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            pass
+
+        category_id = request_dict.get('category_id')
+        try:
+            category_id = int(category_id)
+            filter_kwargs['category_id'] = category_id
+        except (TypeError, ValueError):
+            pass
+
+        month_categories = MonthCategory.query.filter_by(**filter_kwargs).all()
+        return month_categories_schema.dump(month_categories)
+
+    def post(self):
+        request_dict = month_category_schema.load(request.json)
+
+        category_id = request_dict['category_id']
+        month_info_id = request_dict['month_info_id']
+        fulfilment = request_dict['fulfilment']
+
+        new_month_category = MonthCategory(
+            category_id=category_id,
+            month_info_id=month_info_id,
+            fulfilment=fulfilment
+        )
+        db.session.add(new_month_category)
+
+        return try_commit(new_month_category, month_category_schema)
+
+    def put(self):
+        request_dict = month_category_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for month-category')
+        category_id = request_dict['category_id']
+        month_info_id = request_dict['month_info_id']
+        fulfilment = request_dict['fulfilment']
+
+        month_category = MonthCategory.query.filter_by(id=id).first_or_404()
+        month_category.category_id = category_id
+        month_category.month_info_id = month_info_id
+        month_category.fulfilment = fulfilment
+
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            return abort(400, description='Bad model arguments')
+
+        return month_category_schema.dump(month_category)
+
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
 api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
 api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
 api.add_resource(TransactionResource, "/transaction")
 api.add_resource(TransactionCategoryResource, "/transaction-category")
+api.add_resource(MonthInfoResource, "/month-info")
+api.add_resource(MonthCategoryResource, "/month-category")
