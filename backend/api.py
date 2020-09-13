@@ -36,6 +36,7 @@ from schemas import (
 from utils import (
     get_start_date,
     get_month_info,
+    month_year_between_dates,
 )
 
 
@@ -388,6 +389,11 @@ class MonthInfoResource(Resource):
         income = request_dict['income']
         expenditure = request_dict['expenditure']
         real_hourly_wage = request_dict['real_hourly_wage']
+
+        start_date = get_start_date()
+        today = datetime.date.today()
+        if not month_year_between_dates(start_date, today, month, year):
+            return abort(400, description="Invalid month and year for new month-info")
 
         new_month_info = MonthInfo(
             year=year,

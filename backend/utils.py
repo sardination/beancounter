@@ -49,7 +49,7 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
     if real_hourly_wage is None:
         real_hourly_wage = 0
     else:
-        real_hourly_wage = int(real_hourly_wage)
+        real_hourly_wage = int(real_hourly_wage.value)
 
     if month_info is not None and recalc_totals:
         month_info.income = income
@@ -72,3 +72,15 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
         db.session.commit()
 
     return month_info
+
+
+def month_year_between_dates(earliest_date, latest_date, month, year):
+    """
+    Check if month and year falls in the range of earliest and latest dates
+    """
+    if year == earliest_date.year:
+        return month >= earliest_date.month
+    if year == latest_date.year:
+        return month <= latest_date.month
+    return year > earliest_date.year and year < latest_date.month
+

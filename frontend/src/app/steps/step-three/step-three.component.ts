@@ -31,6 +31,7 @@ export class StepThreeComponent implements OnInit {
    }
    private _transactionCategories = [];
 
+   // NOTE: frontend has month zero-indexed and backend has month one-indexed
    months = [
      "January",
      "February",
@@ -145,16 +146,23 @@ export class StepThreeComponent implements OnInit {
       this.updateMonthInfoAndCategories();
   }
 
+  betweenEarliestAndLatest(year: number, month: number): boolean {
+      if (year == this.earliestDate.getFullYear()) return month >= this.earliestDate.getMonth();
+      if (year == this.latestDate.getFullYear()) return month <= this.latestDate.getMonth();
+      return year > this.earliestDate.getFullYear() && year < this.latestDate.getFullYear();
+  }
+
   updateMonthInfoAndCategories(): void {
-      this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth})
+      // backend has month one-indexed
+      this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth + 1})
           .subscribe(monthInfos => {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
                 this.getMonthCategories();
-              } else if (monthInfos.length == 0) {
+              } else if (monthInfos.length == 0 && this.betweenEarliestAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
-                      month: this.selectedMonth,
+                      month: this.selectedMonth + 1, // backend has month one-indexed
                       income: 0,
                       expenditure: 0
                   } as MonthInfo;
