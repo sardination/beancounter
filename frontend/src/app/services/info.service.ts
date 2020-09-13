@@ -21,7 +21,7 @@ export class InfoService extends ApiEndpointService {
 
   updateInfo(title: string, value: any): Observable<any> {
       title = title.trim();
-      return this.http.post(this.createEndpoint(title), {"value": value}, this.httpOptions).pipe(
+      return this.http.post(this.createEndpoint(title), {"title": title, "value": value}, this.httpOptions).pipe(
           tap((newInfo: any) => console.log(`updated ${newInfo.title} with value ${newInfo.value}`)),
           catchError(this.handleError('updateValue'))
       );

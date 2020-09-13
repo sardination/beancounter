@@ -34,6 +34,32 @@ class InfoSchema(SQLAlchemySchema):
     title = auto_field()
     value = auto_field()
 
+    @pre_load
+    def rhw_to_cents(self, data, **kwargs):
+        """
+        Convert real hourly wage to cents before backend
+        """
+        if data["title"] == "real_hourly_wage":
+            try:
+                rwh_cents = int(float(data["value"]) * 100)
+                data["value"] = str(rwh_cents)
+            except:
+                pass
+        return data
+
+    @post_dump
+    def rhw_to_dollars(self, data, **kwargs):
+        """
+        Convert real hourly wage to dollars before frontend
+        """
+        if data["title"] == "real_hourly_wage":
+            try:
+                rwh_dollars = float(data["value"]) / 100
+                data["value"] = str(rwh_dollars)
+            except:
+                pass
+        return data
+
 
 class PriorIncomeSchema(SQLAlchemySchema):
     class Meta:
@@ -167,6 +193,8 @@ class MonthInfoSchema(SQLAlchemySchema):
     year = auto_field()
     income = auto_field()
     expenditure = auto_field()
+    real_hourly_wage = auto_field()
+    completed = auto_field()
 
     @post_load
     def values_to_cents(self, data, **kwargs):
@@ -175,6 +203,7 @@ class MonthInfoSchema(SQLAlchemySchema):
         """
         data["income"] = data["income"] * 100
         data["expenditure"] = data["expenditure"] * 100
+        data["real_hourly_wage"] = data["real_hourly_wage"] * 100
         return data
 
     @post_dump
@@ -184,6 +213,8 @@ class MonthInfoSchema(SQLAlchemySchema):
         """
         data["income"] = float(data["income"]) / 100
         data["expenditure"] = float(data["expenditure"]) / 100
+        data["real_hourly_wage"] = float(data["real_hourly_wage"]) / 100
+
         return data
 
 

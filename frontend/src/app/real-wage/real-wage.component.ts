@@ -69,7 +69,8 @@ export class RealWageComponent implements OnInit {
   deleteJobTransaction(transaction: WeeklyJobTransaction): void {
       this.weeklyJobTransactionService.deleteObject(transaction)
           .subscribe(deletedTransaction => {
-            this.weeklyJobTransactions.splice(this.weeklyJobTransactions.indexOf(deletedTransaction), 1);
+            // can't use deletedTransaction object below because of addressing
+            this.weeklyJobTransactions.splice(this.weeklyJobTransactions.indexOf(transaction), 1);
             this.weeklyJobTransactions = [].concat(this.weeklyJobTransactions);
             this.infoService.updateInfo("real_hourly_wage", this.calculateRealHourlyWage().toString())
                   .subscribe(info => {

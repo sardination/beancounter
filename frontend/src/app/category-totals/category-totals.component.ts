@@ -39,7 +39,7 @@ export class CategoryTotalsComponent implements OnInit {
   }
   private _categories: TransactionCategory[];
   displayCategories: TransactionCategory[];
-  realHourlyWage: number;
+  // realHourlyWage: number;
 
   newCategoryFormControl: FormControl;
 
@@ -61,15 +61,15 @@ export class CategoryTotalsComponent implements OnInit {
 
   ngOnInit(): void {
       this.newCategoryFormControl = new FormControl();
-      this.getRealHourlyWage();
+      // this.getRealHourlyWage();
   }
 
-  getRealHourlyWage(): void {
-      this.infoService.getInfo("real_hourly_wage")
-          .subscribe(info => {
-              this.realHourlyWage = Number(info.value);
-          })
-  }
+  // getRealHourlyWage(): void {
+  //     this.infoService.getInfo("real_hourly_wage")
+  //         .subscribe(info => {
+  //             this.realHourlyWage = Number(info.value);
+  //         })
+  // }
 
   categoryTotal(category: TransactionCategory): number {
       var useTransactions;
@@ -96,10 +96,10 @@ export class CategoryTotalsComponent implements OnInit {
   }
 
   calculateLifeEnergyHours(category: TransactionCategory): number {
-      if (this.realHourlyWage == 0) {
-          return 0;
-      }
-      return this.categoryTotal(category) / this.realHourlyWage;
+      if (this.selectedMonthInfo == undefined) return 0;
+      let realHourlyWage = this.selectedMonthInfo.real_hourly_wage;
+      if (realHourlyWage == 0) return 0;
+      return this.categoryTotal(category) / realHourlyWage;
   }
 
   iconLabelFromCategoryId(categoryId: number): any {

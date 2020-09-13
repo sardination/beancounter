@@ -112,7 +112,8 @@ export class PriorIncomeTableComponent implements OnInit {
   deleteIncome(priorIncome: PriorIncome): void {
     this.priorIncomeService.deleteObject(priorIncome)
         .subscribe(deletedPriorIncome => {
-          this.priorIncomes.splice(this.priorIncomes.indexOf(deletedPriorIncome), 1);
+          // have to use original entry due to addressing
+          this.priorIncomes.splice(this.priorIncomes.indexOf(priorIncome), 1);
           if (this.editingIncome == null) {
             this.tableDataSource.data = this.priorIncomes;
           } else {

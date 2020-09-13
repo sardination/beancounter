@@ -123,6 +123,9 @@ class MonthInfo(db.Model):
     month = db.Column(db.Integer, nullable=False) # 1 = January, ..., 12 = December
     income = db.Column(db.Integer, nullable=False, default=0) # in cents
     expenditure = db.Column(db.Integer, nullable=False, default=0) # in cents
+    real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rwh for this month
+    # whether the month has been fully analyzed, should only be true after the month is over
+    completed = db.Column(db.Boolean, nullable=False, default=False)
 
     __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
 

@@ -71,7 +71,8 @@ export class BalanceSheetComponent implements OnInit {
   deleteEntry(entry: BalanceSheetEntry): void {
     this.balanceSheetService.deleteObject(entry)
         .subscribe(deletedEntry => {
-          this.balanceSheetEntries.splice(this.balanceSheetEntries.indexOf(deletedEntry), 1);
+          // have to use original entry due to addressing
+          this.balanceSheetEntries.splice(this.balanceSheetEntries.indexOf(entry), 1);
         })
   }
 

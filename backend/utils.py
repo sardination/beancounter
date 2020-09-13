@@ -44,16 +44,27 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
         else:
             expenditure += t.value
 
+    # get current real hourly wage to assign to this month
+    real_hourly_wage = Info.query.filter_by(title="real_hourly_wage").first()
+    if real_hourly_wage is None:
+        real_hourly_wage = 0
+    else:
+        real_hourly_wage = int(real_hourly_wage)
+
     if month_info is not None and recalc_totals:
         month_info.income = income
         month_info.expenditure = expenditure
+        if not month_info.completed:
+            # keep real hourly wage the same unless the month is still uncompleted
+            month_info.real_hourly_wage = real_hourly_wage
         return month_info
 
     month_info = MonthInfo(
         year=year,
         month=month,
         income=income,
-        expenditure=expenditure
+        expenditure=expenditure,
+        real_hourly_wage=real_hourly_wage
     )
     db.session.add(month_info)
 

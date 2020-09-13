@@ -136,7 +136,8 @@ export class DailyTransactionTableComponent implements OnInit {
   deleteTransaction(transaction: Transaction): void {
     this.transactionService.deleteObject(transaction)
         .subscribe(deletedTransaction => {
-          this.transactions.splice(this.transactions.indexOf(deletedTransaction), 1);
+          // have to use original entry due to addressing
+          this.transactions.splice(this.transactions.indexOf(transaction), 1);
           if (this.editingTransaction == null) {
             this.tableDataSource.data = this.transactions;
           } else {

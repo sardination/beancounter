@@ -58,7 +58,8 @@ class InfoResource(Resource):
         return info_schema.dump(info)
 
     def post(self, title):
-        value = request.json['value']
+        request_dict = info_schema.load(request.json)
+        value = request_dict['value']
 
         if title not in Info.permitted_titles:
             return abort(400, description="Not a permitted value title")
@@ -68,6 +69,14 @@ class InfoResource(Resource):
             db.session.add(info)
         else:
             info.value = value
+
+        # for real hourly wage, update any uncompleted monthly info items to use this wage value
+        if title == "real_hourly_wage":
+            value_num = int(value)
+            uncompleted_month_infos = MonthInfo.query.filter_by(completed=False).all()
+            for month_info in uncompleted_month_infos:
+                month_info.real_hourly_wage = value_num
+
         db.session.commit()
 
         return info_schema.dump(info)
@@ -378,16 +387,43 @@ class MonthInfoResource(Resource):
         month = request_dict['month']
         income = request_dict['income']
         expenditure = request_dict['expenditure']
+        real_hourly_wage = request_dict['real_hourly_wage']
 
         new_month_info = MonthInfo(
             year=year,
             month=month,
             income=income,
-            expenditure=expenditure
+            expenditure=expenditure,
+            real_hourly_wage=real_hourly_wage
         )
         db.session.add(new_month_info)
 
         return try_commit(new_month_info, month_info_schema)
+
+    def put(self):
+        request_dict = month_info_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for month info')
+
+        year = request_dict['year']
+        month = request_dict['month']
+        income = request_dict['income']
+        expenditure = request_dict['expenditure']
+        real_hourly_wage = request_dict['real_hourly_wage']
+
+        month_info = MonthInfo.query.filter_by(id=id).first_or_404()
+        month_info.income = income
+        month_info.expenditure = expenditure
+        month_info.real_hourly_wage = real_hourly_wage
+
+        try:
+            db.session.commit()
+        except exc.SQLAlchemyError:
+            return abort(400, description='Bad model arguments')
+
+        return month_info_schema.dump(month_info)
 
 
 month_categories_schema = MonthCategorySchema(many=True)
