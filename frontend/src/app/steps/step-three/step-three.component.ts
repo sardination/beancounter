@@ -18,6 +18,7 @@ import { MonthInfo } from '../../interfaces/month-info';
   styleUrls: ['./step-three.component.css']
 })
 export class StepThreeComponent implements OnInit {
+    // this also includes step 4
 
    selectedMonthInfo: MonthInfo;
    transactions: Transaction[] = [];

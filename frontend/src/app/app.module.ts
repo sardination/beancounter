@@ -31,6 +31,8 @@ import { DailyTransactionTableComponent } from './daily-transactions/daily-trans
 import { StepThreeComponent } from './steps/step-three/step-three.component';
 import { MonthlyTabulationComponent } from './monthly-tabulation/monthly-tabulation.component';
 import { CategoryTotalsComponent } from './category-totals/category-totals.component';
+import { StepFiveComponent } from './steps/step-five/step-five.component';
+import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-chart.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,9 @@ import { CategoryTotalsComponent } from './category-totals/category-totals.compo
     DailyTransactionTableComponent,
     StepThreeComponent,
     MonthlyTabulationComponent,
-    CategoryTotalsComponent
+    CategoryTotalsComponent,
+    StepFiveComponent,
+    MonthlyFlowChartComponent
   ],
   imports: [
     BrowserModule,

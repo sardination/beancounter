@@ -17,21 +17,21 @@ export class MonthlyTabulationComponent implements OnInit {
   @Input()
   get transactions(): Transaction[] { return this._transactions };
   set transactions(transactions: Transaction[]) {
-    this._transactions = transactions.sort((a, b) => {
-        if (a.date > b.date) {
-            return -1;
-        } else if (a.date < b.date) {
-            return 1;
-        } else {
-            return 0;
-        }
-    });
-    if (!this.tableDataSource) {
-      this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
-    } else {
-      this.tableDataSource.data = this._transactions;
-      this.tableDataSource._updateChangeSubscription();
-    }
+      this._transactions = transactions.sort((a, b) => {
+          if (a.date > b.date) {
+              return -1;
+          } else if (a.date < b.date) {
+              return 1;
+          } else {
+              return 0;
+          }
+      });
+      if (!this.tableDataSource) {
+          this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
+      } else {
+          this.tableDataSource.data = this._transactions;
+          this.tableDataSource._updateChangeSubscription();
+      }
   }
   private _transactions: Transaction[];
 

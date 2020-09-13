@@ -6,10 +6,13 @@ from flask_restful import (
 )
 from sqlalchemy import exc
 
+import datetime
+
 from app import (
     app,
     db,
 )
+from enums import TransactionType
 from models import (
     BalanceSheetEntry,
     MonthCategory,
@@ -29,6 +32,10 @@ from schemas import (
     TransactionSchema,
     TransactionCategorySchema,
     WeeklyJobTransactionSchema,
+)
+from utils import (
+    get_start_date,
+    get_month_info,
 )
 
 
@@ -224,15 +231,41 @@ class TransactionResource(Resource):
         category_id = request_dict.get('category_id')
 
         if value <= 0:
-            return abort(400, description='Income amount must be greater than 0')
+            return abort(400, description='Transaction value must be greater than 0')
+        if date > datetime.date.today() or date < get_start_date():
+            return abort(400, description='Cannot save future transaction or transaction prior to start date')
 
         transaction = Transaction.query.filter_by(id=id).first_or_404()
+        old_date = transaction.date
+        old_type = transaction.transaction_type
+        old_value = transaction.value
+
+        # remove old value from month-info for old transaction
+        old_month_info = get_month_info(transaction.date.year, transaction.date.month)
+        if transaction.transaction_type == TransactionType.income:
+            old_month_info.income -= transaction.value
+        else:
+            old_month_info.expenditure -= transaction.value
+
         transaction.transaction_type = transaction_type
         transaction.value = value
         transaction.description = description
         transaction.date = date
         if category_id is not None:
             transaction.category_id = category_id
+
+        update_month_info = old_month_info
+        # if month and/or year have changed, then update the corresponding monthinfo
+        if old_date.month != date.month or old_date.year != date.year:
+            new_month_info = get_month_info(date.year, date.month)
+            update_month_info = new_month_info
+
+        # add value back to appropriate month-info
+        if transaction_type == TransactionType.income:
+            update_month_info.income += value
+        else:
+            update_month_info.expenditure += value
+
         try:
             db.session.commit()
         except exc.SQLAlchemyError:
@@ -250,6 +283,10 @@ class TransactionResource(Resource):
 
         if value <= 0:
             return abort(400, description='Value must be greater than 0.')
+        if date > datetime.date.today() or date < get_start_date():
+            return abort(400, description='Cannot save future transaction or transaction prior to start date')
+
+        month_info = get_month_info(date.year, date.month)
 
         new_transaction = Transaction(
             transaction_type=transaction_type,
@@ -259,6 +296,11 @@ class TransactionResource(Resource):
         )
         db.session.add(new_transaction)
 
+        if transaction_type == TransactionType.income:
+            month_info.income += value
+        else:
+            month_info.expenditure += value
+
         return try_commit(new_transaction, transaction_schema)
 
     def delete(self):
@@ -266,7 +308,16 @@ class TransactionResource(Resource):
         if id is None:
             return abort(400, description='No id to delete')
         transaction = Transaction.query.filter_by(id=id).first_or_404()
+
+        month_info = get_month_info(transaction.date.year, transaction.date.month)
+
         db.session.delete(transaction)
+
+        if transaction.transaction_type == TransactionType.income:
+            month_info.income -= transaction.value
+        else:
+            month_info.expenditure -= transaction.value
+
         db.session.commit()
 
         return transaction_schema.dump(transaction)
@@ -337,6 +388,7 @@ class MonthInfoResource(Resource):
         db.session.add(new_month_info)
 
         return try_commit(new_month_info, month_info_schema)
+
 
 month_categories_schema = MonthCategorySchema(many=True)
 month_category_schema = MonthCategorySchema()
