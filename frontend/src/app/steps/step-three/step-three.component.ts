@@ -154,7 +154,7 @@ export class StepThreeComponent implements OnInit {
 
   updateMonthInfoAndCategories(): void {
       // backend has month one-indexed
-      this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth + 1})
+      this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth})
           .subscribe(monthInfos => {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
@@ -162,9 +162,7 @@ export class StepThreeComponent implements OnInit {
               } else if (monthInfos.length == 0 && this.betweenEarliestAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
-                      month: this.selectedMonth + 1, // backend has month one-indexed
-                      income: 0,
-                      expenditure: 0
+                      month: this.selectedMonth
                   } as MonthInfo;
                   this.monthInfoService.addObject(monthInfo)
                       .subscribe(newMonthInfo => {

@@ -364,7 +364,7 @@ def year_month_dict_from_request(request_dict):
     try:
         year = int(year)
         filter_kwargs['year'] = year
-        month = int(month)
+        month = int(month) + 1 # frontend is 0-indexed
         filter_kwargs['month'] = month
     except (TypeError, ValueError):
         pass

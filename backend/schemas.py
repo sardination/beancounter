@@ -201,9 +201,13 @@ class MonthInfoSchema(SQLAlchemySchema):
         """
         Convert de-serialized amount to cents before backend
         """
-        data["income"] = data["income"] * 100
-        data["expenditure"] = data["expenditure"] * 100
-        data["real_hourly_wage"] = data["real_hourly_wage"] * 100
+        data["income"] = data.get("income", 0) * 100
+        data["expenditure"] = data.get("expenditure", 0) * 100
+        data["real_hourly_wage"] = data.get("real_hourly_wage", 0) * 100
+
+        # frontend has months zero-indexed
+        data["month"] += 1
+
         return data
 
     @post_dump
@@ -214,6 +218,9 @@ class MonthInfoSchema(SQLAlchemySchema):
         data["income"] = float(data["income"]) / 100
         data["expenditure"] = float(data["expenditure"]) / 100
         data["real_hourly_wage"] = float(data["real_hourly_wage"]) / 100
+
+        # frontend has months zero-indexed
+        data["month"] -= 1
 
         return data
 
