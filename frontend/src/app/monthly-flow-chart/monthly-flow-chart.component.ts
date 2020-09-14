@@ -36,7 +36,7 @@ export class MonthlyFlowChartComponent implements OnInit {
                       }
                   }
                   return 0;
-              })
+              }).filter(monthInfo => monthInfo.completed)
               if (this.monthInfos.length > 0) {
                   var today = new Date();
                   let finalMonthInfo = this.monthInfos[this.monthInfos.length - 1];
@@ -93,6 +93,14 @@ export class MonthlyFlowChartComponent implements OnInit {
         .attr("stroke-width", 1.5)
         .attr("stroke-miterlimit", 1)
         .attr("stroke", "#0f0");
+    svg.selectAll("income-circle")
+       .data(this.monthInfos)
+       .enter().append("circle")
+       .attr("fill", "#0f0")
+       .attr("r", 5)
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.income)})
+
     svg.append("path")
         .datum(this.monthInfos)
         .attr("class", "line")
@@ -101,6 +109,13 @@ export class MonthlyFlowChartComponent implements OnInit {
         .attr("stroke-width", 1.5)
         .attr("stroke-miterlimit", 1)
         .attr("stroke", "#f00");
+    svg.selectAll("expenditure-circle")
+       .data(this.monthInfos)
+       .enter().append("circle")
+       .attr("fill", "#f00")
+       .attr("r", 5)
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.expenditure)})
   }
 
 }

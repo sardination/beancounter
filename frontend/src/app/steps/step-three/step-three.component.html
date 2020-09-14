@@ -1,4 +1,9 @@
-<h2>Step Three/Four</h2>
+<h2>Step Three/Four/Six</h2>
+
+<button mat-button *ngIf="showCompleteButton(); else showComplete" (click)="markCurrentMonthComplete()">Complete</button>
+<ng-template #showComplete>
+    <span>MONTH COMPLETE</span>
+</ng-template>
 
 <mat-sidenav-container>
     <mat-sidenav mode="side" opened>

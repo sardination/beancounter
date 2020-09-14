@@ -418,11 +418,13 @@ class MonthInfoResource(Resource):
         income = request_dict['income']
         expenditure = request_dict['expenditure']
         real_hourly_wage = request_dict['real_hourly_wage']
+        completed = request_dict['completed']
 
         month_info = MonthInfo.query.filter_by(id=id).first_or_404()
         month_info.income = income
         month_info.expenditure = expenditure
         month_info.real_hourly_wage = real_hourly_wage
+        month_info.completed = completed
 
         try:
             db.session.commit()
@@ -462,6 +464,10 @@ class MonthCategoryResource(Resource):
         month_info_id = request_dict['month_info_id']
         fulfilment = request_dict['fulfilment']
 
+        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
+        if month_info is not None and month_info.completed:
+            abort(400, description="month-category month-info is not taking new entries")
+
         new_month_category = MonthCategory(
             category_id=category_id,
             month_info_id=month_info_id,
@@ -480,6 +486,10 @@ class MonthCategoryResource(Resource):
         category_id = request_dict['category_id']
         month_info_id = request_dict['month_info_id']
         fulfilment = request_dict['fulfilment']
+
+        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
+        if month_info is not None and month_info.completed:
+            abort(400, description="month-category month-info is not updating entries")
 
         month_category = MonthCategory.query.filter_by(id=id).first_or_404()
         month_category.category_id = category_id

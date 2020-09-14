@@ -69,6 +69,12 @@ export class StepThreeComponent implements OnInit {
       this.getTransactionCategories();
   }
 
+  showCompleteButton(): boolean {
+      if (this.selectedMonthInfo == undefined) return false;
+      if (!this.selectedMonthInfo.completed) return true;
+      return false;
+  }
+
   getTransactions(): void {
       this.transactionService.getObjects()
           .subscribe(transactions => {
@@ -148,8 +154,8 @@ export class StepThreeComponent implements OnInit {
 
   betweenEarliestAndLatest(year: number, month: number): boolean {
       if (year == this.earliestDate.getFullYear()) return month >= this.earliestDate.getMonth();
-      if (year == this.latestDate.getFullYear()) return month <= this.latestDate.getMonth();
-      return year > this.earliestDate.getFullYear() && year < this.latestDate.getFullYear();
+      if (year == this.todayDate.getFullYear()) return month <= this.todayDate.getMonth();
+      return year > this.earliestDate.getFullYear() && year < this.todayDate.getFullYear();
   }
 
   updateMonthInfoAndCategories(): void {
@@ -170,6 +176,15 @@ export class StepThreeComponent implements OnInit {
                           this.getMonthCategories();
                       });
               }
+          })
+  }
+
+  markCurrentMonthComplete(): void {
+      if (this.selectedMonthInfo == undefined) return;
+      this.selectedMonthInfo.completed = true;
+      this.monthInfoService.updateObject(this.selectedMonthInfo)
+          .subscribe(updatedMonthInfo => {
+              this.selectedMonthInfo = updatedMonthInfo;
           })
   }
 
