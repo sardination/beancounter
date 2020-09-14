@@ -71,8 +71,13 @@ export class StepThreeComponent implements OnInit {
 
   showCompleteButton(): boolean {
       if (this.selectedMonthInfo == undefined) return false;
+      if (this.monthInProgress()) return false;
       if (!this.selectedMonthInfo.completed) return true;
       return false;
+  }
+
+  monthInProgress(): boolean {
+    return (this.selectedYear == this.todayDate.getFullYear()) && (this.selectedMonth == this.todayDate.getMonth());
   }
 
   getTransactions(): void {

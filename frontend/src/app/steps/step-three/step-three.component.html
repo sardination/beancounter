@@ -1,8 +1,8 @@
 <h2>Step Three/Four/Six</h2>
 
-<button mat-button *ngIf="showCompleteButton(); else showComplete" (click)="markCurrentMonthComplete()">Complete</button>
-<ng-template #showComplete>
-    <span>MONTH COMPLETE</span>
+<button mat-button *ngIf="showCompleteButton(); else showFulfilmentSurvey" (click)="markCurrentMonthComplete()">Complete</button>
+<ng-template #showFulfilmentSurvey>
+    <app-monthly-reflection *ngIf="!monthInProgress()" [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
 </ng-template>
 
 <mat-sidenav-container>

@@ -11,6 +11,7 @@ import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
 import { MonthInfo } from '../interfaces/month-info';
+import { MonthReflection } from '../interfaces/month-reflection';
 import { MonthCategory } from '../interfaces/month-category';
 
 
@@ -121,6 +122,15 @@ export class TransactionCategoryService extends ApiObjectService<TransactionCate
 export class MonthInfoService extends ApiObjectService<MonthInfo> {
     constructor (protected http: HttpClient) {
         super(http, 'month-info', 'month info');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MonthReflectionService extends ApiObjectService<MonthReflection> {
+    constructor (protected http: HttpClient) {
+        super(http, 'month-reflection', 'month reflection');
     }
 }
 

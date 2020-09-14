@@ -1,0 +1,19 @@
+<p><span>MONTH COMPLETE</span>
+<span>monthly fulfilment check-ins - are you making a living or a dying? are you being efficient, frugal, and thoughtful with time and money usage?</span>
+</p>
+<mat-form-field>
+    <mat-label>What are your purposes for paid employment?</mat-label>
+    <textarea matInput [formControl]="employmentPurposeEntry"></textarea>
+</mat-form-field>
+<br />
+<mat-form-field>
+    <mat-label>How are you managing your spending?</mat-label>
+    <textarea matInput [formControl]="spendingManagementEntry"></textarea>
+</mat-form-field>
+<br />
+<mat-form-field>
+    <mat-label>Are you making a living or a dying?</mat-label>
+    <textarea matInput [formControl]="livingDyingEntry"></textarea>
+</mat-form-field>
+<br />
+<button mat-button (click)="saveReflection()">Save Responses</button>

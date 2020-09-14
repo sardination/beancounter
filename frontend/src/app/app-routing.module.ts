@@ -12,7 +12,7 @@ const routes: Routes = [
     {path: 'step1', component: StepOneComponent},
     {path: 'step2', component: StepTwoComponent},
     {path: 'step3', component: StepThreeComponent},
-    {path: 'step5', component: StepFiveComponent}
+    {path: 'step5', component: StepFiveComponent},
 ];
 
 

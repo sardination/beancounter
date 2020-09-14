@@ -33,6 +33,7 @@ import { MonthlyTabulationComponent } from './monthly-tabulation/monthly-tabulat
 import { CategoryTotalsComponent } from './category-totals/category-totals.component';
 import { StepFiveComponent } from './steps/step-five/step-five.component';
 import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-chart.component';
+import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflection.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-cha
     MonthlyTabulationComponent,
     CategoryTotalsComponent,
     StepFiveComponent,
-    MonthlyFlowChartComponent
+    MonthlyFlowChartComponent,
+    MonthlyReflectionComponent,
   ],
   imports: [
     BrowserModule,

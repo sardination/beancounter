@@ -15,9 +15,10 @@ from app import (
 from enums import TransactionType
 from models import (
     BalanceSheetEntry,
-    MonthCategory,
     Info,
+    MonthCategory,
     MonthInfo,
+    MonthReflection,
     PriorIncome,
     Transaction,
     TransactionCategory,
@@ -25,9 +26,10 @@ from models import (
 )
 from schemas import (
     BalanceSheetEntrySchema,
-    MonthCategorySchema,
     InfoSchema,
+    MonthCategorySchema,
     MonthInfoSchema,
+    MonthReflectionSchema,
     PriorIncomeSchema,
     TransactionSchema,
     TransactionCategorySchema,
@@ -126,12 +128,8 @@ class PriorIncomeResource(Resource):
         prior_income.amount = amount
         prior_income.description = description
         prior_income.date = date
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError:
-            return abort(400, description='Bad model arguments')
 
-        return prior_income_schema.dump(prior_income)
+        return try_commit(prior_income, prior_income_schema)
 
     def delete(self):
         id = request.args.get('id')
@@ -276,12 +274,7 @@ class TransactionResource(Resource):
         else:
             update_month_info.expenditure += value
 
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError:
-            return abort(400, description='Bad model arguments')
-
-        return transaction_schema.dump(transaction)
+        return try_commit(transaction, transaction_schema)
 
     def post(self):
         request_dict = transaction_schema.load(request.json)
@@ -426,12 +419,75 @@ class MonthInfoResource(Resource):
         month_info.real_hourly_wage = real_hourly_wage
         month_info.completed = completed
 
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError:
-            return abort(400, description='Bad model arguments')
+        return try_commit(month_info, month_info_schema)
 
-        return month_info_schema.dump(month_info)
+
+month_reflections_schema = MonthReflectionSchema(many=True)
+month_reflection_schema = MonthReflectionSchema()
+class MonthReflectionResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            pass
+
+        month_reflections = MonthReflection.query.filter_by(**filter_kwargs).all()
+        return month_reflections_schema.dump(month_reflections)
+
+    def post(self):
+        request_dict = month_reflection_schema.load(request.json)
+
+        month_info_id = request_dict['month_info_id']
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description="no such month-info exists for reflection")
+        if not month_info.completed:
+            return abort(400, description="month-info has not been completed prior to reflection")
+
+        q_living_dying = request_dict.get('q_living_dying', "")
+        q_employment_purpose = request_dict.get('q_employment_purpose', "")
+        q_spending_evaluation = request_dict.get('q_spending_evaluation', "")
+
+        month_reflection = MonthReflection(
+            month_info_id=month_info_id,
+            q_living_dying=q_living_dying,
+            q_employment_purpose=q_employment_purpose,
+            q_spending_evaluation=q_spending_evaluation
+        )
+        db.session.add(month_reflection)
+
+        return try_commit(month_reflection, month_reflection_schema)
+
+    def put(self):
+        request_dict = month_reflection_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, "cannot update nonexistend month-reflection")
+        month_reflection = MonthReflection.query.filter_by(id=id).first()
+        if month_reflection is None:
+            return abort(400, "month-reflection with this id does not exist")
+
+        month_info_id = request_dict['month_info_id']
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description="no such month-info exists for reflection")
+        if not month_info.completed:
+            return abort(400, description="month-info has not been completed prior to reflection")
+
+        q_living_dying = request_dict.get('q_living_dying', "")
+        q_employment_purpose = request_dict.get('q_employment_purpose', "")
+        q_spending_evaluation = request_dict.get('q_spending_evaluation', "")
+
+        month_reflection.q_living_dying = q_living_dying
+        month_reflection.q_employment_purpose = q_employment_purpose
+        month_reflection.q_spending_evaluation = q_spending_evaluation
+
+        return try_commit(month_reflection, month_reflection_schema)
 
 
 month_categories_schema = MonthCategorySchema(many=True)
@@ -496,12 +552,8 @@ class MonthCategoryResource(Resource):
         month_category.month_info_id = month_info_id
         month_category.fulfilment = fulfilment
 
-        try:
-            db.session.commit()
-        except exc.SQLAlchemyError:
-            return abort(400, description='Bad model arguments')
+        return try_commit(month_category, month_category_schema)
 
-        return month_category_schema.dump(month_category)
 
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
@@ -510,4 +562,5 @@ api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
 api.add_resource(TransactionResource, "/transaction")
 api.add_resource(TransactionCategoryResource, "/transaction-category")
 api.add_resource(MonthInfoResource, "/month-info")
+api.add_resource(MonthReflectionResource, "/month-reflection")
 api.add_resource(MonthCategoryResource, "/month-category")

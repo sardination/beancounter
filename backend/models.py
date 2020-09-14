@@ -130,6 +130,23 @@ class MonthInfo(db.Model):
     __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
 
 
+class MonthReflection(db.Model):
+    """
+    Monthly satisfaction and fulfilment evaluation
+    """
+
+    __tablename__ = 'month_reflection'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False, unique=True)
+    month_info = relationship("MonthInfo")
+
+    q_living_dying = db.Column(db.String(1024))
+    q_employment_purpose = db.Column(db.String(1024))
+    q_spending_evaluation = db.Column(db.String(1024))
+
+
 class MonthCategory(db.Model):
     """
     Month-category relation and fulfilment association

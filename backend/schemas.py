@@ -5,9 +5,10 @@ from enums import (
 )
 from models import (
     BalanceSheetEntry,
-    MonthCategory,
     Info,
+    MonthCategory,
     MonthInfo,
+    MonthReflection,
     PriorIncome,
     Transaction,
     TransactionCategory,
@@ -223,6 +224,17 @@ class MonthInfoSchema(SQLAlchemySchema):
         data["month"] -= 1
 
         return data
+
+
+class MonthReflectionSchema(SQLAlchemySchema):
+    class Meta:
+        model = MonthReflection
+
+    id = auto_field()
+    month_info_id = auto_field()
+    q_living_dying = auto_field()
+    q_employment_purpose = auto_field()
+    q_spending_evaluation = auto_field()
 
 
 class MonthCategorySchema(SQLAlchemySchema):
