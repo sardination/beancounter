@@ -5,3 +5,6 @@ __pycache__
 settings.py
 
 node_modules
+
+frontend/main.js
+frontend/dist/
