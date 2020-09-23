@@ -14,7 +14,7 @@ import datetime
 def get_start_date():
     start_date_info = Info.query.filter_by(title="start_date").first()
     start_date = datetime.datetime.strptime(start_date_info.value, "%Y-%m-%d")
-    return start_date
+    return start_date.date()
 
 
 def get_month_info(year, month, commit=False, recalc_totals=False):

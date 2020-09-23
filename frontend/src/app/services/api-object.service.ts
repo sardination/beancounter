@@ -29,11 +29,23 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   }
 
   getObjects(): Observable<T[]> {
-      return this.http.get<T[]>(this.apiUrl);
+      return this.getObjectsWithParams(this.apiUrl, {});
   }
 
   getObjectsWithParams(params: any): Observable<T[]> {
-      return this.http.get<T[]>(this.apiUrl, {params: params});
+      return this.http.get<T[]>(this.apiUrl, {params: params})
+                .pipe(
+                  map(objects => {
+                    objects.forEach(object => {
+                      if (object.date) {
+                        let dateParts = object.date.split('-'); // YYYY-MM-DD
+                        object.date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]); // months are 0-indexed
+                        return object
+                      }
+                    })
+                    return objects;
+                  })
+                );
   }
 
   addObject(object: T): Observable<T> {
@@ -93,18 +105,6 @@ export class WeeklyJobTransactionService extends ApiObjectService<WeeklyJobTrans
 export class TransactionService extends ApiObjectService<Transaction> {
     constructor (protected http: HttpClient) {
         super(http, 'transaction', 'transaction');
-    }
-
-    getObjects(): Observable<Transaction[]> {
-        return super.getObjects().pipe(
-            map(transactions => {
-              transactions.forEach(transaction => {
-                transaction.date = new Date(transaction.date);
-                return transaction;
-              });
-              return transactions;
-            })
-        );
     }
 }
 

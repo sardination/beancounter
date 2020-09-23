@@ -17,15 +17,7 @@ export class DailyTransactionTableComponent implements OnInit {
   @Input()
   get transactions(): Transaction[] { return this._transactions };
   set transactions(transactions: Transaction[]) {
-    this._transactions = transactions.sort((a, b) => {
-        if (a.date > b.date) {
-            return -1;
-        } else if (a.date < b.date) {
-            return 1;
-        } else {
-            return 0;
-        }
-    });
+    this._transactions = this.sortTransactions(transactions);
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
     } else {
@@ -61,6 +53,18 @@ export class DailyTransactionTableComponent implements OnInit {
     this.editingTransaction = editingTransaction;
   }
 
+  sortTransactions(transactions: Transaction[]): Transaction[] {
+    return transactions.sort((a, b) => {
+        if (a.date > b.date) {
+            return -1;
+        } else if (a.date < b.date) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+  }
+
   zeroFormControls(): void {
     this.editingTransactionDate = new FormControl();
     this.editingTransactionType = new FormControl("expenditure");
@@ -69,7 +73,7 @@ export class DailyTransactionTableComponent implements OnInit {
   }
 
   setFormControls(transaction: Transaction): void {
-    this.editingTransactionDate = new FormControl(transaction.date);
+    this.editingTransactionDate = new FormControl(transaction.date.toISOString().substring(0,10));
     if (transaction.transaction_type == "income") {
         this.editingTransactionType = new FormControl("income");
     } else {
@@ -96,12 +100,16 @@ export class DailyTransactionTableComponent implements OnInit {
       this.updateEditingTransactionFromFormControls();
       var transaction = this.editingTransaction;
 
-      if (!transaction.date || !transaction.value || !transaction.description) return;
+      if (!transaction.date || !transaction.value || !transaction.description) {
+        // put the editing transaction back on top of the data source
+        this.tableDataSource.data = [this.editingTransaction].concat(this.transactions);
+        return;
+      }
       if (!transaction.id) {
         this.transactionService.addObject(transaction)
             .subscribe(newTransaction => {
                 this.transactions.push(newTransaction);
-                this.transactions = this.transactions;
+                this.transactions = this.sortTransactions(this.transactions)
                 this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })
@@ -109,7 +117,7 @@ export class DailyTransactionTableComponent implements OnInit {
         this.transactionService.updateObject(transaction)
             .subscribe(updatedTransaction => {
                 transaction = updatedTransaction;
-                this.transactions = this.transactions;
+                this.transactions = this.sortTransactions(this.transactions);
                 this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })

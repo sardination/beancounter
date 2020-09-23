@@ -83,7 +83,11 @@ export class InvestmentIncomeTableComponent implements OnInit {
   }
 
   setFormControls(income: InvestmentIncome): void {
-    this.editingIncomeDate = new FormControl(income.date);
+    if (income.date) {
+        this.editingIncomeDate = new FormControl(income.date.toISOString().substring(0,10));
+    } else {
+        this.editingIncomeDate = new FormControl();
+    }
     this.editingIncomeType = new FormControl(this.getLabelFromTypeKey(income.investment_income_type));
     this.editingIncomeValue = new FormControl(income.value);
     this.editingIncomeDescription = new FormControl(income.description);
