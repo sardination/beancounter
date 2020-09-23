@@ -17,8 +17,12 @@ export class MonthlyReflectionComponent implements OnInit {
   @Input()
   get monthInfo(): MonthInfo {return this._monthInfo;}
   set monthInfo(monthInfo: MonthInfo) {
+      let oldMonthInfo = this._monthInfo;
       this._monthInfo = monthInfo;
-      this.getReflection();
+      // only get new reflection if the month info has actually changed
+      if (!oldMonthInfo || !monthInfo || oldMonthInfo.month != monthInfo.month || oldMonthInfo.year != monthInfo.year) {
+        this.getReflection();
+      }
   }
   private _monthInfo: MonthInfo;
 
@@ -43,7 +47,11 @@ export class MonthlyReflectionComponent implements OnInit {
   }
 
   getReflection(): void {
-      if (this.monthInfo == undefined) return;
+      console.log("get reflection");
+      if (this.monthInfo == undefined) {
+        this.monthReflection = {} as MonthReflection;
+        return;
+      }
       this.monthReflectionService.getObjectsWithParams({'month_info_id': this.monthInfo.id})
           .subscribe(monthReflections => {
               if (monthReflections.length > 0) {

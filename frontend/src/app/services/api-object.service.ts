@@ -29,7 +29,7 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   }
 
   getObjects(): Observable<T[]> {
-      return this.getObjectsWithParams(this.apiUrl, {});
+      return this.getObjectsWithParams(null);
   }
 
   getObjectsWithParams(params: any): Observable<T[]> {

@@ -7,6 +7,7 @@ import {
     TransactionService,
     TransactionCategoryService
 } from '../../services/api-object.service';
+import { InfoService } from '../../services/info.service';
 
 import { Transaction } from '../../interfaces/transaction';
 import { TransactionCategory } from '../../interfaces/transaction-category';
@@ -52,7 +53,7 @@ export class StepThreeComponent implements OnInit {
      "November",
      "December"
    ]
-   earliestDate: Date = new Date();
+   startDate: Date = new Date();
    todayDate: Date = new Date();
    selectedYear: number;
    selectedMonth: number;
@@ -66,10 +67,12 @@ export class StepThreeComponent implements OnInit {
       private transactionService: TransactionService,
       private monthCategoryService: MonthCategoryService,
       private monthInfoService: MonthInfoService,
-      private investmentIncomeService: InvestmentIncomeService
+      private investmentIncomeService: InvestmentIncomeService,
+      private infoService: InfoService
    ) { }
 
   ngOnInit(): void {
+      this.setStartDate();
       this.selectYear(this.todayDate.getFullYear());
       this.selectMonth(this.todayDate.getMonth());
       this.getTransactions();
@@ -88,16 +91,18 @@ export class StepThreeComponent implements OnInit {
     return (this.selectedYear == this.todayDate.getFullYear()) && (this.selectedMonth == this.todayDate.getMonth());
   }
 
+  setStartDate(): void {
+      this.infoService.getInfo("start_date")
+          .subscribe(info => {
+            let dateParts = info.value.split("-");
+            this.startDate = new Date(dateParts[0], dateParts[1]-1, dateParts[2]); // month is 0-indexed
+          });
+  }
+
   getTransactions(): void {
       this.transactionService.getObjects()
           .subscribe(transactions => {
               this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
-              this.transactions.forEach(transaction => {
-                  if (transaction.date < this.earliestDate) {
-                      this.earliestDate = transaction.date;
-                  }
-              });
-
               if (this.selectedMonthInfo !== undefined) {
                   this.getTransactionsByMonth(
                       this.selectedMonthInfo.year,
@@ -164,8 +169,8 @@ export class StepThreeComponent implements OnInit {
       var retArray: number[];
       var startMonth = 0;
       var endMonth = 11;
-      if (year == this.earliestDate.getFullYear()) {
-          startMonth = this.earliestDate.getMonth();
+      if (year == this.startDate.getFullYear()) {
+          startMonth = this.startDate.getMonth();
       }
       if (year == this.todayDate.getFullYear()) {
           endMonth = this.todayDate.getMonth();
@@ -176,7 +181,7 @@ export class StepThreeComponent implements OnInit {
   }
 
   getYears(): number[] {
-      let startYear = this.earliestDate.getFullYear();
+      let startYear = this.startDate.getFullYear();
       let endYear = this.todayDate.getFullYear();
       let retArray = Array.from(Array(endYear - startYear + 1), (_,i) => i + startYear).reverse();
       return retArray;
@@ -196,10 +201,10 @@ export class StepThreeComponent implements OnInit {
       this.updateMonthInfoAndCategories();
   }
 
-  betweenEarliestAndLatest(year: number, month: number): boolean {
-      if (year == this.earliestDate.getFullYear()) return month >= this.earliestDate.getMonth();
+  betweenStartAndLatest(year: number, month: number): boolean {
+      if (year == this.startDate.getFullYear()) return month >= this.startDate.getMonth();
       if (year == this.todayDate.getFullYear()) return month <= this.todayDate.getMonth();
-      return year > this.earliestDate.getFullYear() && year < this.todayDate.getFullYear();
+      return year > this.startDate.getFullYear() && year < this.todayDate.getFullYear();
   }
 
   updateMonthInfoAndCategories(): void {
@@ -209,7 +214,7 @@ export class StepThreeComponent implements OnInit {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
                 this.updateArrays();
-              } else if (monthInfos.length == 0 && this.betweenEarliestAndLatest(this.selectedYear, this.selectedMonth)) {
+              } else if (monthInfos.length == 0 && this.betweenStartAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
                       month: this.selectedMonth
