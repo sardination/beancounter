@@ -1,11 +1,13 @@
 from enums import (
     BalanceSheetEntryType,
     FulfilmentType,
+    InvestmentIncomeType,
     TransactionType,
 )
 from models import (
     BalanceSheetEntry,
     Info,
+    InvestmentIncome,
     MonthCategory,
     MonthInfo,
     MonthReflection,
@@ -194,6 +196,7 @@ class MonthInfoSchema(SQLAlchemySchema):
     year = auto_field()
     income = auto_field()
     expenditure = auto_field()
+    investment_income = auto_field()
     real_hourly_wage = auto_field()
     completed = auto_field()
 
@@ -204,6 +207,7 @@ class MonthInfoSchema(SQLAlchemySchema):
         """
         data["income"] = data.get("income", 0) * 100
         data["expenditure"] = data.get("expenditure", 0) * 100
+        data["investment_income"] = data.get("investment_income", 0) * 100
         data["real_hourly_wage"] = data.get("real_hourly_wage", 0) * 100
 
         # frontend has months zero-indexed
@@ -218,11 +222,61 @@ class MonthInfoSchema(SQLAlchemySchema):
         """
         data["income"] = float(data["income"]) / 100
         data["expenditure"] = float(data["expenditure"]) / 100
+        data["investment_income"] = float(data["investment_income"]) / 100
         data["real_hourly_wage"] = float(data["real_hourly_wage"]) / 100
 
         # frontend has months zero-indexed
         data["month"] -= 1
 
+        return data
+
+
+class MonthCategorySchema(SQLAlchemySchema):
+    class Meta:
+        model = MonthCategory
+
+    id = auto_field()
+    month_info_id = auto_field()
+    category_id = auto_field()
+    fulfilment = EnumField(FulfilmentType)
+
+
+class InvestmentIncomeSchema(SQLAlchemySchema):
+    class Meta:
+        model = InvestmentIncome
+
+    id = auto_field()
+    month_info_id = auto_field()
+    investment_income_type = EnumField(InvestmentIncomeType)
+    value = auto_field()
+    description = auto_field()
+    date = auto_field()
+
+    @post_load
+    def value_to_cents(self, data, **kwargs):
+        """
+        Convert de-serialized amount to cents before backend
+        """
+        data["value"] = data["value"] * 100
+        return data
+
+    @pre_load
+    def format_date(self, data, **kwargs):
+        """
+        Convert collected date format into datetime
+        """
+        if data.get("date") is not None:
+            data["date"] = data["date"][:10]
+        else:
+            data["date"] = None
+        return data
+
+    @post_dump
+    def value_to_dollars(self, data, **kwargs):
+        """
+        Convert serialized amount to dollars before frontend
+        """
+        data["value"] = float(data["value"]) / 100
         return data
 
 
@@ -236,12 +290,3 @@ class MonthReflectionSchema(SQLAlchemySchema):
     q_employment_purpose = auto_field()
     q_spending_evaluation = auto_field()
 
-
-class MonthCategorySchema(SQLAlchemySchema):
-    class Meta:
-        model = MonthCategory
-
-    id = auto_field()
-    month_info_id = auto_field()
-    category_id = auto_field()
-    fulfilment = EnumField(FulfilmentType)

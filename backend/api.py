@@ -16,6 +16,7 @@ from enums import TransactionType
 from models import (
     BalanceSheetEntry,
     Info,
+    InvestmentIncome,
     MonthCategory,
     MonthInfo,
     MonthReflection,
@@ -27,6 +28,7 @@ from models import (
 from schemas import (
     BalanceSheetEntrySchema,
     InfoSchema,
+    InvestmentIncomeSchema,
     MonthCategorySchema,
     MonthInfoSchema,
     MonthReflectionSchema,
@@ -225,6 +227,36 @@ class TransactionResource(Resource):
         transactions = Transaction.query.all()
         return transactions_schema.dump(transactions)
 
+    def post(self):
+        request_dict = transaction_schema.load(request.json)
+
+        transaction_type = request_dict['transaction_type']
+        value = request_dict['value']
+        description = request_dict['description']
+        date = request_dict['date']
+
+        if value <= 0:
+            return abort(400, description='Value must be greater than 0.')
+        if date > datetime.date.today() or date < get_start_date():
+            return abort(400, description='Cannot save future transaction or transaction prior to start date')
+
+        month_info = get_month_info(date.year, date.month)
+
+        new_transaction = Transaction(
+            transaction_type=transaction_type,
+            value=value,
+            description=description,
+            date=date
+        )
+        db.session.add(new_transaction)
+
+        if transaction_type == TransactionType.income:
+            month_info.income += value
+        else:
+            month_info.expenditure += value
+
+        return try_commit(new_transaction, transaction_schema)
+
     def put(self):
         request_dict = transaction_schema.load(request.json)
 
@@ -275,36 +307,6 @@ class TransactionResource(Resource):
             update_month_info.expenditure += value
 
         return try_commit(transaction, transaction_schema)
-
-    def post(self):
-        request_dict = transaction_schema.load(request.json)
-
-        transaction_type = request_dict['transaction_type']
-        value = request_dict['value']
-        description = request_dict['description']
-        date = request_dict['date']
-
-        if value <= 0:
-            return abort(400, description='Value must be greater than 0.')
-        if date > datetime.date.today() or date < get_start_date():
-            return abort(400, description='Cannot save future transaction or transaction prior to start date')
-
-        month_info = get_month_info(date.year, date.month)
-
-        new_transaction = Transaction(
-            transaction_type=transaction_type,
-            value=value,
-            description=description,
-            date=date
-        )
-        db.session.add(new_transaction)
-
-        if transaction_type == TransactionType.income:
-            month_info.income += value
-        else:
-            month_info.expenditure += value
-
-        return try_commit(new_transaction, transaction_schema)
 
     def delete(self):
         id = request.args.get('id')
@@ -381,6 +383,7 @@ class MonthInfoResource(Resource):
         month = request_dict['month']
         income = request_dict['income']
         expenditure = request_dict['expenditure']
+        investment_income = request_dict['investment_income']
         real_hourly_wage = request_dict['real_hourly_wage']
 
         start_date = get_start_date()
@@ -393,6 +396,7 @@ class MonthInfoResource(Resource):
             month=month,
             income=income,
             expenditure=expenditure,
+            investment_income=investment_income,
             real_hourly_wage=real_hourly_wage
         )
         db.session.add(new_month_info)
@@ -410,16 +414,185 @@ class MonthInfoResource(Resource):
         month = request_dict['month']
         income = request_dict['income']
         expenditure = request_dict['expenditure']
+        investment_income = request_dict['investment_income']
         real_hourly_wage = request_dict['real_hourly_wage']
         completed = request_dict['completed']
 
         month_info = MonthInfo.query.filter_by(id=id).first_or_404()
         month_info.income = income
         month_info.expenditure = expenditure
+        month_info.investment_income = investment_income
         month_info.real_hourly_wage = real_hourly_wage
         month_info.completed = completed
 
         return try_commit(month_info, month_info_schema)
+
+
+month_categories_schema = MonthCategorySchema(many=True)
+month_category_schema = MonthCategorySchema()
+class MonthCategoryResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            pass
+
+        category_id = request_dict.get('category_id')
+        try:
+            category_id = int(category_id)
+            filter_kwargs['category_id'] = category_id
+        except (TypeError, ValueError):
+            pass
+
+        month_categories = MonthCategory.query.filter_by(**filter_kwargs).all()
+        return month_categories_schema.dump(month_categories)
+
+    def post(self):
+        request_dict = month_category_schema.load(request.json)
+
+        category_id = request_dict['category_id']
+        month_info_id = request_dict['month_info_id']
+        fulfilment = request_dict['fulfilment']
+
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is not None and month_info.completed:
+            abort(400, description="month-category month-info is not taking new entries")
+
+        new_month_category = MonthCategory(
+            category_id=category_id,
+            month_info_id=month_info_id,
+            fulfilment=fulfilment
+        )
+        db.session.add(new_month_category)
+
+        return try_commit(new_month_category, month_category_schema)
+
+    def put(self):
+        request_dict = month_category_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for month-category')
+        category_id = request_dict['category_id']
+        month_info_id = request_dict['month_info_id']
+        fulfilment = request_dict['fulfilment']
+
+        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
+        if month_info is not None and month_info.completed:
+            abort(400, description="month-category month-info is not updating entries")
+
+        month_category = MonthCategory.query.filter_by(id=id).first_or_404()
+        month_category.category_id = category_id
+        month_category.month_info_id = month_info_id
+        month_category.fulfilment = fulfilment
+
+        return try_commit(month_category, month_category_schema)
+
+
+investment_incomes_schema = InvestmentIncomeSchema(many=True)
+investment_income_schema = InvestmentIncomeSchema()
+class InvestmentIncomeResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            pass
+
+        investment_incomes = InvestmentIncome.query.filter_by(**filter_kwargs).all()
+        return investment_incomes_schema.dump(investment_incomes)
+
+    def post(self):
+        request_dict = investment_income_schema.load(request.json)
+
+        investment_income_type = request_dict['investment_income_type']
+        value = request_dict['value']
+        description = request_dict['description']
+        date = request_dict['date']
+
+        if date is not None and (date > datetime.date.today() or date < get_start_date()):
+            return abort(400, description='Cannot save future investment income or investment income prior to start date')
+
+        month_info_id = request_dict['month_info_id']
+
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
+
+        if date is not None and (date.month != month_info.month or date.year != month_info.year):
+            return abort(400, description='Month info month and year does not match with date')
+
+        new_investment_income = InvestmentIncome(
+            month_info_id=month_info_id,
+            investment_income_type=investment_income_type,
+            value=value,
+            description=description
+        )
+        if date is not None:
+            new_investment_income.date = date
+        db.session.add(new_investment_income)
+
+        month_info.investment_income += value
+
+        return try_commit(new_investment_income, investment_income_schema)
+
+    def put(self):
+        request_dict = investment_income_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for investment income')
+        value = request_dict['value']
+        description = request_dict['description']
+        date = request_dict['date']
+        investment_income_type = request_dict['investment_income_type']
+
+        # month_info_id = request_dict.get('month_info_id') # don't update month
+
+        if date is not None:
+            if date > datetime.date.today() or date < get_start_date():
+                return abort(400, description='Cannot save future investment income or investment income prior to start date')
+            if date.month != month_info.month or date.year != month_info.year:
+                return abort(400, description='Month info month and year does not match with date')
+
+        investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
+
+        # remove old value from month-info for old income
+        month_info = MonthInfo.query.filter_by(id=month_info)
+        month_info.investment_income -= investment_income.value
+
+        investment_income.investment_income_type = investment_income_type
+        investment_income.value = value
+        investment_income.description = description
+        investment_income.date = date
+
+        # add value back to appropriate month-info
+        month_info.investment_income += investment_income.value
+
+        return try_commit(investment_income, investment_income_schema)
+
+    def delete(self):
+        id = request.args.get('id')
+        if id is None:
+            return abort(400, description='No id to delete')
+        investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
+
+        month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id)
+
+        db.session.delete(investment_income)
+
+        month_info.investment_income -= investment_income.value
+
+        db.session.commit()
+
+        return investment_income_schema.dump(investment_income)
 
 
 month_reflections_schema = MonthReflectionSchema(many=True)
@@ -490,71 +663,6 @@ class MonthReflectionResource(Resource):
         return try_commit(month_reflection, month_reflection_schema)
 
 
-month_categories_schema = MonthCategorySchema(many=True)
-month_category_schema = MonthCategorySchema()
-class MonthCategoryResource(Resource):
-    def get(self):
-        filter_kwargs = {}
-        request_dict = request.args
-        month_info_id = request_dict.get('month_info_id')
-        try:
-            month_info_id = int(month_info_id)
-            filter_kwargs['month_info_id'] = month_info_id
-        except (TypeError, ValueError):
-            pass
-
-        category_id = request_dict.get('category_id')
-        try:
-            category_id = int(category_id)
-            filter_kwargs['category_id'] = category_id
-        except (TypeError, ValueError):
-            pass
-
-        month_categories = MonthCategory.query.filter_by(**filter_kwargs).all()
-        return month_categories_schema.dump(month_categories)
-
-    def post(self):
-        request_dict = month_category_schema.load(request.json)
-
-        category_id = request_dict['category_id']
-        month_info_id = request_dict['month_info_id']
-        fulfilment = request_dict['fulfilment']
-
-        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
-        if month_info is not None and month_info.completed:
-            abort(400, description="month-category month-info is not taking new entries")
-
-        new_month_category = MonthCategory(
-            category_id=category_id,
-            month_info_id=month_info_id,
-            fulfilment=fulfilment
-        )
-        db.session.add(new_month_category)
-
-        return try_commit(new_month_category, month_category_schema)
-
-    def put(self):
-        request_dict = month_category_schema.load(request.json)
-
-        id = request_dict.get('id')
-        if id is None:
-            return abort(400, description='No id for month-category')
-        category_id = request_dict['category_id']
-        month_info_id = request_dict['month_info_id']
-        fulfilment = request_dict['fulfilment']
-
-        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
-        if month_info is not None and month_info.completed:
-            abort(400, description="month-category month-info is not updating entries")
-
-        month_category = MonthCategory.query.filter_by(id=id).first_or_404()
-        month_category.category_id = category_id
-        month_category.month_info_id = month_info_id
-        month_category.fulfilment = fulfilment
-
-        return try_commit(month_category, month_category_schema)
-
-
 api.add_resource(InfoResource, "/info/<title>")
 api.add_resource(PriorIncomeResource, "/prior-income")
 api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
@@ -562,5 +670,6 @@ api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
 api.add_resource(TransactionResource, "/transaction")
 api.add_resource(TransactionCategoryResource, "/transaction-category")
 api.add_resource(MonthInfoResource, "/month-info")
-api.add_resource(MonthReflectionResource, "/month-reflection")
 api.add_resource(MonthCategoryResource, "/month-category")
+api.add_resource(InvestmentIncomeResource, "/investment-income")
+api.add_resource(MonthReflectionResource, "/month-reflection")

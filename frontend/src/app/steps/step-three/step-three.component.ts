@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 
 import {
+    InvestmentIncomeService,
     MonthCategoryService,
     MonthInfoService,
     TransactionService,
@@ -11,6 +12,7 @@ import { Transaction } from '../../interfaces/transaction';
 import { TransactionCategory } from '../../interfaces/transaction-category';
 import { MonthCategory } from '../../interfaces/month-category';
 import { MonthInfo } from '../../interfaces/month-info';
+import { InvestmentIncome } from '../../interfaces/investment-income';
 
 @Component({
   selector: 'app-step-three',
@@ -20,8 +22,12 @@ import { MonthInfo } from '../../interfaces/month-info';
 export class StepThreeComponent implements OnInit {
     // this also includes step 4
 
-   selectedMonthInfo: MonthInfo;
    transactions: Transaction[] = [];
+   // investmentIncomes: InvestmentIncome[] = [];
+
+   selectedMonthInfo: MonthInfo;
+   selectedTransactions: Transaction[] = [];
+   selectedInvestmentIncomes: InvestmentIncome[] = [];
 
    get transactionCategories(): TransactionCategory[] {
        return this._transactionCategories;
@@ -59,7 +65,8 @@ export class StepThreeComponent implements OnInit {
       private transactionCategoryService: TransactionCategoryService,
       private transactionService: TransactionService,
       private monthCategoryService: MonthCategoryService,
-      private monthInfoService: MonthInfoService
+      private monthInfoService: MonthInfoService,
+      private investmentIncomeService: InvestmentIncomeService
    ) { }
 
   ngOnInit(): void {
@@ -67,6 +74,7 @@ export class StepThreeComponent implements OnInit {
       this.selectMonth(this.todayDate.getMonth());
       this.getTransactions();
       this.getTransactionCategories();
+      // this.getInvestmentIncomes();
   }
 
   showCompleteButton(): boolean {
@@ -89,6 +97,13 @@ export class StepThreeComponent implements OnInit {
                       this.earliestDate = transaction.date;
                   }
               });
+
+              if (this.selectedMonthInfo !== undefined) {
+                  this.getTransactionsByMonth(
+                      this.selectedMonthInfo.year,
+                      this.selectedMonthInfo.month
+                  );
+              }
           })
   }
 
@@ -99,14 +114,38 @@ export class StepThreeComponent implements OnInit {
           })
   }
 
+  // getInvestmentIncomes(): void {
+  //     this.investmentIncomeService.getObjects()
+  //         .subscribe(investmentIncomes => {
+  //             this.investmentIncomes = investmentIncomes;
+
+  //             if (this.selectedMonthInfo !== undefined) {
+  //                 this.selectedInvestmentIncomes = this.getInvestmentIncomesByMonthInfo();
+  //             }
+  //         })
+  // }
+
   setTransactionCategories(categories: TransactionCategory[]): void {
       this.transactionCategories = categories;
   }
 
-  getTransactionsByMonth(year: number, month: number): Transaction[] {
-      return this.transactions.filter(transaction => {
+  // getTransactionsByMonth(year: number, month: number): Transaction[] {
+  getTransactionsByMonth(year: number, month: number): void {
+      this.selectedTransactions = this.transactions.filter(transaction => {
           return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
       )
+  }
+
+  // getInvestmentIncomesByMonthInfo(): InvestmentIncome[] {
+  getInvestmentIncomesByMonthInfo(): void {
+      if (this.selectedMonthInfo == undefined) return;
+      this.investmentIncomeService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
+          .subscribe(investmentIncomeList => {
+              this.selectedInvestmentIncomes = investmentIncomeList;
+          })
+      // return this.investmentIncomes.filter(investmentIncome => {
+      //     return investmentIncome.month_info_id == this.selectedMonthInfo.id;
+      // })
   }
 
   getMonthCategories(): void {
@@ -169,7 +208,7 @@ export class StepThreeComponent implements OnInit {
           .subscribe(monthInfos => {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
-                this.getMonthCategories();
+                this.updateArrays();
               } else if (monthInfos.length == 0 && this.betweenEarliestAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
@@ -178,10 +217,17 @@ export class StepThreeComponent implements OnInit {
                   this.monthInfoService.addObject(monthInfo)
                       .subscribe(newMonthInfo => {
                           this.selectedMonthInfo = newMonthInfo;
-                          this.getMonthCategories();
+                          this.updateArrays();
                       });
               }
           })
+  }
+
+  updateArrays(): void {
+      this.getMonthCategories();
+      // this.selectedInvestmentIncomes = this.getInvestmentIncomesByMonthInfo();
+      this.getInvestmentIncomesByMonthInfo();
+      this.getTransactionsByMonth(this.selectedMonthInfo.year, this.selectedMonthInfo.month);
   }
 
   markCurrentMonthComplete(): void {

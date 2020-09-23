@@ -1,0 +1,84 @@
+<button (click)="addNewEmptyIncome()">Add Investment Income</button>
+<table mat-table [dataSource]="tableDataSource">
+    <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Date (optional)</th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else editDate">
+                {{ income.date | date }}
+            </div>
+            <ng-template #editDate>
+                <input [formControl]="editingIncomeDate" type="date"/>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Type</th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else editType">
+                {{ getLabelFromTypeKey(income.investment_income_type) }}
+            </div>
+            <ng-template #editType>
+                <mat-form-field>
+                    <mat-label>Investment Income Type</mat-label>
+                    <mat-select [formControl]="editingIncomeType">
+                        <mat-option *ngFor="let investmentIncomeType of investmentIncomeTypes" [value]="investmentIncomeType.key">
+                            {{ investmentIncomeType.label }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else editValue">
+                ${{ income.value | number: '1.2-2' }}
+            </div>
+            <ng-template #editValue>
+                <input [formControl]="editingIncomeValue" type="number" min="0" step="0.01" />
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else editDescription">
+                {{ income.description }}
+            </div>
+            <ng-template #editDescription>
+                <input [formControl]="editingIncomeDescription" type="text"/>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else submitEdited">
+                <button mat-button (click)="selectEditingIncome(income)">Edit</button>
+            </div>
+            <ng-template #submitEdited>
+                <button mat-button (click)="updateEditingIncome()">Submit</button>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let income">
+            <div *ngIf="income !== editingIncome; else cancelEdit">
+                <button mat-button (click)="deleteIncome(income)">Delete</button>
+            </div>
+            <ng-template #cancelEdit>
+                <button mat-button (click)="cancelEditIncome()">Cancel</button>
+            </ng-template>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr mat-row *matRowDef="let rowData; columns: columnsToDisplay"></tr>
+</table>

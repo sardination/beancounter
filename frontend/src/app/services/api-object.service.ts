@@ -13,6 +13,7 @@ import { TransactionCategory } from '../interfaces/transaction-category';
 import { MonthInfo } from '../interfaces/month-info';
 import { MonthReflection } from '../interfaces/month-reflection';
 import { MonthCategory } from '../interfaces/month-category';
+import { InvestmentIncome } from '../interfaces/investment-income';
 
 
 @Injectable({
@@ -122,6 +123,15 @@ export class TransactionCategoryService extends ApiObjectService<TransactionCate
 export class MonthInfoService extends ApiObjectService<MonthInfo> {
     constructor (protected http: HttpClient) {
         super(http, 'month-info', 'month info');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InvestmentIncomeService extends ApiObjectService<InvestmentIncome> {
+    constructor (protected http: HttpClient) {
+        super(http, 'investment-income', 'investment income');
     }
 }
 

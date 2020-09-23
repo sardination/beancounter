@@ -9,8 +9,9 @@ from sqlalchemy.orm import relationship
 from app import db
 from enums import (
     BalanceSheetEntryType,
-    TransactionType,
     FulfilmentType,
+    InvestmentIncomeType,
+    TransactionType,
 )
 
 
@@ -123,28 +124,13 @@ class MonthInfo(db.Model):
     month = db.Column(db.Integer, nullable=False) # 1 = January, ..., 12 = December
     income = db.Column(db.Integer, nullable=False, default=0) # in cents
     expenditure = db.Column(db.Integer, nullable=False, default=0) # in cents
+    investment_income = db.Column(db.Integer, nullable=False, default=0) # in cents
+
     real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rwh for this month
     # whether the month has been fully analyzed, should only be true after the month is over
     completed = db.Column(db.Boolean, nullable=False, default=False)
 
     __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
-
-
-class MonthReflection(db.Model):
-    """
-    Monthly satisfaction and fulfilment evaluation
-    """
-
-    __tablename__ = 'month_reflection'
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False, unique=True)
-    month_info = relationship("MonthInfo")
-
-    q_living_dying = db.Column(db.String(1024))
-    q_employment_purpose = db.Column(db.String(1024))
-    q_spending_evaluation = db.Column(db.String(1024))
 
 
 class MonthCategory(db.Model):
@@ -165,6 +151,43 @@ class MonthCategory(db.Model):
     fulfilment = db.Column(db.Enum(FulfilmentType), nullable=False, default=FulfilmentType.neutral)
 
     __table_args__ = (UniqueConstraint('month_info_id', 'category_id', name='_month_category_uc'),)
+
+
+# Step 9 - investment income
+class InvestmentIncome(db.Model):
+    """
+    Individual investment income (or out-go) associated with one investment
+    for a given month
+    """
+
+    __tablename__ = 'investment_income'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False)
+    month_info = relationship("MonthInfo")
+
+    investment_income_type = db.Column(db.Enum(InvestmentIncomeType), nullable=False) # type of investment change
+    value = db.Column(db.Integer, nullable=False) # can be negative or positive, cents
+    description = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.Date, nullable=True) # optional date field
+
+
+class MonthReflection(db.Model):
+    """
+    Monthly satisfaction and fulfilment evaluation
+    """
+
+    __tablename__ = 'month_reflection'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False, unique=True)
+    month_info = relationship("MonthInfo")
+
+    q_living_dying = db.Column(db.String(1024))
+    q_employment_purpose = db.Column(db.String(1024))
+    q_spending_evaluation = db.Column(db.String(1024))
 
 
 

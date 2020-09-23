@@ -84,6 +84,9 @@ export class MonthlyFlowChartComponent implements OnInit {
     var expenditureLine = d3.line<MonthInfo>()
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(function(d) {return y(d.expenditure)});
+    var investmentIncomeLine = d3.line<MonthInfo>()
+            .x(function(d) {return x(new Date(d.year, d.month, 1))})
+            .y(function(d) {return y(d.investment_income)});
 
     svg.append("path")
     		.datum(this.monthInfos)
@@ -116,6 +119,22 @@ export class MonthlyFlowChartComponent implements OnInit {
        .attr("r", 5)
        .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
        .attr("cy", function(d) {return y(d.expenditure)})
+
+    svg.append("path")
+        .datum(this.monthInfos)
+        .attr("class", "line")
+        .attr("d", investmentIncomeLine)
+        .attr("fill", "none")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-miterlimit", 1)
+        .attr("stroke", "#f00");
+    svg.selectAll("investment-income-circle")
+       .data(this.monthInfos)
+       .enter().append("circle")
+       .attr("fill", "#00f")
+       .attr("r", 5)
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.investment_income)})
   }
 
 }

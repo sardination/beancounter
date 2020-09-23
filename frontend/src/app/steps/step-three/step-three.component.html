@@ -1,10 +1,5 @@
 <h2>Step Three/Four/Six</h2>
 
-<button mat-button *ngIf="showCompleteButton(); else showFulfilmentSurvey" (click)="markCurrentMonthComplete()">Complete</button>
-<ng-template #showFulfilmentSurvey>
-    <app-monthly-reflection *ngIf="!monthInProgress()" [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
-</ng-template>
-
 <mat-sidenav-container>
     <mat-sidenav mode="side" opened>
         <mat-nav-list>
@@ -33,18 +28,33 @@
             </mat-sidenav>
 
             <mat-sidenav-content>
+                <button mat-button *ngIf="showCompleteButton(); else showFulfilmentSurvey" (click)="markCurrentMonthComplete()">Complete</button>
+                <ng-template #showFulfilmentSurvey>
+                    <app-monthly-reflection *ngIf="!monthInProgress()" [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
+                </ng-template>
                 <app-category-totals
-                    [transactions]="getTransactionsByMonth(selectedYear, selectedMonth)"
+                    [transactions]="selectedTransactions"
                     [categories]="transactionCategories"
                     [monthCategories]="monthCategories"
                     [selectedMonthInfo]="selectedMonthInfo"
                     (updateCategories)="setTransactionCategories($event)"
                 ></app-category-totals>
 
-                <app-monthly-tabulation
-                    [transactions]="getTransactionsByMonth(selectedYear, selectedMonth)"
-                    [categories]="transactionCategories">
-                </app-monthly-tabulation>
+                <mat-tab-group>
+                    <mat-tab label="expenditures">
+                        <app-monthly-tabulation
+                            [transactions]="selectedTransactions"
+                            [categories]="transactionCategories">
+                        </app-monthly-tabulation>
+                    </mat-tab>
+                    <mat-tab label="investment_incomes">
+                        <app-investment-income-table
+                            *ngIf="selectedMonthInfo != undefined"
+                            [investmentIncomes]="selectedInvestmentIncomes"
+                            [monthInfoId]="selectedMonthInfo.id"
+                        ></app-investment-income-table>
+                    </mat-tab>
+                </mat-tab-group>
             </mat-sidenav-content>
         </mat-sidenav-container>
     </mat-sidenav-content>

@@ -34,6 +34,7 @@ import { CategoryTotalsComponent } from './category-totals/category-totals.compo
 import { StepFiveComponent } from './steps/step-five/step-five.component';
 import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-chart.component';
 import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflection.component';
+import { InvestmentIncomeTableComponent } from './investment-income-table/investment-income-table.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflect
     StepFiveComponent,
     MonthlyFlowChartComponent,
     MonthlyReflectionComponent,
+    InvestmentIncomeTableComponent,
   ],
   imports: [
     BrowserModule,
