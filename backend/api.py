@@ -67,7 +67,7 @@ class InfoResource(Resource):
         value = request_dict['value']
 
         if title not in Info.permitted_titles:
-            return abort(400, description="Not a permitted value title")
+            return abort(404, description="Not a permitted value title")
         info = Info.query.filter_by(title=title).one_or_none()
         if info is None:
             info = Info(title=title, value=value)

@@ -16,7 +16,9 @@ export class InfoService extends ApiEndpointService {
   }
 
   getInfo(title: string): Observable<any> {
-      return this.http.get(this.createEndpoint(title));
+      return this.http.get(this.createEndpoint(title)).pipe(
+          catchError(this.handleError('getInfo'))
+      );
   }
 
   updateInfo(title: string, value: any): Observable<any> {

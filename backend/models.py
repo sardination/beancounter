@@ -6,6 +6,8 @@ from sqlalchemy import  (
 )
 from sqlalchemy.orm import relationship
 
+import datetime
+
 from app import db
 from enums import (
     BalanceSheetEntryType,
@@ -33,6 +35,8 @@ class Info(db.Model):
     permitted_titles = [
         'start_date',
         'real_hourly_wage', # stored in cents
+        'average_monthly_expense', # stored in cents
+        'long_term_interest_rate' # stored as decimal (e.g., 5% stored as 0.05)
     ]
 
 

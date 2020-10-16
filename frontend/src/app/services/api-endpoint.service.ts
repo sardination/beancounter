@@ -34,6 +34,11 @@ export class ApiEndpointService {
       // TODO: send the error to remote logging infrastructure
       console.error(error); // log to console instead
 
+      // allow processing of a returned item by not using undefined
+      if (result == undefined) {
+          result = {} as T;
+      }
+
       // Let the app keep running by returning an empty result.
       return of(result as T);
     };

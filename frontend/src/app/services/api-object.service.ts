@@ -32,14 +32,18 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
       return this.getObjectsWithParams(null);
   }
 
+  containsDate(arg: any): arg is {date: Date} {
+    return (arg as {date: Date}).date !== undefined;
+  }
+
   getObjectsWithParams(params: any): Observable<T[]> {
       return this.http.get<T[]>(this.apiUrl, {params: params})
                 .pipe(
                   map(objects => {
                     objects.forEach(object => {
-                      if (object.date) {
-                        let dateParts = object.date.split('-'); // YYYY-MM-DD
-                        object.date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]); // months are 0-indexed
+                      if (this.containsDate(object)) {
+                        let dateParts = object.date.toString().split('-'); // YYYY-MM-DD
+                        object.date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2])); // months are 0-indexed
                         return object
                       }
                     })

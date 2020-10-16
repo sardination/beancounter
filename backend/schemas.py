@@ -38,29 +38,39 @@ class InfoSchema(SQLAlchemySchema):
     value = auto_field()
 
     @pre_load
-    def rhw_to_cents(self, data, **kwargs):
+    def dtoc_and_ptod(self, data, **kwargs):
         """
-        Convert real hourly wage to cents before backend
+        Convert real hourly wage and monthly expense to cents before backend
+        Convert interest percentage to decimal before backend
         """
-        if data["title"] == "real_hourly_wage":
-            try:
+        try:
+            if data["title"] in ["real_hourly_wage", "average_monthly_expense"]:
                 rwh_cents = int(float(data["value"]) * 100)
                 data["value"] = str(rwh_cents)
-            except:
-                pass
+            elif data["title"] == "long_term_interest_rate":
+                lti_dec = float(data["value"]) / 100
+                data["value"] = str(lti_dec)
+        except:
+            data["value"] = ""
+
         return data
 
     @post_dump
-    def rhw_to_dollars(self, data, **kwargs):
+    def ctod_and_dtop(self, data, **kwargs):
         """
-        Convert real hourly wage to dollars before frontend
+        Convert real hourly wage and monthly expense to dollars before frontend
+        Convert interest decimal to percentage before backend
         """
-        if data["title"] == "real_hourly_wage":
-            try:
+        try:
+            if data["title"] in ["real_hourly_wage", "average_monthly_expense"]:
                 rwh_dollars = float(data["value"]) / 100
                 data["value"] = str(rwh_dollars)
-            except:
-                pass
+            elif data["title"] == "long_term_interest_rate":
+                lti_pct = float(data["value"]) * 100
+                data["value"] = str(lti_pct)
+        except:
+            data["value"] = ""
+
         return data
 
 

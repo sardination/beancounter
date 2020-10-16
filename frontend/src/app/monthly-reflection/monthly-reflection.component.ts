@@ -47,7 +47,6 @@ export class MonthlyReflectionComponent implements OnInit {
   }
 
   getReflection(): void {
-      console.log("get reflection");
       if (this.monthInfo == undefined) {
         this.monthReflection = {} as MonthReflection;
         return;
