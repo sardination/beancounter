@@ -3,6 +3,8 @@
     [longTermInterestRate]="longTermInterestRateFormControl.value"
 ></app-monthly-flow-chart>
 
+<p><strong>Assets required for retirement: ${{ calculateRetirementRequirement() | number: '1.2-2' }}</strong></p>
+
 <mat-form-field>
     <mat-label>Estimated Monthly Expense</mat-label>
     <span matPrefix>$</span>

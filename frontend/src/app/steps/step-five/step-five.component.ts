@@ -34,4 +34,16 @@ export class StepFiveComponent implements OnInit {
           .subscribe(info => this.longTermInterestRateFormControl.setValue(info.value));
   }
 
+  calculateRetirementRequirement(): number {
+      // Assume that a safe retirement withdrawal rate is the same as the interest rate. This way,
+      //  having the calculated amount of assets and withdrawing will result in net loss zero
+      //  because you will be withdrawing the same amount of money that you will be earning via interest.
+
+      if (this.longTermInterestRateFormControl.value == 0) {
+          return 0;
+      }
+
+      return (12 * this.monthlyExpenseFormControl.value) / (this.longTermInterestRateFormControl.value / 100);
+  }
+
 }
