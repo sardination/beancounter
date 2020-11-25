@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 
 import {
     InvestmentIncomeService,
+    MonthAssetAccountEntryService,
     MonthCategoryService,
     MonthInfoService,
     TransactionService,
@@ -11,6 +12,7 @@ import { InfoService } from '../../services/info.service';
 
 import { Transaction } from '../../interfaces/transaction';
 import { TransactionCategory } from '../../interfaces/transaction-category';
+import { MonthAssetAccountEntry } from '../../interfaces/month-asset-account-entry';
 import { MonthCategory } from '../../interfaces/month-category';
 import { MonthInfo } from '../../interfaces/month-info';
 import { InvestmentIncome } from '../../interfaces/investment-income';
@@ -29,6 +31,7 @@ export class StepThreeComponent implements OnInit {
    selectedMonthInfo: MonthInfo;
    selectedTransactions: Transaction[] = [];
    selectedInvestmentIncomes: InvestmentIncome[] = [];
+   selectedMonthAssetAccountEntries: MonthAssetAccountEntry[] = [];
 
    get transactionCategories(): TransactionCategory[] {
        return this._transactionCategories;
@@ -65,6 +68,7 @@ export class StepThreeComponent implements OnInit {
   constructor(
       private transactionCategoryService: TransactionCategoryService,
       private transactionService: TransactionService,
+      private monthAssetAccountEntryService: MonthAssetAccountEntryService,
       private monthCategoryService: MonthCategoryService,
       private monthInfoService: MonthInfoService,
       private investmentIncomeService: InvestmentIncomeService,
@@ -153,6 +157,14 @@ export class StepThreeComponent implements OnInit {
       // })
   }
 
+  getAssetAccountEntriesByMonthInfo(): void {
+    if (this.selectedMonthInfo == undefined) return;
+    this.monthAssetAccountEntryService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
+        .subscribe(assetAccountEntryList => {
+            this.selectedMonthAssetAccountEntries = assetAccountEntryList;
+        })
+  }
+
   getMonthCategories(): void {
       if (this.selectedMonthInfo == undefined) return;
       this.monthCategoryService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
@@ -233,6 +245,7 @@ export class StepThreeComponent implements OnInit {
       // this.selectedInvestmentIncomes = this.getInvestmentIncomesByMonthInfo();
       this.getInvestmentIncomesByMonthInfo();
       this.getTransactionsByMonth(this.selectedMonthInfo.year, this.selectedMonthInfo.month);
+      this.getAssetAccountEntriesByMonthInfo();
   }
 
   markCurrentMonthComplete(): void {

@@ -5,9 +5,11 @@ from enums import (
     TransactionType,
 )
 from models import (
+    AssetAccount,
     BalanceSheetEntry,
     Info,
     InvestmentIncome,
+    MonthAssetAccountEntry,
     MonthCategory,
     MonthInfo,
     MonthReflection,
@@ -197,6 +199,15 @@ class TransactionCategorySchema(SQLAlchemySchema):
     name = auto_field()
 
 
+class AssetAccountSchema(SQLAlchemySchema):
+    class Meta:
+        model = AssetAccount
+
+    id = auto_field()
+    name = auto_field()
+    description = auto_field()
+
+
 class MonthInfoSchema(SQLAlchemySchema):
     class Meta:
         model = MonthInfo
@@ -287,6 +298,37 @@ class InvestmentIncomeSchema(SQLAlchemySchema):
         Convert serialized amount to dollars before frontend
         """
         data["value"] = float(data["value"]) / 100
+        return data
+
+
+class MonthAssetAccountEntrySchema(SQLAlchemySchema):
+    class Meta:
+        model = MonthAssetAccountEntry
+
+    id = auto_field()
+    month_info_id = auto_field()
+    asset_account_id = auto_field()
+    asset_value = auto_field()
+    liability_value = auto_field()
+
+    @post_load
+    def value_to_cents(self, data, **kwargs):
+        """
+        Convert de-serialized asset/liability value to cents
+        before backend
+        """
+        data["asset_value"] = data["asset_value"] * 100
+        data["liability_value"] = data["liability_value"] * 100
+        return data
+
+    @post_dump
+    def value_to_dollars(self, data, **kwargs):
+        """
+        Convert serialized asset/liability amount to dollars
+        before frontend
+        """
+        data["asset_value"] = float(data["asset_value"]) / 100
+        data["liability_value"] = float(data["liability_value"]) / 100
         return data
 
 

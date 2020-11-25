@@ -14,9 +14,11 @@ from app import (
 )
 from enums import TransactionType
 from models import (
+    AssetAccount,
     BalanceSheetEntry,
     Info,
     InvestmentIncome,
+    MonthAssetAccountEntry,
     MonthCategory,
     MonthInfo,
     MonthReflection,
@@ -26,9 +28,11 @@ from models import (
     WeeklyJobTransaction,
 )
 from schemas import (
+    AssetAccountSchema,
     BalanceSheetEntrySchema,
     InfoSchema,
     InvestmentIncomeSchema,
+    MonthAssetAccountEntrySchema,
     MonthCategorySchema,
     MonthInfoSchema,
     MonthReflectionSchema,
@@ -343,7 +347,7 @@ class TransactionCategoryResource(Resource):
         if len(name) == 0:
             return abort(400, description='Supplied empty name for new category.')
 
-        new_category = TransactionCategory(name = name)
+        new_category = TransactionCategory(name=name)
         db.session.add(new_category)
 
         return try_commit(new_category, transaction_category_schema)
@@ -365,6 +369,27 @@ def year_month_dict_from_request(request_dict):
         pass
 
     return filter_kwargs
+
+
+asset_accounts_schema = AssetAccountSchema(many=True)
+asset_account_schema = AssetAccountSchema()
+class AssetAccountResource(Resource):
+    def get(self):
+        asset_accounts = AssetAccount.query.all()
+        return asset_accounts_schema.dump(asset_accounts)
+
+    def post(self):
+        request_dict = asset_account_schema.load(request.json)
+
+        name = request_dict['name']
+
+        if len(name) == 0:
+            return abort(400, description='Supplied empty name for new asset account.')
+
+        new_asset_account = AssetAccount(name=name)
+        db.session.add(new_asset_account)
+
+        return try_commit(new_asset_account, asset_account_schema)
 
 
 month_infos_schema = MonthInfoSchema(many=True)
@@ -554,7 +579,8 @@ class InvestmentIncomeResource(Resource):
         date = request_dict['date']
         investment_income_type = request_dict['investment_income_type']
 
-        # month_info_id = request_dict.get('month_info_id') # don't update month
+        month_info_id = request_dict.get('month_info_id') # don't update month
+        month_info = MonthInfo.query.filter_by(id=month_info_id)
 
         if date is not None:
             if date > datetime.date.today() or date < get_start_date():
@@ -565,8 +591,8 @@ class InvestmentIncomeResource(Resource):
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
         # remove old value from month-info for old income
-        month_info = MonthInfo.query.filter_by(id=month_info)
-        month_info.investment_income -= investment_income.value
+        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id)
+        old_month_info.investment_income -= investment_income.value
 
         investment_income.investment_income_type = investment_income_type
         investment_income.value = value
@@ -593,6 +619,100 @@ class InvestmentIncomeResource(Resource):
         db.session.commit()
 
         return investment_income_schema.dump(investment_income)
+
+
+month_asset_account_entries_schema = MonthAssetAccountEntrySchema(many=True)
+month_asset_account_entry_schema = MonthAssetAccountEntrySchema()
+class MonthAssetAccountEntry(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            pass
+
+        month_asset_account_entries = MonthAssetAccountEntry.query.filter_by(**filter_kwargs).all()
+        return month_asset_account_entries_schema.dump(month_asset_account_entries)
+
+    def post(self):
+        request_dict = month_asset_account_entry_schema.load(request.json)
+
+        month_info_id = request_dict['month_info_id']
+        asset_account_id = request_dict['asset_account_id']
+        asset_value = request_dict['asset_value']
+        liability_value = request_dict['liability_value']
+
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
+
+        asset_account = AssetAccount.query.filter_by(id=asset_account_id).first()
+        if asset_account is None:
+            return abort(400, description='Asset account with this id does not exist')
+
+        new_month_asset_account_entry = MonthAssetAccountEntry(
+            month_info_id=month_info_id,
+            asset_account_id=asset_account_id,
+            asset_value=asset_value,
+            liability_value=liability_value,
+        )
+        db.session.add(new_month_asset_account_entry)
+
+        month_info.assets += asset_value
+        month_info.liabilities -= liability_value
+
+        return try_commit(new_month_asset_account_entry, month_asset_account_entry_schema)
+
+    def put(self):
+        request_dict = month_asset_account_entry_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for month asset account entry')
+        month_info_id = request_dict['month_info_id']
+        asset_account_id = request_dict['asset_account_id']
+        asset_value = request_dict['asset_value']
+        liability_value = request_dict['liability_value']
+
+        month_asset_account_entry = MonthAssetAccountEntry.query.filter_by(id=id).first_or_404()
+
+        if month_asset_account_entry.month_info_id != month_info_id:
+            return abort(400, description='Cannot change month info for asset account entry')
+
+        # remove old value from month-info for old income
+        month_info = MonthInfo.query.filter_by(id=month_info_id)
+        month_info.assets -= month_asset_account_entry.asset_value
+        month_info.liabilities += month_asset_account_entry.liability_value
+
+        month_asset_account_entry.asset_account_id = asset_account_id
+        month_asset_account_entry.asset_value = asset_value
+        month_asset_account_entry.liability_value = liability_value
+
+        # add value back to appropriate month-info
+        month_info.assets += month_asset_account_entry.asset_value
+        month_info.liabilities -= month_asset_account_entry.liability_value
+
+        return try_commit(month_asset_account_entry, month_asset_account_entry_schema)
+
+    def delete(self):
+        id = request.args.get('id')
+        if id is None:
+            return abort(400, description='No id to delete')
+        month_asset_account_entry = MonthAssetAccountEntry.query.filter_by(id=id).first_or_404()
+
+        month_info = MonthInfo.query.filter_by(id=month_asset_account_entry.month_info_id)
+
+        db.session.delete(month_asset_account_entry)
+
+        month_info.assets -= month_asset_account_entry.asset_value
+        month_info.liabilities += month_asset_account_entry.liability_value
+
+        db.session.commit()
+
+        return month_asset_account_entry_schema.dump(month_asset_account_entry)
 
 
 month_reflections_schema = MonthReflectionSchema(many=True)
@@ -672,4 +792,5 @@ api.add_resource(TransactionCategoryResource, "/transaction-category")
 api.add_resource(MonthInfoResource, "/month-info")
 api.add_resource(MonthCategoryResource, "/month-category")
 api.add_resource(InvestmentIncomeResource, "/investment-income")
+api.add_resource(MonthAssetAccountEntry, "/month-asset-account-entry")
 api.add_resource(MonthReflectionResource, "/month-reflection")

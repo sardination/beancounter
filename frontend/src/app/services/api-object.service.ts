@@ -10,6 +10,7 @@ import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
 import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
+import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry';
 import { MonthInfo } from '../interfaces/month-info';
 import { MonthReflection } from '../interfaces/month-reflection';
 import { MonthCategory } from '../interfaces/month-category';
@@ -154,5 +155,14 @@ export class MonthReflectionService extends ApiObjectService<MonthReflection> {
 export class MonthCategoryService extends ApiObjectService<MonthCategory> {
     constructor (protected http: HttpClient) {
         super(http, 'month-category', 'month-category relation');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MonthAssetAccountEntryService extends ApiObjectService<MonthAssetAccountEntry> {
+    constructor (protected http: HttpClient) {
+        super(http, 'month-asset-account-entry', 'month-asset account relation');
     }
 }

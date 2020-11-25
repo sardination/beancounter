@@ -118,7 +118,13 @@ class TransactionCategory(db.Model):
 
 class MonthInfo(db.Model):
     """
-    Total income and expenditure for the month
+    Total records for the month:
+        - income
+        - expenditure
+        - investment income
+        - assets
+        - liabilities
+        - net worth (assets - liabilities)
     """
 
     __tablename__ = 'month_info'
@@ -126,9 +132,12 @@ class MonthInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer, nullable=False)
     month = db.Column(db.Integer, nullable=False) # 1 = January, ..., 12 = December
+
     income = db.Column(db.Integer, nullable=False, default=0) # in cents
     expenditure = db.Column(db.Integer, nullable=False, default=0) # in cents
     investment_income = db.Column(db.Integer, nullable=False, default=0) # in cents
+    assets = db.Column(db.BigInteger, nullable=False, default=0) # in cents
+    liabilities = db.Column(db.BigInteger, nullable=False, default=0) # in cents
 
     real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rwh for this month
     # whether the month has been fully analyzed, should only be true after the month is over
@@ -193,6 +202,43 @@ class MonthReflection(db.Model):
     q_employment_purpose = db.Column(db.String(1024))
     q_spending_evaluation = db.Column(db.String(1024))
 
+
+class AssetAccount(db.Model):
+    """
+    Account for categorized asset and liability tracking (i.e. a single savings
+    account or a single real estate holding)
+
+    equity = asset_value - liability_value
+    networth = sum(AssetAccount.asset_value - AssetAccount.liability_value)
+    """
+
+    __tablename__ = 'asset_account'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(256), nullable=False)
+
+
+class MonthAssetAccountEntry(db.Model):
+    """
+    Value associations for an asset account on a given month
+    """
+
+    __tablename__ = 'month_asset_account_entry'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False)
+    month_info = relationship("MonthInfo")
+
+    asset_account_id = db.Column(db.Integer, ForeignKey('asset_account.id'), nullable=False)
+    asset_account = relationship("AssetAccount")
+
+    asset_value = db.Column(db.BigInteger, nullable=False, default=0) # must be positive, cents
+    liability_value = db.Column(db.BigInteger, nullable=False, default=0) # must be positive, cents
+
+    __table_args__ = (UniqueConstraint('month_info_id', 'asset_account_id', name='_month_assetaccount_uc'),)
 
 
 # DON'T NEED USER MODEL BECAUSE THIS IS JUST FOR PERSONAL USE (at least for now!)
