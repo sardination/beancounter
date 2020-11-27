@@ -623,7 +623,7 @@ class InvestmentIncomeResource(Resource):
 
 month_asset_account_entries_schema = MonthAssetAccountEntrySchema(many=True)
 month_asset_account_entry_schema = MonthAssetAccountEntrySchema()
-class MonthAssetAccountEntry(Resource):
+class MonthAssetAccountEntryResource(Resource):
     def get(self):
         filter_kwargs = {}
         request_dict = request.args
@@ -681,6 +681,10 @@ class MonthAssetAccountEntry(Resource):
 
         if month_asset_account_entry.month_info_id != month_info_id:
             return abort(400, description='Cannot change month info for asset account entry')
+
+        asset_account = AssetAccount.query.filter_by(id=asset_account_id).first()
+        if asset_account is None:
+            return abort(400, description='Asset account with this id does not exist')
 
         # remove old value from month-info for old income
         month_info = MonthInfo.query.filter_by(id=month_info_id)
@@ -792,5 +796,5 @@ api.add_resource(TransactionCategoryResource, "/transaction-category")
 api.add_resource(MonthInfoResource, "/month-info")
 api.add_resource(MonthCategoryResource, "/month-category")
 api.add_resource(InvestmentIncomeResource, "/investment-income")
-api.add_resource(MonthAssetAccountEntry, "/month-asset-account-entry")
+api.add_resource(MonthAssetAccountEntryResource, "/month-asset-account-entry")
 api.add_resource(MonthReflectionResource, "/month-reflection")

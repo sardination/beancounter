@@ -218,6 +218,12 @@ class AssetAccount(db.Model):
 
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(256), nullable=False)
+    # TODO: add account type? cash, real estate, stocks, etc.
+
+    # asset accounts can open and close - need this for showing appropriate
+    #   accounts to report monthly asset and liability values
+    open_date = db.Column(db.Date, nullable=False)
+    close_date = db.Column(db.Date, nullable=True)
 
 
 class MonthAssetAccountEntry(db.Model):

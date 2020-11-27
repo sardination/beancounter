@@ -35,6 +35,8 @@ import { StepFiveComponent } from './steps/step-five/step-five.component';
 import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-chart.component';
 import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflection.component';
 import { InvestmentIncomeTableComponent } from './investment-income-table/investment-income-table.component';
+import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table/monthly-asset-account-table.component';
+import { NetWorthComponent } from './steps/net-worth/net-worth.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +60,8 @@ import { InvestmentIncomeTableComponent } from './investment-income-table/invest
     MonthlyFlowChartComponent,
     MonthlyReflectionComponent,
     InvestmentIncomeTableComponent,
+    MonthlyAssetAccountTableComponent,
+    NetWorthComponent,
   ],
   imports: [
     BrowserModule,
