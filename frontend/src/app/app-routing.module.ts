@@ -5,6 +5,7 @@ import { StepOneComponent } from './steps/step-one/step-one.component';
 import { StepTwoComponent } from './steps/step-two/step-two.component';
 import { StepThreeComponent } from './steps/step-three/step-three.component';
 import { StepFiveComponent } from './steps/step-five/step-five.component';
+import { NetWorthComponent } from './steps/net-worth/net-worth.component';
 
 
 const routes: Routes = [
@@ -13,6 +14,7 @@ const routes: Routes = [
     {path: 'step2', component: StepTwoComponent},
     {path: 'step3', component: StepThreeComponent},
     {path: 'step5', component: StepFiveComponent},
+    {path: 'net-worth', component: NetWorthComponent},
 ];
 
 

@@ -5,6 +5,8 @@ export interface MonthInfo {
     income: number;
     expenditure: number;
     investment_income: number;
+    assets: number;
+    liabilities: number;
     real_hourly_wage: number;
     completed: boolean;
 }

@@ -37,6 +37,7 @@ import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflect
 import { InvestmentIncomeTableComponent } from './investment-income-table/investment-income-table.component';
 import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table/monthly-asset-account-table.component';
 import { NetWorthComponent } from './steps/net-worth/net-worth.component';
+import { NetWorthChartComponent } from './net-worth-chart/net-worth-chart.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { NetWorthComponent } from './steps/net-worth/net-worth.component';
     InvestmentIncomeTableComponent,
     MonthlyAssetAccountTableComponent,
     NetWorthComponent,
+    NetWorthChartComponent,
   ],
   imports: [
     BrowserModule,

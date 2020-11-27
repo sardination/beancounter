@@ -409,6 +409,8 @@ class MonthInfoResource(Resource):
         income = request_dict['income']
         expenditure = request_dict['expenditure']
         investment_income = request_dict['investment_income']
+        assets = request_dict['assets']
+        liabilities = request_dict['liabilities']
         real_hourly_wage = request_dict['real_hourly_wage']
 
         start_date = get_start_date()
@@ -422,6 +424,8 @@ class MonthInfoResource(Resource):
             income=income,
             expenditure=expenditure,
             investment_income=investment_income,
+            assets=assets,
+            liabilities=liabilities,
             real_hourly_wage=real_hourly_wage
         )
         db.session.add(new_month_info)
@@ -440,6 +444,8 @@ class MonthInfoResource(Resource):
         income = request_dict['income']
         expenditure = request_dict['expenditure']
         investment_income = request_dict['investment_income']
+        assets = request_dict['assets']
+        liabilities = request_dict['liabilities']
         real_hourly_wage = request_dict['real_hourly_wage']
         completed = request_dict['completed']
 
@@ -448,6 +454,8 @@ class MonthInfoResource(Resource):
         month_info.expenditure = expenditure
         month_info.investment_income = investment_income
         month_info.real_hourly_wage = real_hourly_wage
+        month_info.assets = assets
+        month_info.liabilities = liabilities
         month_info.completed = completed
 
         return try_commit(month_info, month_info_schema)
@@ -793,6 +801,7 @@ api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
 api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
 api.add_resource(TransactionResource, "/transaction")
 api.add_resource(TransactionCategoryResource, "/transaction-category")
+api.add_resource(AssetAccountResource, "/asset-account")
 api.add_resource(MonthInfoResource, "/month-info")
 api.add_resource(MonthCategoryResource, "/month-category")
 api.add_resource(InvestmentIncomeResource, "/investment-income")
