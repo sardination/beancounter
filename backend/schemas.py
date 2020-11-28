@@ -206,6 +206,25 @@ class AssetAccountSchema(SQLAlchemySchema):
     id = auto_field()
     name = auto_field()
     description = auto_field()
+    open_date = auto_field()
+    close_date = auto_field()
+
+    @pre_load
+    def format_date(self, data, **kwargs):
+        """
+        Convert collected date format into datetime
+        """
+        if data.get("open_date") is not None:
+            data["open_date"] = data["open_date"][:10]
+        else:
+            data["open_date"] = None
+
+        if data.get("close_date") is not None:
+            data["close_date"] = data["close_date"][:10]
+        else:
+            data["close_date"] = None
+
+        return data
 
 
 class MonthInfoSchema(SQLAlchemySchema):
@@ -218,6 +237,8 @@ class MonthInfoSchema(SQLAlchemySchema):
     income = auto_field()
     expenditure = auto_field()
     investment_income = auto_field()
+    assets = auto_field()
+    liabilities = auto_field()
     real_hourly_wage = auto_field()
     completed = auto_field()
 
@@ -230,6 +251,8 @@ class MonthInfoSchema(SQLAlchemySchema):
         data["expenditure"] = data.get("expenditure", 0) * 100
         data["investment_income"] = data.get("investment_income", 0) * 100
         data["real_hourly_wage"] = data.get("real_hourly_wage", 0) * 100
+        data["assets"] = data.get("assets", 0) * 100
+        data["liabilities"] = data.get("liabilities", 0) * 100
 
         # frontend has months zero-indexed
         data["month"] += 1
@@ -245,6 +268,8 @@ class MonthInfoSchema(SQLAlchemySchema):
         data["expenditure"] = float(data["expenditure"]) / 100
         data["investment_income"] = float(data["investment_income"]) / 100
         data["real_hourly_wage"] = float(data["real_hourly_wage"]) / 100
+        data["assets"] = float(data["assets"]) / 100
+        data["liabilities"] = float(data["liabilities"]) / 100
 
         # frontend has months zero-indexed
         data["month"] -= 1

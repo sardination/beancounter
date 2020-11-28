@@ -4,7 +4,10 @@ from flask_restful import (
     Resource,
     Api,
 )
-from sqlalchemy import exc
+from sqlalchemy import (
+    desc,
+    exc,
+)
 
 import datetime
 
@@ -382,14 +385,42 @@ class AssetAccountResource(Resource):
         request_dict = asset_account_schema.load(request.json)
 
         name = request_dict['name']
+        description = request_dict['description']
+        open_date = request_dict['open_date']
+        close_date = request_dict['close_date']
 
         if len(name) == 0:
             return abort(400, description='Supplied empty name for new asset account.')
 
-        new_asset_account = AssetAccount(name=name)
+        new_asset_account = AssetAccount(
+            name=name,
+            description=description,
+            open_date=open_date,
+            close_date=close_date
+        )
         db.session.add(new_asset_account)
 
         return try_commit(new_asset_account, asset_account_schema)
+
+    def put(self):
+        request_dict = asset_account_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for asset account')
+
+        name = request_dict['name']
+        description = request_dict['description']
+        open_date = request_dict['open_date']
+        close_date = request_dict['close_date']
+
+        asset_account = AssetAccount.query.filter_by(id=id).first_or_404()
+        asset_account.name = name
+        asset_account.description = description
+        asset_account.open_date = open_date
+        asset_account.close_date = close_date
+
+        return try_commit(asset_account, asset_account_schema)
 
 
 month_infos_schema = MonthInfoSchema(many=True)
@@ -636,10 +667,17 @@ class MonthAssetAccountEntryResource(Resource):
         filter_kwargs = {}
         request_dict = request.args
         month_info_id = request_dict.get('month_info_id')
+
         try:
-            month_info_id = int(month_info_id)
+            if (month_info_id == 'latest'):
+                month_info_id = MonthInfo.query.order_by(
+                    desc(MonthInfo.year),
+                    desc(MonthInfo.month)
+                ).limit(1).all()[0].id
+            else:
+                month_info_id = int(month_info_id)
             filter_kwargs['month_info_id'] = month_info_id
-        except (TypeError, ValueError):
+        except (IndexError, TypeError, ValueError):
             pass
 
         month_asset_account_entries = MonthAssetAccountEntry.query.filter_by(**filter_kwargs).all()
