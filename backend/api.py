@@ -7,6 +7,7 @@ from flask_restful import (
 from sqlalchemy import (
     desc,
     exc,
+    or_,
 )
 
 import datetime
@@ -378,7 +379,32 @@ asset_accounts_schema = AssetAccountSchema(many=True)
 asset_account_schema = AssetAccountSchema()
 class AssetAccountResource(Resource):
     def get(self):
-        asset_accounts = AssetAccount.query.all()
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+        month_info = None
+        try:
+            month_info_id = int(month_info_id)
+            month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        except (TypeError, ValueError):
+            pass
+
+        asset_accounts = AssetAccount.query
+        if month_info is not None:
+            # filter:
+            #   (account has not closed OR
+            #   account has closed this month or later) AND
+            #   account opened in this month or earlier
+            asset_accounts.filter(
+                or_(
+                    AssetAccount.close_date == None,
+                    AssetAccount.close_date >= datetime.date(month_info.year, month_info.month, 1)
+                )
+            ).filter(
+                AssetAccount.open_date < datetime.date(month_info.year, month_info.month + 1, 1)
+            )
+
+        asset_accounts = asset_accounts.all()
+
         return asset_accounts_schema.dump(asset_accounts)
 
     def post(self):

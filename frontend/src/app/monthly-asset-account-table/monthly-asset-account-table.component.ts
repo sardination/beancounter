@@ -3,8 +3,12 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
-import { MonthAssetAccountEntryService } from '../services/api-object.service';
+import {
+  AssetAccountService,
+  MonthAssetAccountEntryService
+} from '../services/api-object.service';
 
+import { AssetAccount } from '../interfaces/asset-account';
 import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry';
 
 @Component({
@@ -18,15 +22,10 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   get monthAssetAccountEntries(): MonthAssetAccountEntry[] { return this._monthAssetAccountEntries };
   set monthAssetAccountEntries(monthAssetAccountEntries: MonthAssetAccountEntry[]) {
     this._monthAssetAccountEntries = monthAssetAccountEntries;
-    if (!this.tableDataSource) {
-      this.tableDataSource = new MatTableDataSource<MonthAssetAccountEntry>(this._monthAssetAccountEntries);
-    } else {
-      this.tableDataSource.data = this._monthAssetAccountEntries;
-      this.tableDataSource._updateChangeSubscription();
-    }
+    this.fillMap();
   }
   private _monthAssetAccountEntries: MonthAssetAccountEntry[];
-  editingAccountEntry: MonthAssetAccountEntry;
+  editingAccount: AssetAccount;
 
   @Input()
   get monthInfoId(): number { return this._monthInfoId };
@@ -35,22 +34,81 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   }
   private _monthInfoId: number;
 
-  tableDataSource: MatTableDataSource<MonthAssetAccountEntry>;
-  columnsToDisplay = ['name', 'asset_value', 'liability_value', 'description', 'edit', 'delete'];
+  assetAccounts: AssetAccount[];
+  assetAccountToEntryMap: Map<number, MonthAssetAccountEntry> = new Map<number, MonthAssetAccountEntry>();
+
+  tableDataSource: MatTableDataSource<AssetAccount>;
+  columnsToDisplay = ['name', 'asset_value', 'liability_value', 'description', 'edit'];
 
   editingAssetValue: FormControl;
   editingLiabilityValue: FormControl;
 
-  constructor(private monthAssetAccountEntryService: MonthAssetAccountEntryService) { }
+  constructor(
+    private assetAccountService: AssetAccountService,
+    private monthAssetAccountEntryService: MonthAssetAccountEntryService
+  ) { }
 
   ngOnInit(): void {
-      this.tableDataSource = new MatTableDataSource<MonthAssetAccountEntry>(this.monthAssetAccountEntries);
+      this.getAssetAccounts();
   }
 
-  selectEditingAccountEntry(editingAccountEntry: MonthAssetAccountEntry): void {
-    this.setFormControls(editingAccountEntry);
-    this.tableDataSource.data = this.monthAssetAccountEntries;
-    this.editingAccountEntry = editingAccountEntry;
+  getAssetAccounts(): void {
+    this.assetAccountService.getObjectsWithParams({'month_info_id': this.monthInfoId})
+        .subscribe(assetAccountList => {
+            this.assetAccounts = assetAccountList;
+            this.fillMap();
+
+            if (!this.tableDataSource) {
+              this.tableDataSource = new MatTableDataSource<AssetAccount>(this.assetAccounts);
+            } else {
+              this.tableDataSource.data = this.assetAccounts;
+              this.tableDataSource._updateChangeSubscription();
+            }
+        })
+  }
+
+  fillMap(): void {
+      if (this.monthAssetAccountEntries == undefined || this.assetAccounts == undefined) {
+        return;
+      }
+
+      this.assetAccounts.forEach(
+        assetAccount => {
+          this.assetAccountToEntryMap.set(
+            assetAccount.id, {
+              asset_value: 0,
+              liability_value: 0,
+              asset_account_id: assetAccount.id,
+              month_info_id: this.monthInfoId
+            } as MonthAssetAccountEntry
+          );
+        }
+      )
+
+      this.monthAssetAccountEntries.forEach(
+        assetAccountEntry => {
+          this.assetAccountToEntryMap.set(assetAccountEntry.asset_account_id, assetAccountEntry);
+        }
+      )
+  }
+
+  accountEntryFromAccount(account: AssetAccount): MonthAssetAccountEntry {
+    let assetAccountEntry = this.assetAccountToEntryMap.get(account.id);
+    if (assetAccountEntry == undefined) {
+      assetAccountEntry = {
+        asset_value: 0,
+        liability_value: 0,
+        asset_account_id: account.id,
+        month_info_id: this.monthInfoId
+      } as MonthAssetAccountEntry;
+    }
+    return assetAccountEntry;
+  }
+
+  selectEditingAccount(editingAccount: AssetAccount): void {
+    this.setFormControls(this.accountEntryFromAccount(editingAccount));
+    this.tableDataSource.data = this.assetAccounts;
+    this.editingAccount = editingAccount;
   }
 
   zeroFormControls(): void {
@@ -64,53 +122,44 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   }
 
   cancelEditAccountEntry(): void {
-    this.tableDataSource.data = this.monthAssetAccountEntries;
-    this.editingAccountEntry = null;
+    this.tableDataSource.data = this.assetAccounts;
+    this.editingAccount = null;
   }
 
   updateEditingAccountEntry(): void {
-      this.tableDataSource.data = this.monthAssetAccountEntries;
+      this.tableDataSource.data = this.assetAccounts;
       this.updateEditingAccountEntryFromFormControls();
-      var accountEntry = this.editingAccountEntry;
+      var accountEntry = this.accountEntryFromAccount(this.editingAccount);
 
       if (!accountEntry.id) {
         this.monthAssetAccountEntryService.addObject(accountEntry)
             .subscribe(newAccountEntry => {
                 this.monthAssetAccountEntries.push(newAccountEntry);
                 this.monthAssetAccountEntries = this.monthAssetAccountEntries;
-                this.tableDataSource.data = this.monthAssetAccountEntries;
-                this.editingAccountEntry = null;
+                this.tableDataSource.data = this.assetAccounts;
+                this.editingAccount = null;
             })
       } else {
         this.monthAssetAccountEntryService.updateObject(accountEntry)
             .subscribe(updatedAccountEntry => {
                 accountEntry = updatedAccountEntry;
                 this.monthAssetAccountEntries = this.monthAssetAccountEntries;
-                this.tableDataSource.data = this.monthAssetAccountEntries;
-                this.editingAccountEntry = null;
+                this.tableDataSource.data = this.assetAccounts;
+                this.editingAccount = null;
             })
       }
+
+      this.assetAccountToEntryMap.set(this.editingAccount.id, accountEntry);
   }
 
   updateEditingAccountEntryFromFormControls(): void {
-    if (this.editingAccountEntry != undefined) {
-      this.editingAccountEntry.asset_value = this.editingAssetValue.value;
-      this.editingAccountEntry.liability_value = this.editingLiabilityValue.value;
+    let editingAccountEntry = this.accountEntryFromAccount(this.editingAccount);
+    if (editingAccountEntry != undefined) {
+      editingAccountEntry.asset_value = this.editingAssetValue.value;
+      editingAccountEntry.liability_value = this.editingLiabilityValue.value;
+      this.assetAccountToEntryMap.set(this.editingAccount.id, editingAccountEntry);
     }
   }
 
-  deleteAccountEntry(assetAccount: MonthAssetAccountEntry): void {
-    this.monthAssetAccountEntryService.deleteObject(assetAccount)
-        .subscribe(deletedAssetAccount => {
-          // have to use original entry due to addressing
-          this.monthAssetAccountEntries.splice(this.monthAssetAccountEntries.indexOf(assetAccount), 1);
-          if (this.editingAccountEntry == null) {
-            this.tableDataSource.data = this.monthAssetAccountEntries;
-          } else {
-            this.tableDataSource.data = [this.editingAccountEntry].concat(this.monthAssetAccountEntries);
-          }
-          this.tableDataSource._updateChangeSubscription();
-        })
-  }
 
 }

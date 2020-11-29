@@ -37,7 +37,8 @@ export class AssetAccountTableComponent implements OnInit {
   };
   private _assetAccounts: AssetAccount[];
 
-  assetAccountToEntryMap: { [account_id: number]: MonthAssetAccountEntry } = {};
+  // key: account_id; value: month asset account entry
+  assetAccountToEntryMap: Map<number, MonthAssetAccountEntry> = new Map<number, MonthAssetAccountEntry>();
 
   @Output() toggleAccountActivationEvent = new EventEmitter<AssetAccount>();
 
@@ -91,19 +92,39 @@ export class AssetAccountTableComponent implements OnInit {
   }
 
   fillMap(): void {
-      if (this.latestAssetAccountEntries == undefined && this.assetAccounts != undefined) {
-        this.assetAccounts.forEach(
-          assetAccount => {
-            this.assetAccountToEntryMap[assetAccount.id] = {asset_value: 0, liability_value: 0} as MonthAssetAccountEntry;
-          }
-        )
-      } else if (this.latestAssetAccountEntries != undefined) {
-        this.latestAssetAccountEntries.forEach(
-          assetAccountEntry => {
-            this.assetAccountToEntryMap[assetAccountEntry.asset_account_id] = assetAccountEntry;
-          }
-        )
+      if (this.latestAssetAccountEntries == undefined || this.assetAccounts == undefined) {
+        return;
       }
+
+      this.assetAccounts.forEach(
+        assetAccount => {
+          this.assetAccountToEntryMap.set(
+            assetAccount.id, {asset_value: 0, liability_value: 0} as MonthAssetAccountEntry
+          );
+        }
+      )
+
+      this.latestAssetAccountEntries.forEach(
+        assetAccountEntry => {
+          this.assetAccountToEntryMap.set(assetAccountEntry.asset_account_id, assetAccountEntry);
+        }
+      )
+  }
+
+  getValueFromAccountID(account_id: number, asset: boolean) {
+    /*
+      account_id: account ID
+      asset: true if getting asset value, false if getting liability value
+    */
+    if (this.assetAccountToEntryMap == undefined || !this.assetAccountToEntryMap.get(account_id)) {
+      return 0;
+    }
+
+    if (asset) {
+      return this.assetAccountToEntryMap.get(account_id).asset_value;
+    } else {
+      return this.assetAccountToEntryMap.get(account_id).liability_value;
+    }
   }
 
 }
