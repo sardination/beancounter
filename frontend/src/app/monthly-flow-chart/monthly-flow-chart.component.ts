@@ -57,7 +57,8 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
     var investmentIncomeProjectionLine = d3.line<MonthInfo>()
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(function(d) {
-              capital += d.income - d.expenditure;
+              // capital += d.income - d.expenditure;
+              capital = d.assets - d.liabilities
               return y(capital * _this._longTermInterestRate / 12);
             })
 

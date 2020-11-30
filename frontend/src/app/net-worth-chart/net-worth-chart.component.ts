@@ -31,8 +31,18 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(function(d) {return y(d.assets - d.liabilities)});
 
-
     // draw lines
+    this.drawLine(svg, this.monthInfos, netWorthLine, "#444");
+    svg.selectAll("net-worth-circle")
+       .data(this.monthInfos)
+       .join("text")
+         .text(d => d.assets - d.liabilities)
+         .attr("dy", "-0.5em")
+         .attr("x", function(d) {return x(new Date(d.year, d.month, 1))})
+         .attr("y", function(d) {return y(d.assets - d.liabilities)})
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.assets - d.liabilities)})
+
     this.drawLine(svg, this.monthInfos, assetLine, "#0f0");
     svg.selectAll("asset-circle")
        .data(this.monthInfos)
@@ -51,15 +61,49 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
        .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
        .attr("cy", function(d) {return y(d.liabilities)})
 
-    this.drawLine(svg, this.monthInfos, netWorthLine, "#f00");
-    svg.selectAll("net-worth-circle")
-       .data(this.monthInfos)
-       .enter().append("circle")
-       .attr("fill", "#00f")
-       .attr("r", 5)
-       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
-       .attr("cy", function(d) {return y(d.assets - d.liabilities)})
+    // fill space between assets and liability lines to indicate net worth
+    var areaAboveAssetLine = d3.area<MonthInfo>()
+            .x(assetLine.x())
+            .y0(assetLine.y())
+            .y1(this.yDomain()[1])
+    var areaBelowAssetLine = d3.area<MonthInfo>()
+            .x(assetLine.x())
+            .y0(this.yDomain()[0])
+            .y1(assetLine.y())
+    var areaAboveLiabilityLine = d3.area<MonthInfo>()
+            .x(liabilityLine.x())
+            .y0(liabilityLine.y())
+            .y1(this.yDomain()[1])
+    var areaBelowLiabilityLine = d3.area<MonthInfo>()
+            .x(liabilityLine.x())
+            .y0(this.yDomain()[0])
+            .y1(liabilityLine.y())
 
+    var defs = svg.append('defs');
+    defs.append('clipPath')
+      .attr('id', 'clip-asset')
+      .append('path')
+      .datum(this.monthInfos)
+      .attr('d', areaAboveAssetLine);
+    defs.append('clipPath')
+      .attr('id', 'clip-liability')
+      .append('path')
+      .datum(this.monthInfos)
+      .attr('d', areaAboveLiabilityLine);
+
+    // ASSET IS ABOVE LIABILITY
+    svg.append('path')
+      .datum(this.monthInfos)
+      .attr('d', areaBelowAssetLine)
+      .attr('clip-path', 'url(#clip-liability)')
+      .attr("fill", "#ddd")
+
+    // LIABILITY IS ABOVE ASSET
+    svg.append('path')
+      .datum(this.monthInfos)
+      .attr('d', areaBelowLiabilityLine)
+      .attr('clip-path', 'url(#clip-asset)')
+      .attr("fill", "#ddd")
   }
 
 }
