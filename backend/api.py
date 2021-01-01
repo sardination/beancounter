@@ -394,13 +394,19 @@ class AssetAccountResource(Resource):
             #   (account has not closed OR
             #   account has closed this month or later) AND
             #   account opened in this month or earlier
+
+            if month_info.month == 12:
+                latest_open_date = datetime.date(month_info.year + 1, 1, 1)
+            else:
+                latest_open_date = datetime.date(month_info.year, month_info.month + 1, 1)
+
             asset_accounts.filter(
                 or_(
                     AssetAccount.close_date == None,
                     AssetAccount.close_date >= datetime.date(month_info.year, month_info.month, 1)
                 )
             ).filter(
-                AssetAccount.open_date < datetime.date(month_info.year, month_info.month + 1, 1)
+                AssetAccount.open_date < latest_open_date
             )
 
         asset_accounts = asset_accounts.all()
@@ -696,7 +702,7 @@ class MonthAssetAccountEntryResource(Resource):
 
         try:
             if (month_info_id == 'latest'):
-                month_info_id = MonthInfo.query.order_by(
+                month_info_id = MonthInfo.query.join(MonthAssetAccountEntry).order_by(
                     desc(MonthInfo.year),
                     desc(MonthInfo.month)
                 ).limit(1).all()[0].id

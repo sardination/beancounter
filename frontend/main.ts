@@ -4,10 +4,8 @@ import { isDevMode } from '@angular/core';
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-  });
+  const mainWindow = new BrowserWindow();
+  mainWindow.maximize();
 
   // and load the index.html of the app.
   // mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
