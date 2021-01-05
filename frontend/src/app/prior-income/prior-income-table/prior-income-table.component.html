@@ -1,4 +1,6 @@
-<button (click)="addNewEmptyIncome()">Add Income</button>
+<button (click)="addNewEmptyIncome()" class="icon-button add">
+    Add Income <fa-icon [icon]="faPlusSquare"></fa-icon>
+</button>
 <table mat-table [dataSource]="tableDataSource">
     <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Date</th>
@@ -40,10 +42,14 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let priorIncome">
             <div *ngIf="priorIncome !== editingIncome; else submitEdited">
-                <button mat-button (click)="selectEditingIncome(priorIncome)">Edit</button>
+                <button mat-button (click)="selectEditingIncome(priorIncome)" class="icon-button edit">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                </button>
             </div>
             <ng-template #submitEdited>
-                <button mat-button (click)="updatePriorIncome()">Submit</button>
+                <button mat-button (click)="updatePriorIncome()" class="icon-button submit">
+                    <fa-icon [icon]="faCheck"></fa-icon>
+                </button>
             </ng-template>
         </td>
     </ng-container>
@@ -52,10 +58,14 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let priorIncome">
             <div *ngIf="priorIncome !== editingIncome; else cancelEdit">
-                <button mat-button (click)="deleteIncome(priorIncome)">Delete</button>
+                <button mat-button (click)="deleteIncome(priorIncome)" class="icon-button delete">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                </button>
             </div>
             <ng-template #cancelEdit>
-                <button mat-button (click)="cancelEditIncome()">Cancel</button>
+                <button mat-button (click)="cancelEditIncome()" class="icon-button cancel">
+                    <fa-icon [icon]="faTimes"></fa-icon>
+                </button>
             </ng-template>
         </td>
     </ng-container>

@@ -1,11 +1,13 @@
 <h1>{{title}}</h1>
 
 <nav>
-    <a routerLink="/step1">Step 1</a> |
-    <a routerLink="/step2">Step 2</a> |
-    <a routerLink="/step3">Step 3/4/6/7</a> |
-    <a routerLink="/step5">Step 5</a> |
-    <a routerLink="/net-worth">Net Worth</a> |
+    |
+    <a routerLink="/prior-inventory" routerLinkActive='active'>Day 1</a> |
+    <a routerLink="/step2" routerLinkActive='active'>My Job</a> |
+    <a routerLink="/step3" routerLinkActive='active'>Daily Transactions</a> |
+    <a routerLink="/step5" routerLinkActive='active'>Monthly Review</a> |
+    <a routerLink="/net-worth" routerLinkActive='active'>Net Worth</a> |
 </nav>
+<br />
 
 <router-outlet></router-outlet>

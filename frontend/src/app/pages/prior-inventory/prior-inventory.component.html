@@ -1,0 +1,13 @@
+<div class="page-header"><h2>Day 1 - Prior Inventory</h2></div>
+<p>Step 1 of achieving financial independence is to believe in your own earning potential. First, find out all the income you have ever received up until this day. The smallest payment for the smallest chore you did as a child counts! Then, create a balance sheet of all of your liquid and physical assets and debts. If you own something that you think is worth something, include it here. Completing this first step will give you an idea of how far you've already come before you've even started.</p>
+
+<div class="start-date">
+    <label>Your Day 1:
+        <input [ngModel]="startDate" type="date" value="{{ startDate }}" (ngModelChange)=updateStartDate($event) />
+    </label>
+</div>
+
+<mat-tab-group>
+    <mat-tab label="Prior Income"><app-prior-income></app-prior-income></mat-tab>
+    <mat-tab label="Balance Sheet"><app-balance-sheet></app-balance-sheet></mat-tab>
+</mat-tab-group>

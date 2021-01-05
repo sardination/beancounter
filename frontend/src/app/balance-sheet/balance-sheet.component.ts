@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { BalanceSheetEntry } from '../interfaces/balance-sheet-entry';
 import { BalanceSheetService } from '../services/api-object.service';
@@ -10,6 +11,8 @@ import { BalanceSheetService } from '../services/api-object.service';
   styleUrls: ['./balance-sheet.component.css']
 })
 export class BalanceSheetComponent implements OnInit {
+
+  faPlusSquare = faPlusSquare;
 
   balanceSheetEntries: BalanceSheetEntry[];
 

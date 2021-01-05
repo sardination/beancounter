@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { PriorIncomeService } from '../../services/api-object.service';
 
@@ -13,10 +14,16 @@ import { PriorIncome } from '../../interfaces/prior-income';
 })
 export class PriorIncomeTableComponent implements OnInit {
 
+  faEdit = faEdit;
+  faCheck = faCheck;
+  faTrash = faTrash;
+  faTimes = faTimes;
+  faPlusSquare = faPlusSquare;
+
   @Input()
   get priorIncomes(): PriorIncome[] { return this._priorIncomes; };
   set priorIncomes(priorIncomes: PriorIncome[]) {
-    this._priorIncomes = priorIncomes;
+    this._priorIncomes = this.sortIncomes(priorIncomes);;
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<PriorIncome>(this._priorIncomes);
     } else {
@@ -54,7 +61,7 @@ export class PriorIncomeTableComponent implements OnInit {
   }
 
   setFormControls(priorIncome: PriorIncome): void {
-    this.editingIncomeDate = new FormControl(priorIncome.date);
+    this.editingIncomeDate = new FormControl(priorIncome.date.toISOString().substring(0,10));
     this.editingIncomeAmount = new FormControl(priorIncome.amount);
     this.editingIncomeDescription = new FormControl(priorIncome.description);
   }
@@ -81,6 +88,7 @@ export class PriorIncomeTableComponent implements OnInit {
         this.priorIncomeService.addObject(priorIncome)
             .subscribe(newPriorIncome => {
                 this.priorIncomes.push(newPriorIncome);
+                this.priorIncomes = this.sortIncomes(this.priorIncomes);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
             })
@@ -88,6 +96,7 @@ export class PriorIncomeTableComponent implements OnInit {
         this.priorIncomeService.updateObject(priorIncome)
             .subscribe(updatedPriorIncome => {
                 priorIncome = updatedPriorIncome;
+                this.priorIncomes = this.sortIncomes(this.priorIncomes);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
             })
@@ -121,6 +130,21 @@ export class PriorIncomeTableComponent implements OnInit {
           }
           this.tableDataSource._updateChangeSubscription();
         })
+  }
+
+  sortIncomes(incomes: PriorIncome[]): PriorIncome[] {
+    if (!incomes) {
+      return [];
+    }
+    return incomes.sort((a, b) => {
+        if (a.date > b.date) {
+            return -1;
+        } else if (a.date < b.date) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
   }
 
 }

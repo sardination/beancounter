@@ -39,6 +39,7 @@ import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table
 import { AddAssetAccountDialog, NetWorthComponent } from './steps/net-worth/net-worth.component';
 import { NetWorthChartComponent } from './net-worth-chart/net-worth-chart.component';
 import { AssetAccountTableComponent } from './steps/net-worth/asset-account-table/asset-account-table.component';
+import { PriorInventoryComponent } from './pages/prior-inventory/prior-inventory.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +68,7 @@ import { AssetAccountTableComponent } from './steps/net-worth/asset-account-tabl
     NetWorthChartComponent,
     AddAssetAccountDialog,
     AssetAccountTableComponent,
+    PriorInventoryComponent,
   ],
   imports: [
     BrowserModule,

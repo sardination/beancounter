@@ -9,11 +9,50 @@
 // Be sure that you only ever include this mixin once!
 @include mat-core();
 
+// custom features
+
+$custom-material-theme: (
+    50 : #edf5ea,
+    100 : #d2e5ca,
+    200 : #b5d4a7,
+    300 : #97c284,
+    400 : #80b569,
+    500 : #6aa84f,
+    600 : #62a048,
+    700 : #57973f,
+    800 : #4d8d36,
+    900 : #3c7d26,
+    A100 : #cdffbe,
+    A200 : #a6ff8b,
+    A400 : #7fff58,
+    A700 : #6cff3f,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #ffffff,
+        800 : #ffffff,
+        900 : #ffffff,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+
+$custom-typography: mat-typography-config(
+  $font-family: "TW Cen MT, Tahoma, sans-serif"
+);
+
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$financial-planner-primary: mat-palette($mat-pink);
-$financial-planner-accent: mat-palette($mat-pink, A200, A100, A400);
+$financial-planner-primary: mat-palette($custom-material-theme);
+$financial-planner-accent: mat-palette($custom-material-theme, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
 $financial-planner-warn: mat-palette($mat-red);
@@ -27,6 +66,8 @@ $financial-planner-theme: mat-light-theme((
     warn: $financial-planner-warn,
   )
 ));
+
+@include angular-material-typography($custom-typography);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component

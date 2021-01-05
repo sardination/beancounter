@@ -1,7 +1,23 @@
-div.assets h4 {
-    color: #00ff00;
+.total-balance-header {
+    text-align: center;
 }
 
-div.liabilities h4 {
-    color: #ff0000;
+.total-balance-header span {
+    font-weight: bold;
+}
+
+.sheet-column-header {
+    text-align: center;
+}
+
+.sheet-column-header span {
+    font-weight: bold;
+}
+
+div.assets .sheet-column-header {
+    color: #80b569;
+}
+
+div.liabilities .sheet-column-header {
+    color: #e06868;
 }

@@ -7,6 +7,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { BalanceSheetEntry } from '../../interfaces/balance-sheet-entry';
 
@@ -16,6 +17,8 @@ import { BalanceSheetEntry } from '../../interfaces/balance-sheet-entry';
   styleUrls: ['./balance-sheet-entry-table.component.css']
 })
 export class BalanceSheetEntryTableComponent implements OnInit {
+
+  faTrash = faTrash;
 
   @Input()
   get entries(): BalanceSheetEntry[] { return this._entries };

@@ -1,10 +1,11 @@
-<h3>Balance Sheet: ${{ getAssetTotal() - getLiabilityTotal() | number: '1.2-2' }}</h3>
+<h3 class="total-balance-header">Beginning Balance: <span>${{ getAssetTotal() - getLiabilityTotal() | number: '1.2-2' }}</span></h3>
 
-<button mat-raised-button (click)="openAddEntryDialog()">Add Entry</button>
+<button mat-raised-button (click)="openAddEntryDialog()" class="icon-button add">Add Entry <fa-icon [icon]="faPlusSquare"></fa-icon></button>
+<br />
 
 <div *ngIf="balanceSheetEntries" class="content" fxLayout="row" fxLayout.xs="column">
     <div fxFlex="" class="assets">
-        <h4>Assets: ${{ getAssetTotal() | number: '1.2-2' }}</h4>
+        <h4 class="sheet-column-header">Assets: <span>${{ getAssetTotal() | number: '1.2-2' }}</span></h4>
         <app-balance-sheet-entry-table
             [entries]="getAssets()"
             (deleteEntryEvent)="deleteEntry($event)"
@@ -14,7 +15,7 @@
     <mat-divider [vertical]="true"></mat-divider>
 
     <div fxFlex="" class="liabilities">
-        <h4>Liabilities: -${{ getLiabilityTotal() | number: '1.2-2' }}</h4>
+        <h4 class="sheet-column-header">Liabilities: <span>-${{ getLiabilityTotal() | number: '1.2-2' }}</span></h4>
         <app-balance-sheet-entry-table
             [entries]="getLiabilities()"
             (deleteEntryEvent)="deleteEntry($event)"

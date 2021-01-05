@@ -35,7 +35,7 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   }
 
   containsDate(arg: any): arg is {date: Date} {
-    return (arg as {date: Date}).date !== undefined;
+    return !(!(arg as {date: Date}).date);
   }
 
   getObjectsWithParams(params: any): Observable<T[]> {

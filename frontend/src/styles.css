@@ -1,6 +1,59 @@
 /* You can add global styles to this file, and also import other style files */
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+    height: 100%;
+    font-family: "TW Cen MT", "Tahoma", sans-serif;
+}
+body { margin: 1em; }
 table { width: 100%; }
+
+table {
+  width: 100%;
+}
+
+/* everywhere else */
+* {
+  font-family: "TW Cen MT", "Tahoma", sans-serif;
+}
+
+input[type="text"], button {
+  color: #333;
+  font-family: "TW Cen MT", "Tahoma", sans-serif;
+}
+
+button {
+    cursor: pointer;
+}
+
+button.icon-button {
+  border: none;
+  background-color: rgba(255, 255, 255, 0);
+}
+
+button.edit:hover {
+    color: #0f0;
+}
+
+button.submit:hover {
+    color: #0f0;
+}
+
+button.delete:hover {
+    color: #f00;
+}
+
+button.cancel:hover {
+    color: #f00;
+}
+
+button.add {
+    font-size: 110%;
+    float: right;
+    background-color: #3c7d26;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+button.add:hover {
+    background-color: #6aa84f;
+}
