@@ -1,4 +1,6 @@
-<button (click)="addNewEmptyTransaction()">Add Transaction</button>
+<button (click)="addNewEmptyTransaction()" class="icon-button add">
+    Add Transaction <fa-icon [icon]="faPlusSquare"></fa-icon>
+</button>
 <table mat-table [dataSource]="tableDataSource">
     <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef>Date</th>
@@ -52,10 +54,14 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let transaction">
             <div *ngIf="transaction !== editingTransaction; else submitEdited">
-                <button mat-button (click)="selectEditingTransaction(transaction)">Edit</button>
+                <button mat-button (click)="selectEditingTransaction(transaction)" class="icon-button edit">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                </button>
             </div>
             <ng-template #submitEdited>
-                <button mat-button (click)="updateEditingTransaction()">Submit</button>
+                <button mat-button (click)="updateEditingTransaction()" class="icon-button submit">
+                    <fa-icon [icon]="faCheck"></fa-icon>
+                </button>
             </ng-template>
         </td>
     </ng-container>
@@ -64,10 +70,14 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let transaction">
             <div *ngIf="transaction !== editingTransaction; else cancelEdit">
-                <button mat-button (click)="deleteTransaction(transaction)">Delete</button>
+                <button mat-button (click)="deleteTransaction(transaction)" class="icon-button delete">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                </button>
             </div>
             <ng-template #cancelEdit>
-                <button mat-button (click)="cancelEditTransaction()">Cancel</button>
+                <button mat-button (click)="cancelEditTransaction()" class="icon-button cancel">
+                    <fa-icon [icon]="faTimes"></fa-icon>
+                </button>
             </ng-template>
         </td>
     </ng-container>

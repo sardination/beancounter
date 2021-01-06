@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { TransactionService } from '../../services/api-object.service';
 
@@ -13,6 +14,12 @@ import { Transaction } from '../../interfaces/transaction';
   styleUrls: ['./daily-transaction-table.component.css']
 })
 export class DailyTransactionTableComponent implements OnInit {
+
+  faEdit = faEdit;
+  faCheck = faCheck;
+  faTrash = faTrash;
+  faTimes = faTimes;
+  faPlusSquare = faPlusSquare;
 
   @Input()
   get transactions(): Transaction[] { return this._transactions };
@@ -65,8 +72,12 @@ export class DailyTransactionTableComponent implements OnInit {
     });
   }
 
+  todaysDateInputValueString(): string {
+    return (new Date()).toISOString().substring(0,10)
+  }
+
   zeroFormControls(): void {
-    this.editingTransactionDate = new FormControl();
+    this.editingTransactionDate = new FormControl(this.todaysDateInputValueString());
     this.editingTransactionType = new FormControl("expenditure");
     this.editingTransactionValue = new FormControl(0);
     this.editingTransactionDescription = new FormControl("");

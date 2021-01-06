@@ -3,11 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { InfoService } from '../../services/info.service';
 
 @Component({
-  selector: 'app-prior-inventory',
-  templateUrl: './prior-inventory.component.html',
-  styleUrls: ['./prior-inventory.component.css']
+  selector: 'app-prior-inventory-page',
+  templateUrl: './prior-inventory-page.component.html',
+  styleUrls: ['./prior-inventory-page.component.css']
 })
-export class PriorInventoryComponent implements OnInit {
+export class PriorInventoryPageComponent implements OnInit {
 
   startDate: Date;
 

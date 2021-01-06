@@ -1,6 +1,6 @@
-<h3>All Transactions</h3>
-
-<p>Spending to date: ${{ totalExpenditures() | number: '1.2-2' }}</p>
-<p>Income to date: ${{ totalIncome() | number: '1.2-2' }}</p>
+<div class="header-row">
+    <h3 class="total-header header-column">Income to date: <span class="income">${{ totalIncome() | number: '1.2-2' }}</span></h3>
+    <h3 class="total-header header-column">Spending to date: <span class="expenditures">${{ totalExpenditures() | number: '1.2-2' }}</span></h3>
+</div>
 
 <app-daily-transaction-table [transactions]="transactions"></app-daily-transaction-table>

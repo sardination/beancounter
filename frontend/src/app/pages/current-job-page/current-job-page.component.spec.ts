@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PriorInventoryComponent } from './prior-inventory.component';
+import { CurrentJobPageComponent } from './current-job-page.component';
 
-describe('PriorInventoryComponent', () => {
-  let component: PriorInventoryComponent;
-  let fixture: ComponentFixture<PriorInventoryComponent>;
+describe('CurrentJobPageComponent', () => {
+  let component: CurrentJobPageComponent;
+  let fixture: ComponentFixture<CurrentJobPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PriorInventoryComponent ]
+      declarations: [ CurrentJobPageComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PriorInventoryComponent);
+    fixture = TestBed.createComponent(CurrentJobPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

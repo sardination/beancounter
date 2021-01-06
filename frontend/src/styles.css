@@ -16,6 +16,10 @@ table {
   font-family: "TW Cen MT", "Tahoma", sans-serif;
 }
 
+.page-header {
+    background-color: #b5d4a7;
+}
+
 input[type="text"], button {
   color: #333;
   font-family: "TW Cen MT", "Tahoma", sans-serif;

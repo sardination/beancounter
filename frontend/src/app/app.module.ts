@@ -39,7 +39,9 @@ import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table
 import { AddAssetAccountDialog, NetWorthComponent } from './steps/net-worth/net-worth.component';
 import { NetWorthChartComponent } from './net-worth-chart/net-worth-chart.component';
 import { AssetAccountTableComponent } from './steps/net-worth/asset-account-table/asset-account-table.component';
-import { PriorInventoryComponent } from './pages/prior-inventory/prior-inventory.component';
+import { PriorInventoryPageComponent } from './pages/prior-inventory-page/prior-inventory-page.component';
+import { CurrentJobPageComponent } from './pages/current-job-page/current-job-page.component';
+import { DailyTransactionsPageComponent } from './pages/daily-transactions-page/daily-transactions-page.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +70,9 @@ import { PriorInventoryComponent } from './pages/prior-inventory/prior-inventory
     NetWorthChartComponent,
     AddAssetAccountDialog,
     AssetAccountTableComponent,
-    PriorInventoryComponent,
+    PriorInventoryPageComponent,
+    CurrentJobPageComponent,
+    DailyTransactionsPageComponent,
   ],
   imports: [
     BrowserModule,

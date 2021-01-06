@@ -7,6 +7,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 import { WeeklyJobTransaction } from '../../interfaces/weekly-job-transaction';
 
@@ -16,6 +17,8 @@ import { WeeklyJobTransaction } from '../../interfaces/weekly-job-transaction';
   styleUrls: ['./job-transaction-table.component.css']
 })
 export class JobTransactionTableComponent implements OnInit {
+
+  faTrash = faTrash;
 
   @Input()
   get weeklyJobTransactions(): WeeklyJobTransaction[] { return this._weeklyJobTransactions };

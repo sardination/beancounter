@@ -1,0 +1,26 @@
+.total-header {
+    text-align: center;
+}
+
+.total-header span {
+    font-weight: bold;
+}
+
+span.income {
+    color: #80b569;
+}
+
+span.expenditures {
+    color: #e06868;
+}
+
+.header-column {
+    float: left;
+    width: 50%;
+}
+
+.header-row:after {
+  content: "";
+  display: table;
+  clear: both;
+}

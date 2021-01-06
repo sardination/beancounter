@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { WeeklyJobTransactionService } from '../services/api-object.service';
 import { InfoService } from '../services/info.service';
@@ -12,6 +13,8 @@ import { WeeklyJobTransaction } from '../interfaces/weekly-job-transaction';
   styleUrls: ['./real-wage.component.css']
 })
 export class RealWageComponent implements OnInit {
+
+  faPlusSquare = faPlusSquare;
 
   weeklyJobTransactions: WeeklyJobTransaction[];
   realHourlyWage: number;
