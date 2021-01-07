@@ -1,0 +1,8 @@
+mat-list-item.selected {
+    color: #ffffff;
+    background-color: #3c7d26;
+}
+
+mat-list-item.selected:hover {
+    color: #000000;
+}

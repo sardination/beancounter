@@ -58,6 +58,13 @@ button.add {
     border-radius: 5px;
 }
 
-button.add:hover {
+button.add-single {
+    font-size: 110%;
+    background-color: #3c7d26;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+button.add:hover, button.add-single:hover {
     background-color: #6aa84f;
 }

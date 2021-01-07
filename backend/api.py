@@ -577,7 +577,7 @@ class MonthCategoryResource(Resource):
         month_info_id = request_dict['month_info_id']
         fulfilment = request_dict['fulfilment']
 
-        month_info = MonthInfo.query.filter_by(month_info_id=month_info_id).first()
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
         if month_info is not None and month_info.completed:
             abort(400, description="month-category month-info is not updating entries")
 
@@ -765,7 +765,9 @@ class MonthAssetAccountEntryResource(Resource):
             return abort(400, description='Asset account with this id does not exist')
 
         # remove old value from month-info for old income
-        month_info = MonthInfo.query.filter_by(id=month_info_id)
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
         month_info.assets -= month_asset_account_entry.asset_value
         month_info.liabilities += month_asset_account_entry.liability_value
 

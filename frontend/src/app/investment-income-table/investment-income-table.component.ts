@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { InvestmentIncomeService } from '../services/api-object.service';
 
@@ -13,6 +14,12 @@ import { InvestmentIncome } from '../interfaces/investment-income';
   styleUrls: ['./investment-income-table.component.css']
 })
 export class InvestmentIncomeTableComponent implements OnInit {
+
+  faEdit = faEdit;
+  faCheck = faCheck;
+  faTrash = faTrash;
+  faTimes = faTimes;
+  faPlusSquare = faPlusSquare;
 
   @Input()
   get investmentIncomes(): InvestmentIncome[] { return this._investmentIncomes };

@@ -36,12 +36,15 @@ import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-cha
 import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflection.component';
 import { InvestmentIncomeTableComponent } from './investment-income-table/investment-income-table.component';
 import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table/monthly-asset-account-table.component';
-import { AddAssetAccountDialog, NetWorthComponent } from './steps/net-worth/net-worth.component';
+import { AddAssetAccountDialog, NetWorthComponent } from './net-worth/net-worth.component';
 import { NetWorthChartComponent } from './net-worth-chart/net-worth-chart.component';
 import { AssetAccountTableComponent } from './steps/net-worth/asset-account-table/asset-account-table.component';
 import { PriorInventoryPageComponent } from './pages/prior-inventory-page/prior-inventory-page.component';
 import { CurrentJobPageComponent } from './pages/current-job-page/current-job-page.component';
 import { DailyTransactionsPageComponent } from './pages/daily-transactions-page/daily-transactions-page.component';
+import { MonthlyReviewPageComponent } from './pages/monthly-review-page/monthly-review-page.component';
+import { FIProjectionPageComponent } from './pages/fi-projection-page/fi-projection-page.component';
+import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +76,9 @@ import { DailyTransactionsPageComponent } from './pages/daily-transactions-page/
     PriorInventoryPageComponent,
     CurrentJobPageComponent,
     DailyTransactionsPageComponent,
+    MonthlyReviewPageComponent,
+    FIProjectionPageComponent,
+    NetWorthPageComponent,
   ],
   imports: [
     BrowserModule,

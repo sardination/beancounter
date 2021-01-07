@@ -45,10 +45,14 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let account">
             <div *ngIf="account !== editingAccount; else submitEdited">
-                <button mat-button (click)="selectEditingAccount(account)">Edit</button>
+                <button mat-button (click)="selectEditingAccount(account)" class="icon-button edit">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                </button>
             </div>
             <ng-template #submitEdited>
-                <button mat-button (click)="updateEditingAccountEntry()">Submit</button>
+                <button mat-button (click)="updateEditingAccountEntry()" class="icon-button submit">
+                    <fa-icon [icon]="faCheck"></fa-icon>
+                </button>
             </ng-template>
         </td>
     </ng-container>

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
-import { faCheck, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faArrowUp, faArrowDown, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
@@ -20,6 +20,8 @@ import { InfoService } from '../services/info.service';
   styleUrls: ['./category-totals.component.css']
 })
 export class CategoryTotalsComponent implements OnInit {
+
+  faPlusSquare = faPlusSquare;
 
   @Input()
   set selectedMonthInfo(selectedMonthInfo: MonthInfo) { this._selectedMonthInfo = selectedMonthInfo }
@@ -102,17 +104,21 @@ export class CategoryTotalsComponent implements OnInit {
       return this.categoryTotal(category) / realHourlyWage;
   }
 
-  iconLabelFromCategoryId(categoryId: number): any {
+  iconClassFromCategoryId(categoryId: number): any {
       if (this.monthCategories == undefined) {
-        return this.fulfilmentTypes["neutral"];
+        return "neutral";
       }
 
       let monthCategory = this.monthCategories.get(categoryId)
       if (monthCategory == undefined) {
-        return this.fulfilmentTypes["neutral"];
+        return "neutral";
       }
 
-      return this.fulfilmentTypes[monthCategory.fulfilment];
+      return monthCategory.fulfilment;
+  }
+
+  iconLabelFromCategoryId(categoryId: number): any {
+      return this.fulfilmentTypes[this.iconClassFromCategoryId(categoryId)];
   }
 
   changeCategoryFulfilment(categoryId: number): void {

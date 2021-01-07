@@ -1,12 +1,21 @@
-<ul>
-    <li *ngFor="let category of displayCategories">
-        {{ category.name }} : ${{ categoryTotal(category) | number: '1.2-2' }} > {{ calculateLifeEnergyHours(category) | number: '1.2-2' }} hrs - <fa-icon [icon]=iconLabelFromCategoryId(category.id) (click)=changeCategoryFulfilment(category.id)></fa-icon>
-    </li>
-    <li>
-        <mat-form-field>
-            <mat-label>New Category</mat-label>
-            <input matInput [formControl]="newCategoryFormControl" type="text"/>
-        </mat-form-field>
-        <button mat-button (click)="addCategory(newCategoryFormControl.value)">Create</button>
-    </li>
-</ul>
+<table class="category-table">
+    <tr>
+        <th>Category</th>
+        <th>Money Spent</th>
+        <th>Life Energy Equivalent (hrs)</th>
+        <th>Desired Trajectory</th>
+    </tr>
+    <tr *ngFor="let category of displayCategories">
+        <td>{{ category.name }}</td>
+        <td>${{ categoryTotal(category) | number: '1.2-2' }}</td>
+        <td>{{ calculateLifeEnergyHours(category) | number: '1.2-2' }}</td>
+        <td><fa-icon [icon]=iconLabelFromCategoryId(category.id) (click)=changeCategoryFulfilment(category.id) class="category-icon {{ iconClassFromCategoryId(category.id) }}"></fa-icon></td>
+    </tr>
+</table>
+<mat-form-field>
+    <mat-label>New Category</mat-label>
+    <input matInput [formControl]="newCategoryFormControl" type="text"/>
+</mat-form-field>
+<button mat-button (click)="addCategory(newCategoryFormControl.value)" class="icon-button add-single">
+    <fa-icon [icon]="faPlusSquare"></fa-icon>
+</button>

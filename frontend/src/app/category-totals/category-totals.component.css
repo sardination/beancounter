@@ -1,0 +1,20 @@
+.category-icon.positive {
+    color: #80b569;;
+}
+
+.category-icon.negative {
+    color: #e06868;
+}
+
+.category-icon.neutral {
+    color: #adad85;
+}
+
+.category-icon:hover {
+    color: #666666;
+    cursor: pointer;
+}
+
+.category-table {
+    text-align: center;
+}

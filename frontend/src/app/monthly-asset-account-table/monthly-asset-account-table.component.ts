@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { faEdit, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import {
   AssetAccountService,
@@ -17,6 +18,9 @@ import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry'
   styleUrls: ['./monthly-asset-account-table.component.css']
 })
 export class MonthlyAssetAccountTableComponent implements OnInit {
+
+  faEdit = faEdit;
+  faCheck = faCheck;
 
   @Input()
   get monthAssetAccountEntries(): MonthAssetAccountEntry[] { return this._monthAssetAccountEntries };
