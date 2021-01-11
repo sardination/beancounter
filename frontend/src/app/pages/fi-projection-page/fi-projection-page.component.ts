@@ -11,8 +11,11 @@ import { InfoService } from '../../services/info.service';
 })
 export class FIProjectionPageComponent implements OnInit {
 
-  monthlyExpenseFormControl: FormControl = new FormControl();
-  longTermInterestRateFormControl: FormControl = new FormControl();
+  // monthlyExpenseFormControl: FormControl = new FormControl();
+  // longTermInterestRateFormControl: FormControl = new FormControl();
+
+  monthlyExpense: number = 0;
+  longTermInterestRate: number = 0;
 
   constructor(private infoService: InfoService) { }
 
@@ -22,28 +25,47 @@ export class FIProjectionPageComponent implements OnInit {
 
   getInfoValues(): void {
       this.infoService.getInfo("average_monthly_expense")
-          .subscribe(info => this.monthlyExpenseFormControl = new FormControl(info.value));
+          .subscribe(info =>  {
+              this.monthlyExpense = info.value;
+          });
+
       this.infoService.getInfo("long_term_interest_rate")
-          .subscribe(info => this.longTermInterestRateFormControl = new FormControl(info.value));
+          .subscribe(info =>  {
+              this.longTermInterestRate = info.value;
+          });
   }
 
-  updateProjectionValues(): void {
-      this.infoService.updateInfo("average_monthly_expense", this.monthlyExpenseFormControl.value)
-          .subscribe(info => this.monthlyExpenseFormControl.setValue(info.value));
-      this.infoService.updateInfo("long_term_interest_rate", this.longTermInterestRateFormControl.value)
-          .subscribe(info => this.longTermInterestRateFormControl.setValue(info.value));
+  updateMonthlyExpense(monthlyExpense: number) {
+    this.infoService.updateInfo("average_monthly_expense", monthlyExpense)
+        .subscribe(info => {
+            this.monthlyExpense = info.value;
+        });
   }
+
+  updateLongTermInterestRate(interestRate: number) {
+    this.infoService.updateInfo("long_term_interest_rate", interestRate)
+        .subscribe(info => {
+            this.longTermInterestRate = info.value;
+        });
+  }
+
+  // updateProjectionValues(): void {
+  //     this.infoService.updateInfo("average_monthly_expense", this.monthlyExpenseFormControl.value)
+  //         .subscribe(info => this.monthlyExpenseFormControl.setValue(info.value));
+  //     this.infoService.updateInfo("long_term_interest_rate", this.longTermInterestRateFormControl.value)
+  //         .subscribe(info => this.longTermInterestRateFormControl.setValue(info.value));
+  // }
 
   calculateRetirementRequirement(): number {
       // Assume that a safe retirement withdrawal rate is the same as the interest rate. This way,
       //  having the calculated amount of assets and withdrawing will result in net loss zero
       //  because you will be withdrawing the same amount of money that you will be earning via interest.
 
-      if (this.longTermInterestRateFormControl.value == 0) {
+      if (this.longTermInterestRate == 0) {
           return 0;
       }
 
-      return (12 * this.monthlyExpenseFormControl.value) / (this.longTermInterestRateFormControl.value / 100);
+      return (12 * this.monthlyExpense) / (this.longTermInterestRate / 100);
   }
 
 }

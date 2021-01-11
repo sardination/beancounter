@@ -27,10 +27,12 @@ input[type="text"], button {
 
 button {
     cursor: pointer;
+    border: none;
+    font-size: 110%;
+    border-radius: 5px;
 }
 
 button.icon-button {
-  border: none;
   background-color: rgba(255, 255, 255, 0);
 }
 
@@ -51,11 +53,9 @@ button.cancel:hover {
 }
 
 button.add {
-    font-size: 110%;
     float: right;
     background-color: #3c7d26;
     color: #ffffff;
-    border-radius: 5px;
 }
 
 button.add-single {
@@ -67,4 +67,25 @@ button.add-single {
 
 button.add:hover, button.add-single:hover {
     background-color: #6aa84f;
+}
+
+button.button-red {
+    background-color: #e06868;
+}
+
+button.button-green {
+    background-color: #80b569;
+}
+
+/* dialog area */
+.mat-dialog-content {
+    text-align: center;
+}
+
+.mat-dialog-content mat-form-field {
+    width: 100%;
+}
+
+.mat-dialog-actions .spacer {
+    flex: 1 1 auto;
 }

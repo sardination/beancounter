@@ -7,7 +7,7 @@ import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
   selector: 'app-monthly-flow-chart',
-  template: '<svg></svg>',
+  template: '<svg id="{{ svgID }}"></svg>',
   styleUrls: ['./monthly-flow-chart.component.css']
 })
 export class MonthlyFlowChartComponent extends BaseMonthChartComponent implements OnInit {

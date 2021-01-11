@@ -1,6 +1,8 @@
-<app-net-worth-chart></app-net-worth-chart>
+<app-net-worth-chart [svgID]="'net-worth-chart'"></app-net-worth-chart>
 
-<button mat-raised-button (click)="openAddAssetAccountDialog()">Add New Asset Account</button>
+<button mat-raised-button (click)="openAddAssetAccountDialog()" class="icon-button add">
+    Add New Asset Account <fa-icon [icon]="faPlusSquare"></fa-icon>
+</button>
 <app-asset-account-table
     [assetAccounts]="assetAccounts"
     [latestAssetAccountEntries]="latestAssetAccountEntries"

@@ -15,6 +15,7 @@
     </div>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">Cancel</button>
-  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+  <button mat-button (click)="onNoClick()" class="button-red">Cancel</button>
+  <span class="spacer"></span>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial class="button-green">Ok</button>
 </div>

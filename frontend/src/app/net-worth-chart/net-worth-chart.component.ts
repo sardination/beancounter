@@ -7,7 +7,7 @@ import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
   selector: 'app-net-worth-chart',
-  template: '<svg></svg>',
+  template: '<svg id="{{ svgID }}"></svg>',
   styleUrls: ['./net-worth-chart.component.css']
 })
 export class NetWorthChartComponent extends BaseMonthChartComponent implements OnInit {

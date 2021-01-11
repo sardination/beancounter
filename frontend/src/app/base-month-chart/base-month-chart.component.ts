@@ -6,11 +6,13 @@ import { MonthInfoService } from '../services/api-object.service';
 import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
-  template: '<svg></svg>'
+  template: '<svg id="{{ svgID }}"></svg>'
 })
 export abstract class BaseMonthChartComponent implements OnInit {
 
   monthInfos: MonthInfo[] = [];
+
+  @Input() svgID: string;
 
   abstract yDomain(): [number, number];
   abstract drawLines(svg: any, x: any, y: any): void;
@@ -72,10 +74,14 @@ export abstract class BaseMonthChartComponent implements OnInit {
     var width = 2000;
 
     // clear svg
-    d3.selectAll("svg > *").remove();
+    let svgSelector = "svg";
+    if (this.svgID) {
+      svgSelector = `svg#${this.svgID}`
+    }
+    d3.select(`${svgSelector} > *`).remove();
 
     // create svg
-    let svg = d3.select("svg")
+    let svg = d3.select(svgSelector)
            .attr("width", '100%')
            .attr("height", '50%')
            .attr('viewBox','0 0 ' + (width + margin.left + margin.right) + ' ' + (height + margin.top + margin.bottom))

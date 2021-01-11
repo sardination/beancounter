@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { AssetAccountService, MonthAssetAccountEntryService } from '../services/api-object.service';
 
@@ -12,6 +13,8 @@ import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry'
   styleUrls: ['./net-worth.component.css']
 })
 export class NetWorthComponent implements OnInit {
+
+  faPlusSquare = faPlusSquare;
 
   assetAccounts: AssetAccount[];
   latestAssetAccountEntries: MonthAssetAccountEntry[];

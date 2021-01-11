@@ -18,27 +18,23 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { StepOneComponent } from './steps/step-one/step-one.component';
 import { PriorIncomeComponent } from './prior-income/prior-income.component';
 import { AddEntryDialog, BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PriorIncomeTableComponent } from './prior-income/prior-income-table/prior-income-table.component';
 import { BalanceSheetEntryTableComponent } from './balance-sheet/balance-sheet-entry-table/balance-sheet-entry-table.component';
-import { StepTwoComponent } from './steps/step-two/step-two.component';
 import { AddJobTransactionDialog, RealWageComponent } from './real-wage/real-wage.component';
 import { JobTransactionTableComponent } from './real-wage/job-transaction-table/job-transaction-table.component';
 import { DailyTransactionsComponent } from './daily-transactions/daily-transactions.component';
 import { DailyTransactionTableComponent } from './daily-transactions/daily-transaction-table/daily-transaction-table.component';
-import { StepThreeComponent } from './steps/step-three/step-three.component';
 import { MonthlyTabulationComponent } from './monthly-tabulation/monthly-tabulation.component';
 import { CategoryTotalsComponent } from './category-totals/category-totals.component';
-import { StepFiveComponent } from './steps/step-five/step-five.component';
 import { MonthlyFlowChartComponent } from './monthly-flow-chart/monthly-flow-chart.component';
 import { MonthlyReflectionComponent } from './monthly-reflection/monthly-reflection.component';
 import { InvestmentIncomeTableComponent } from './investment-income-table/investment-income-table.component';
 import { MonthlyAssetAccountTableComponent } from './monthly-asset-account-table/monthly-asset-account-table.component';
 import { AddAssetAccountDialog, NetWorthComponent } from './net-worth/net-worth.component';
 import { NetWorthChartComponent } from './net-worth-chart/net-worth-chart.component';
-import { AssetAccountTableComponent } from './steps/net-worth/asset-account-table/asset-account-table.component';
+import { AssetAccountTableComponent } from './net-worth/asset-account-table/asset-account-table.component';
 import { PriorInventoryPageComponent } from './pages/prior-inventory-page/prior-inventory-page.component';
 import { CurrentJobPageComponent } from './pages/current-job-page/current-job-page.component';
 import { DailyTransactionsPageComponent } from './pages/daily-transactions-page/daily-transactions-page.component';
@@ -49,22 +45,18 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
 @NgModule({
   declarations: [
     AppComponent,
-    StepOneComponent,
     PriorIncomeComponent,
     BalanceSheetComponent,
     AddEntryDialog,
     PriorIncomeTableComponent,
     BalanceSheetEntryTableComponent,
-    StepTwoComponent,
     RealWageComponent,
     JobTransactionTableComponent,
     AddJobTransactionDialog,
     DailyTransactionsComponent,
     DailyTransactionTableComponent,
-    StepThreeComponent,
     MonthlyTabulationComponent,
     CategoryTotalsComponent,
-    StepFiveComponent,
     MonthlyFlowChartComponent,
     MonthlyReflectionComponent,
     InvestmentIncomeTableComponent,
