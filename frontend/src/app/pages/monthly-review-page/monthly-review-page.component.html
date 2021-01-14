@@ -1,70 +1,95 @@
 <div class="page-header"><h2>Monthly Review</h2></div>
 <p>In order to effectively learn about your monetary activity, you need to review your expenses, passive income, and assets at the end of each month. This will help you to build a picture of where your non-job income is coming from and how you're spending your money while also allowing you to be aware of the growth of your net worth over time.</p>
 
-<mat-sidenav-container>
-    <mat-sidenav mode="side" opened>
-        <mat-nav-list>
-            <mat-list-item
-                *ngFor="let year of getYears()"
-                (click)="selectYear(year)"
-                [class.selected]="year === selectedYear"
-            >
-                {{ year }}
-            </mat-list-item>
-        </mat-nav-list>
-    </mat-sidenav>
+<div class="month-year-picker-form-field-parent">
+    <button mat-button *ngIf="selectedYear != startDate.getFullYear() || selectedMonth != startDate.getMonth()" (click)="incrementSelectedMonth(-1)" class="icon-button">
+        <fa-icon [icon]="faChevronCircleLeft"></fa-icon>
+    </button>
+    <mat-form-field appearance="fill">
+        <mat-label>Month and Year</mat-label>
+        <input matInput [min]="startDate" [max]="todayDate" [matDatepicker]="selectedMonthYearDatepicker" [formControl]="normalizedSelectedDate">
+        <mat-datepicker-toggle matSuffix [for]="selectedMonthYearDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #selectedMonthYearDatepicker
+                      startView="year"
+                      (yearSelected)="selectYearHandler($event)"
+                      (monthSelected)="selectMonthHandler($event, selectedMonthYearDatepicker)">
+        </mat-datepicker>
+    </mat-form-field>
+    <button mat-button *ngIf="selectedYear != todayDate.getFullYear() || selectedMonth != todayDate.getMonth()" (click)="incrementSelectedMonth(1)" class="icon-button">
+        <fa-icon [icon]="faChevronCircleRight"></fa-icon>
+    </button>
+</div>
 
-    <mat-sidenav-content>
-        <mat-sidenav-container>
-            <mat-sidenav mode="side" opened>
-                <mat-nav-list>
-                    <mat-list-item
-                        *ngFor="let month of getMonthsFromYear(selectedYear)"
-                        (click)="selectMonth(month)"
-                        [class.selected]="month === selectedMonth"
-                    >
-                        {{ months[month] }}
-                    </mat-list-item>
-                </mat-nav-list>
-            </mat-sidenav>
+<div class="month-evaluation-content">
+    <div *ngIf="selectedMonthInfoHasPassed()">
+        <app-monthly-reflection [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
+        <br />
+        <hr />
+    </div>
 
-            <mat-sidenav-content>
-                <button mat-button *ngIf="showCompleteButton(); else showFulfilmentSurvey" (click)="markCurrentMonthComplete()">Complete</button>
-                <ng-template #showFulfilmentSurvey>
-                    <app-monthly-reflection *ngIf="!monthInProgress()" [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
-                </ng-template>
-                <app-category-totals
-                    [transactions]="selectedTransactions"
-                    [categories]="transactionCategories"
-                    [monthCategories]="monthCategories"
-                    [selectedMonthInfo]="selectedMonthInfo"
-                    (updateCategories)="setTransactionCategories($event)"
-                ></app-category-totals>
+    <app-category-totals
+        [transactions]="selectedTransactions"
+        [categories]="transactionCategories"
+        [monthCategories]="monthCategories"
+        [selectedMonthInfo]="selectedMonthInfo"
+        (updateCategories)="setTransactionCategories($event)"
+    ></app-category-totals>
+</div>
 
-                <mat-tab-group>
-                    <mat-tab label="Expenditures">
-                        <app-monthly-tabulation
-                            [transactions]="selectedTransactions"
-                            [categories]="transactionCategories">
-                        </app-monthly-tabulation>
-                    </mat-tab>
-                    <mat-tab label="Investment Income">
-                        <app-investment-income-table
-                            *ngIf="selectedMonthInfo != undefined"
-                            [investmentIncomes]="selectedInvestmentIncomes"
-                            [monthInfoId]="selectedMonthInfo.id"
-                        ></app-investment-income-table>
-                    </mat-tab>
-                    <mat-tab label="Assets and Liabilities">
-                        <app-monthly-asset-account-table
-                            *ngIf="selectedMonthInfo != undefined"
-                            [monthAssetAccountEntries]="selectedMonthAssetAccountEntries"
-                            [monthInfoId]="selectedMonthInfo.id"
-                        ></app-monthly-asset-account-table>
-                    </mat-tab>
-                </mat-tab-group>
-            </mat-sidenav-content>
-        </mat-sidenav-container>
-    </mat-sidenav-content>
+<mat-tab-group>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            Expenditures&nbsp;<sup>
+                <fa-icon
+                    [icon]="faQuestionCircle"
+                    class="info-icon"
+                    matTooltip="Categorize all of your recorded expenses from this month"
+                    matTooltipPosition="above"
+                ></fa-icon>
+            </sup>
+        </ng-template>
 
-</mat-sidenav-container>
+        <app-monthly-tabulation
+            [transactions]="selectedTransactions"
+            [categories]="transactionCategories">
+        </app-monthly-tabulation>
+    </mat-tab>
+
+    <mat-tab>
+        <ng-template mat-tab-label>
+            Investment Income&nbsp;<sup>
+                <fa-icon
+                    [icon]="faQuestionCircle"
+                    class="info-icon"
+                    matTooltip="Record all investment (passive) income that you received this month: interest, dividends, capital gains, rent, and royalties"
+                    matTooltipPosition="above"
+                ></fa-icon>
+            </sup>
+        </ng-template>
+
+        <app-investment-income-table
+            *ngIf="selectedMonthInfo != undefined"
+            [investmentIncomes]="selectedInvestmentIncomes"
+            [monthInfoId]="selectedMonthInfo.id"
+        ></app-investment-income-table>
+    </mat-tab>
+
+    <mat-tab>
+        <ng-template mat-tab-label>
+            Assets and Liabilities&nbsp;<sup>
+                <fa-icon
+                    [icon]="faQuestionCircle"
+                    class="info-icon"
+                    matTooltip="Record the asset and liability values of all of your asset vehicles at the end of the month"
+                    matTooltipPosition="above"
+                ></fa-icon>
+            </sup>
+        </ng-template>
+
+        <app-monthly-asset-account-table
+            *ngIf="selectedMonthInfo != undefined"
+            [monthAssetAccountEntries]="selectedMonthAssetAccountEntries"
+            [monthInfoId]="selectedMonthInfo.id"
+        ></app-monthly-asset-account-table>
+    </mat-tab>
+</mat-tab-group>

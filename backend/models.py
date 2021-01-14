@@ -141,7 +141,7 @@ class MonthInfo(db.Model):
 
     real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rwh for this month
     # whether the month has been fully analyzed, should only be true after the month is over
-    completed = db.Column(db.Boolean, nullable=False, default=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False) # this may be obsolete/unnecessary
 
     __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
 
@@ -198,10 +198,9 @@ class MonthReflection(db.Model):
     month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False, unique=True)
     month_info = relationship("MonthInfo")
 
-    q_living_dying = db.Column(db.String(1024))
-    q_employment_purpose = db.Column(db.String(1024))
-    q_spending_evaluation = db.Column(db.String(1024))
-
+    q_living_dying = db.Column(db.String(1024)) # answer to whether making living or dying
+    q_employment_purpose = db.Column(db.String(1024)) # answer to what is the purpose for employment
+    q_spending_evaluation = db.Column(db.String(1024)) # answer to how spending money
 
 class AssetAccount(db.Model):
     """

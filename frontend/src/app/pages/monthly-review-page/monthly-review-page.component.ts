@@ -1,5 +1,15 @@
 import { Component, OnInit, Inject } from '@angular/core';
 
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MatDatepicker } from '@angular/material/datepicker';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Moment } from 'moment';
+import { FormControl } from '@angular/forms';
+import { faChevronCircleLeft, faChevronCircleRight, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+
+import * as moment from 'moment';
+
 import {
     InvestmentIncomeService,
     MonthAssetAccountEntryService,
@@ -17,15 +27,36 @@ import { MonthCategory } from '../../interfaces/month-category';
 import { MonthInfo } from '../../interfaces/month-info';
 import { InvestmentIncome } from '../../interfaces/investment-income';
 
+export const YEARMONTH_FORMATS = {
+  parse: {
+    dateInput: 'MM/YYYY',
+  },
+  display: {
+    dateInput: 'MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
 @Component({
   selector: 'app-monthly-review-page',
   templateUrl: './monthly-review-page.component.html',
-  styleUrls: ['./monthly-review-page.component.css']
+  styleUrls: ['./monthly-review-page.component.css'],
+  providers: [
+    {provide: MAT_DATE_FORMATS, useValue: YEARMONTH_FORMATS}
+  ]
 })
 export class MonthlyReviewPageComponent implements OnInit {
 
+  faChevronCircleLeft = faChevronCircleLeft;
+  faChevronCircleRight = faChevronCircleRight;
+  faQuestionCircle = faQuestionCircle;
+
    transactions: Transaction[] = [];
    // investmentIncomes: InvestmentIncome[] = [];
+
+   normalizedSelectedDate = new FormControl(moment());
 
    selectedMonthInfo: MonthInfo;
    selectedTransactions: Transaction[] = [];
@@ -83,16 +114,16 @@ export class MonthlyReviewPageComponent implements OnInit {
       // this.getInvestmentIncomes();
   }
 
-  showCompleteButton(): boolean {
-      if (this.selectedMonthInfo == undefined) return false;
-      if (this.monthInProgress()) return false;
-      if (!this.selectedMonthInfo.completed) return true;
-      return false;
-  }
+  // showCompleteButton(): boolean {
+  //     if (this.selectedMonthInfo == undefined) return false;
+  //     if (this.monthInProgress()) return false;
+  //     if (!this.selectedMonthInfo.completed) return true;
+  //     return false;
+  // }
 
-  monthInProgress(): boolean {
-    return (this.selectedYear == this.todayDate.getFullYear()) && (this.selectedMonth == this.todayDate.getMonth());
-  }
+  // monthInProgress(): boolean {
+  //   return (this.selectedYear == this.todayDate.getFullYear()) && (this.selectedMonth == this.todayDate.getMonth());
+  // }
 
   setStartDate(): void {
       this.infoService.getInfo("start_date")
@@ -199,7 +230,7 @@ export class MonthlyReviewPageComponent implements OnInit {
   }
 
   selectYear(year: number): void {
-      if (this.selectedYear == year) return;
+      // if (this.selectedYear == year) return;
       this.selectedYear = year;
       // select the latest month in the year
       let thisYearMonths = this.getMonthsFromYear(year);
@@ -207,15 +238,93 @@ export class MonthlyReviewPageComponent implements OnInit {
           this.selectedMonth = undefined;
           return;
       }
-      this.selectedMonth = thisYearMonths[0];
+      // if there is only valid month, the current month is too low, or the current month is too high,
+      //    then set the current month to the earliest valid month
+      if (
+        thisYearMonths.length == 1 ||
+        this.selectedMonth > thisYearMonths[0] ||
+        this.selectedMonth < thisYearMonths[thisYearMonths.length - 1]
+      ) {
+          this.selectedMonth = thisYearMonths[0];
+      }
       this.updateMonthInfoAndCategories();
   }
 
+  selectYearHandler(normalizedDate: Moment) {
+      /*
+        Set the year and month based on the selected date
+      */
+
+      if (this.selectedYear == normalizedDate.year()) return;
+
+      this.selectYear(normalizedDate.year());
+
+      const ctrlValue = this.normalizedSelectedDate.value;
+      ctrlValue.year(this.selectedYear);
+      ctrlValue.month(this.selectedMonth);
+      this.normalizedSelectedDate.setValue(ctrlValue);
+  }
+
   selectMonth(month: number): void {
-      if (this.selectedMonth == month) return;
+      // if (this.selectedMonth == month) return;
       this.selectedMonth = month;
       if (this.selectedYear == undefined) return;
       this.updateMonthInfoAndCategories();
+  }
+
+  selectMonthHandler(normalizedDate: Moment, datepicker: MatDatepicker<Moment>) {
+      /*
+        Set the month and year based on the selected date
+      */
+
+      if (this.selectedMonth == normalizedDate.month() && this.selectedYear == normalizedDate.year()) return;
+
+      this.selectedMonth = normalizedDate.month();
+      this.selectYear(normalizedDate.year());
+
+      const ctrlValue = this.normalizedSelectedDate.value;
+      ctrlValue.month(this.selectedMonth);
+      ctrlValue.year(this.selectedYear);
+      this.normalizedSelectedDate.setValue(ctrlValue);
+
+      datepicker.close();
+  }
+
+  incrementSelectedMonth(increment: number): void {
+      let potentialMonth = this.selectedMonth + increment;
+      let potentialYear = this.selectedYear;
+      if (potentialMonth < 0 || potentialMonth > 11) {
+          potentialYear += Math.floor(potentialMonth / 12);
+          potentialMonth = potentialMonth % 12;
+          if (potentialMonth < 0) {
+              potentialMonth = 12 + potentialMonth;
+          }
+      }
+
+      if (this.betweenStartAndLatest(potentialYear, potentialMonth)) {
+          this.selectedMonth = potentialMonth;
+          this.selectYear(potentialYear);
+
+          const ctrlValue = this.normalizedSelectedDate.value;
+          ctrlValue.month(potentialMonth);
+          ctrlValue.year(potentialYear);
+          this.normalizedSelectedDate.setValue(ctrlValue);
+      }
+  }
+
+  selectedMonthInfoHasPassed(): boolean {
+      if (this.selectedMonthInfo == undefined) {
+          return false;
+      }
+
+      if (
+          this.todayDate.getFullYear() > this.selectedMonthInfo.year ||
+          this.todayDate.getMonth() > this.selectedMonthInfo.month
+      ) {
+          return true;
+      }
+
+      return false;
   }
 
   betweenStartAndLatest(year: number, month: number): boolean {
@@ -231,7 +340,7 @@ export class MonthlyReviewPageComponent implements OnInit {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
                 this.updateArrays();
-              } else if (monthInfos.length == 0 && this.betweenStartAndLatest(this.selectedYear, this.selectedMonth)) {
+              } else if (this.betweenStartAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
                       month: this.selectedMonth
@@ -253,13 +362,17 @@ export class MonthlyReviewPageComponent implements OnInit {
       this.getAssetAccountEntriesByMonthInfo();
   }
 
-  markCurrentMonthComplete(): void {
-      if (this.selectedMonthInfo == undefined) return;
-      this.selectedMonthInfo.completed = true;
-      this.monthInfoService.updateObject(this.selectedMonthInfo)
-          .subscribe(updatedMonthInfo => {
-              this.selectedMonthInfo = updatedMonthInfo;
-          })
+  monthIsComplete(): void {
+
   }
+
+  // markCurrentMonthComplete(): void {
+  //     if (this.selectedMonthInfo == undefined) return;
+  //     this.selectedMonthInfo.completed = true;
+  //     this.monthInfoService.updateObject(this.selectedMonthInfo)
+  //         .subscribe(updatedMonthInfo => {
+  //             this.selectedMonthInfo = updatedMonthInfo;
+  //         })
+  // }
 
 }

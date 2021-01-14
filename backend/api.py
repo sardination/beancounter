@@ -474,7 +474,16 @@ class MonthInfoResource(Resource):
         investment_income = request_dict['investment_income']
         assets = request_dict['assets']
         liabilities = request_dict['liabilities']
-        real_hourly_wage = request_dict['real_hourly_wage']
+        # real_hourly_wage = request_dict['real_hourly_wage']
+
+        # set the real hourly wage for the new month_info as the current real hourly wage
+        #   whenever the real hourly wage is change through /info, all the incomplete months
+        #   are set with the new hourly wage, so the only place the real hourly wage needs
+        #   to be set for MonthInfos outside of InfoResource is here.
+        real_hourly_wage = 0
+        real_hourly_wage_info = Info.query.filter_by(title="real_hourly_wage").first()
+        if real_hourly_wage_info is not None:
+            real_hourly_wage = real_hourly_wage_info.value
 
         start_date = get_start_date()
         today = datetime.date.today()
@@ -509,7 +518,7 @@ class MonthInfoResource(Resource):
         investment_income = request_dict['investment_income']
         assets = request_dict['assets']
         liabilities = request_dict['liabilities']
-        real_hourly_wage = request_dict['real_hourly_wage']
+        # real_hourly_wage = request_dict['real_hourly_wage']
         completed = request_dict['completed']
 
         month_info = MonthInfo.query.filter_by(id=id).first_or_404()
@@ -554,9 +563,9 @@ class MonthCategoryResource(Resource):
         month_info_id = request_dict['month_info_id']
         fulfilment = request_dict['fulfilment']
 
-        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
-        if month_info is not None and month_info.completed:
-            abort(400, description="month-category month-info is not taking new entries")
+        # month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        # if month_info is not None and month_info.completed:
+        #     abort(400, description="month-category month-info is not taking new entries")
 
         new_month_category = MonthCategory(
             category_id=category_id,
@@ -577,9 +586,9 @@ class MonthCategoryResource(Resource):
         month_info_id = request_dict['month_info_id']
         fulfilment = request_dict['fulfilment']
 
-        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
-        if month_info is not None and month_info.completed:
-            abort(400, description="month-category month-info is not updating entries")
+        # month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        # if month_info is not None and month_info.completed:
+        #     abort(400, description="month-category month-info is not updating entries")
 
         month_category = MonthCategory.query.filter_by(id=id).first_or_404()
         month_category.category_id = category_id

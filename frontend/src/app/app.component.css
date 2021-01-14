@@ -3,14 +3,12 @@ h1 {
   font-family: "TW Cen MT", "Tahoma", sans-serif;
   font-size: 250%;
   text-align: center;
+  margin-top: 10px;
 }
 h2, h3 {
   color: #444;
   font-family: "TW Cen MT", "Tahoma", sans-serif;
   font-weight: lighter;
-}
-body {
-  margin: 2em;
 }
 body, input[type="text"], button {
   color: #333;
@@ -38,4 +36,16 @@ nav div.right-nav {
 
 nav div.left-nav {
   float: left;
+}
+
+div.top-bar {
+  overflow: hidden;
+  background-color: #ffffff;
+  position: sticky;
+  top: 0;
+  width: 100%;
+}
+
+div.content {
+  padding: 1em;
 }

@@ -1,3 +1,18 @@
 mat-form-field {
-    width: 50%;
+    width: 100%;
+}
+
+.month-evaluation-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+button {
+    float: right;
+}
+
+h4 {
+    margin-bottom: 0px;
 }

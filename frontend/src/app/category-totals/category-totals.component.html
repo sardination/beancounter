@@ -2,8 +2,22 @@
     <tr>
         <th>Category</th>
         <th>Money Spent</th>
-        <th>Life Energy Equivalent (hrs)</th>
-        <th>Desired Trajectory</th>
+        <th>Life Energy Equivalent (hrs)&nbsp;<sup>
+            <fa-icon
+                [icon]="faQuestionCircle"
+                class="info-icon"
+                matTooltip="Based on your real hourly wage from this month, this column calculate how many hours of work were spent to cover the expenses from this category"
+                matTooltipPosition="above"
+            ></fa-icon></sup>
+        </th>
+        <th>Desired Trajectory&nbsp;<sup>
+            <fa-icon
+                [icon]="faQuestionCircle"
+                class="info-icon"
+                matTooltip="Click on the icon by each category until you've chosen whether you think you should spend less (down arrow), more (up arrow), or the same (check) next month to increase fulfilment"
+                matTooltipPosition="above"
+            ></fa-icon></sup>
+        </th>
     </tr>
     <tr *ngFor="let category of displayCategories">
         <td>{{ category.name }}</td>

@@ -4,7 +4,9 @@ html, body {
     height: 100%;
     font-family: "TW Cen MT", "Tahoma", sans-serif;
 }
-body { margin: 1em; }
+body {
+  margin: 0;
+}
 table { width: 100%; }
 
 table {
@@ -34,6 +36,11 @@ button {
 
 button.icon-button {
   background-color: rgba(255, 255, 255, 0);
+  color: #000000;
+}
+
+button.icon-button:hover {
+    color: #aaaaaa;
 }
 
 button.edit:hover {
@@ -60,13 +67,16 @@ button.add {
 
 button.add-single {
     font-size: 110%;
-    background-color: #3c7d26;
-    color: #ffffff;
+    color: #3c7d26;
     border-radius: 5px;
 }
 
-button.add:hover, button.add-single:hover {
+button.add:hover {
     background-color: #6aa84f;
+}
+
+button.add-single:hover {
+    color: #6aa84f;
 }
 
 button.button-red {
@@ -88,4 +98,9 @@ button.button-green {
 
 .mat-dialog-actions .spacer {
     flex: 1 1 auto;
+}
+
+/* tooltips */
+.mat-tooltip {
+    font-size: 120% !important;
 }

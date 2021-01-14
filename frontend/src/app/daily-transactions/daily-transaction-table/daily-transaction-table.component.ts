@@ -1,7 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, AfterViewInit } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { MatPaginator } from '@angular/material/paginator';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { TransactionService } from '../../services/api-object.service';
@@ -13,13 +14,15 @@ import { Transaction } from '../../interfaces/transaction';
   templateUrl: './daily-transaction-table.component.html',
   styleUrls: ['./daily-transaction-table.component.css']
 })
-export class DailyTransactionTableComponent implements OnInit {
+export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
 
   faEdit = faEdit;
   faCheck = faCheck;
   faTrash = faTrash;
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @Input()
   get transactions(): Transaction[] { return this._transactions };
@@ -52,6 +55,10 @@ export class DailyTransactionTableComponent implements OnInit {
 
   ngOnInit(): void {
       this.tableDataSource = new MatTableDataSource<Transaction>(this.transactions);
+  }
+
+  ngAfterViewInit(): void {
+      this.tableDataSource.paginator = this.paginator;
   }
 
   selectEditingTransaction(editingTransaction: Transaction): void {

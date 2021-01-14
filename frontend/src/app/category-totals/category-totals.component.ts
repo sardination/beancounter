@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
-import { faCheck, faArrowUp, faArrowDown, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faArrowUp, faArrowDown, faPlusSquare, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
@@ -22,6 +22,7 @@ import { InfoService } from '../services/info.service';
 export class CategoryTotalsComponent implements OnInit {
 
   faPlusSquare = faPlusSquare;
+  faQuestionCircle = faQuestionCircle;
 
   @Input()
   set selectedMonthInfo(selectedMonthInfo: MonthInfo) { this._selectedMonthInfo = selectedMonthInfo }
@@ -123,7 +124,7 @@ export class CategoryTotalsComponent implements OnInit {
 
   changeCategoryFulfilment(categoryId: number): void {
       if (categoryId == undefined) return;
-      if (this.selectedMonthInfo != undefined && this.selectedMonthInfo.completed) return;
+      // if (this.selectedMonthInfo != undefined && this.selectedMonthInfo.completed) return;
       let monthCategory = this.monthCategories.get(categoryId);
       if (monthCategory == undefined) {
           monthCategory = {
