@@ -1,6 +1,13 @@
 <table mat-table [dataSource]="tableDataSource">
     <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Account Name</th>
+        <th mat-header-cell *matHeaderCellDef>Account Name&nbsp;<sup>
+            <fa-icon
+                [icon]="faQuestionCircle"
+                class="info-icon"
+                matTooltip="Add or re-activate asset vehicles or 'accounts' on the Net Worth page"
+                matTooltipPosition="above"
+            ></fa-icon></sup>
+        </th>
         <td mat-cell *matCellDef="let account">
             <div>
                 {{ account.name }}

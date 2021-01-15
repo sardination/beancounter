@@ -11,7 +11,7 @@
                     {{ transaction.date | date }}
                 </div>
                 <ng-template #editDate>
-                    <input [formControl]="editingTransactionDate" type="date"/>
+                    <input [formControl]="editingTransactionDate" type="date" min="{{ startDate }}" max="{{ todayDate.toISOString().substring(0,10) }}"/>
                 </ng-template>
             </td>
         </ng-container>

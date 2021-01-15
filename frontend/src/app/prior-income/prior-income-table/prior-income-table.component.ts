@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
+import { MatDatepicker } from '@angular/material/datepicker';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { PriorIncomeService } from '../../services/api-object.service';
@@ -19,6 +20,8 @@ export class PriorIncomeTableComponent implements OnInit {
   faTrash = faTrash;
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
+
+  @Input() startDate: Date;
 
   @Input()
   get priorIncomes(): PriorIncome[] { return this._priorIncomes; };
@@ -84,6 +87,7 @@ export class PriorIncomeTableComponent implements OnInit {
       var priorIncome = this.editingIncome;
 
       if (!priorIncome.date || !priorIncome.amount || !priorIncome.description) return;
+      if (priorIncome.date > this.startDate) return;
       if (!priorIncome.id) {
         this.priorIncomeService.addObject(priorIncome)
             .subscribe(newPriorIncome => {

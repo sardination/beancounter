@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { TransactionService } from '../services/api-object.service';
 
@@ -10,6 +10,8 @@ import { Transaction } from '../interfaces/transaction';
   styleUrls: ['./daily-transactions.component.css']
 })
 export class DailyTransactionsComponent implements OnInit {
+
+  @Input() startDate: Date;
 
   transactions: Transaction[] = [];
 

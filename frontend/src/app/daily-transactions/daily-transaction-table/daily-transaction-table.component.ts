@@ -22,7 +22,11 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
 
+  todayDate: Date = new Date();
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
+  @Input() startDate: Date;
 
   @Input()
   get transactions(): Transaction[] { return this._transactions };

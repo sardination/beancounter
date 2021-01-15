@@ -112,6 +112,9 @@ class PriorIncomeResource(Resource):
         if amount <= 0:
             return abort(400, description='Income amount must be greater than 0')
 
+        if date > get_start_date():
+            return abort(400, description='Prior income must be received before start date')
+
         new_prior_income = PriorIncome(
             amount=amount,
             description=description,
@@ -133,6 +136,9 @@ class PriorIncomeResource(Resource):
 
         if amount <= 0:
             return abort(400, description='Income amount must be greater than 0')
+
+        if date > get_start_date():
+            return abort(400, description='Prior income must be received before start date')
 
         prior_income = PriorIncome.query.filter_by(id=id).first_or_404()
         prior_income.amount = amount

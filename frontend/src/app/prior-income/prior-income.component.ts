@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 
@@ -13,6 +13,8 @@ import { PriorIncomeService } from '../services/api-object.service';
 export class PriorIncomeComponent implements OnInit {
 
     priorIncomes: PriorIncome[];
+
+    @Input() startDate: Date;
 
   constructor(private priorIncomeService: PriorIncomeService) { }
 

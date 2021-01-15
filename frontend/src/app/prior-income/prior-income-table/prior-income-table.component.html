@@ -9,7 +9,7 @@
                 {{ priorIncome.date | date }}
             </div>
             <ng-template #editDate>
-                <input [formControl]="editingIncomeDate" type="date"/>
+                <input [formControl]="editingIncomeDate" type="date" max="{{ startDate }}"/>
             </ng-template>
         </td>
     </ng-container>
