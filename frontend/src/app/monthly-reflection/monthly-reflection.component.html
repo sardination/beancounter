@@ -1,4 +1,12 @@
-<h4><strong>End-of-Month Fulfilment Survey</strong></h4>
+<h4><strong>End-of-Month Fulfilment Survey</strong><span *ngIf="!monthInfo.completed">&nbsp;<sup>
+    <fa-icon
+        [icon]="faExclamationCircle"
+        class="info-icon red"
+        matTooltip="Finish this survey as soon as possible after the month finishes!"
+        matTooltipPosition="above"
+    ></fa-icon>
+</sup></span>
+</h4>
 <mat-form-field>
     <mat-label>What are your purposes for paid employment?</mat-label>
     <textarea matInput [formControl]="employmentPurposeEntry"></textarea>
@@ -14,4 +22,4 @@
     <textarea matInput [formControl]="livingDyingEntry"></textarea>
 </mat-form-field>
 <br />
-<button mat-button class="button-green" (click)="saveReflection()">Save Responses</button>
+<button mat-button class="add" (click)="saveReflection()">Save Responses</button>

@@ -13,3 +13,7 @@ mat-list-item.selected:hover {
     align-items: center;
     flex-direction: row;
 }
+
+.unfinished-month {
+    background-color: #e06868;
+}

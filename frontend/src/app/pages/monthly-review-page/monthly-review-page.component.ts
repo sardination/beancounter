@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { MatDatepicker } from '@angular/material/datepicker';
+import { MatDatepicker, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Moment } from 'moment';
 import { FormControl } from '@angular/forms';
@@ -95,6 +95,24 @@ export class MonthlyReviewPageComponent implements OnInit {
    // key category_id, value month-category
    monthCategories: Map<number, MonthCategory> = new Map<number, MonthCategory>();
 
+   // dateClass: MatCalendarCellClassFunction<Moment> = (cellDate, view) => {
+   //    // highlight any months or years with months that are not complete
+   //    const year = cellDate.year();
+   //    const month = cellDate.month();
+
+   //    // Highlight dates in the past that are not complete
+   //    return (
+   //      !this.selectedMonthInfo.completed &&
+   //      (this.todayDate.getFullYear() > this.selectedMonthInfo.year ||
+   //       (this.todayDate.getFullYear() == this.selectedMonthInfo.year &&
+   //        this.todayDate.getMonth() > this.selectedMonthInfo.month
+   //       )
+   //      )
+   //    ) ? 'unfinished-month' : '';
+
+   //    return '';
+   //  }
+
   constructor(
       private transactionCategoryService: TransactionCategoryService,
       private transactionService: TransactionService,
@@ -107,8 +125,9 @@ export class MonthlyReviewPageComponent implements OnInit {
 
   ngOnInit(): void {
       this.setStartDate();
+      this.selectedMonth = this.todayDate.getMonth();
       this.selectYear(this.todayDate.getFullYear());
-      this.selectMonth(this.todayDate.getMonth());
+      // this.selectMonth(this.todayDate.getMonth());
       this.getTransactions();
       this.getTransactionCategories();
       // this.getInvestmentIncomes();
@@ -230,6 +249,10 @@ export class MonthlyReviewPageComponent implements OnInit {
   }
 
   selectYear(year: number): void {
+      /*
+          Call selectMonth this function when you need to change the current month
+          and retrieve all of its info and update visuals.
+      */
       // if (this.selectedYear == year) return;
       this.selectedYear = year;
       // select the latest month in the year
@@ -248,6 +271,12 @@ export class MonthlyReviewPageComponent implements OnInit {
           this.selectedMonth = thisYearMonths[0];
       }
       this.updateMonthInfoAndCategories();
+
+      // set value in the form control
+      const ctrlValue = this.normalizedSelectedDate.value;
+      ctrlValue.year(this.selectedYear);
+      ctrlValue.month(this.selectedMonth);
+      this.normalizedSelectedDate.setValue(ctrlValue);
   }
 
   selectYearHandler(normalizedDate: Moment) {
@@ -258,19 +287,14 @@ export class MonthlyReviewPageComponent implements OnInit {
       if (this.selectedYear == normalizedDate.year()) return;
 
       this.selectYear(normalizedDate.year());
-
-      const ctrlValue = this.normalizedSelectedDate.value;
-      ctrlValue.year(this.selectedYear);
-      ctrlValue.month(this.selectedMonth);
-      this.normalizedSelectedDate.setValue(ctrlValue);
   }
 
-  selectMonth(month: number): void {
-      // if (this.selectedMonth == month) return;
-      this.selectedMonth = month;
-      if (this.selectedYear == undefined) return;
-      this.updateMonthInfoAndCategories();
-  }
+  // selectMonth(month: number): void {
+  //     // if (this.selectedMonth == month) return;
+  //     this.selectedMonth = month;
+  //     // if (this.selectedYear == undefined) return;
+  //     // this.updateMonthInfoAndCategories();
+  // }
 
   selectMonthHandler(normalizedDate: Moment, datepicker: MatDatepicker<Moment>) {
       /*
@@ -281,11 +305,6 @@ export class MonthlyReviewPageComponent implements OnInit {
 
       this.selectedMonth = normalizedDate.month();
       this.selectYear(normalizedDate.year());
-
-      const ctrlValue = this.normalizedSelectedDate.value;
-      ctrlValue.month(this.selectedMonth);
-      ctrlValue.year(this.selectedYear);
-      this.normalizedSelectedDate.setValue(ctrlValue);
 
       datepicker.close();
   }
@@ -317,9 +336,11 @@ export class MonthlyReviewPageComponent implements OnInit {
           return false;
       }
 
+      let todayYear = this.todayDate.getFullYear();
+      let todayMonth = this.todayDate.getMonth();
       if (
-          this.todayDate.getFullYear() > this.selectedMonthInfo.year ||
-          this.todayDate.getMonth() > this.selectedMonthInfo.month
+          todayYear > this.selectedMonthInfo.year ||
+          (todayYear == this.selectedMonthInfo.year && todayMonth > this.selectedMonthInfo.month)
       ) {
           return true;
       }
@@ -334,12 +355,17 @@ export class MonthlyReviewPageComponent implements OnInit {
   }
 
   updateMonthInfoAndCategories(): void {
+      let firstTime = this.selectedMonthInfo === undefined;
+      console.log(firstTime + " " + this.selectedYear + " " + this.selectedMonth);
       // backend has month one-indexed
       this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth})
           .subscribe(monthInfos => {
               if (monthInfos.length > 0) {
                 this.selectedMonthInfo = monthInfos[0];
                 this.updateArrays();
+                if (firstTime) {
+                    this.usePriorMonthInfoIfIncomplete();
+                }
               } else if (this.betweenStartAndLatest(this.selectedYear, this.selectedMonth)) {
                   var monthInfo: MonthInfo = {
                       year: this.selectedYear,
@@ -349,7 +375,38 @@ export class MonthlyReviewPageComponent implements OnInit {
                       .subscribe(newMonthInfo => {
                           this.selectedMonthInfo = newMonthInfo;
                           this.updateArrays();
+                          if (firstTime) {
+                            this.usePriorMonthInfoIfIncomplete();
+                          }
                       });
+              }
+              // the very first time that monthInfo is set (prev value undefined),
+              //    check if the previous month is still incomplete and default
+              //    to the previous month instead for display purposes
+          })
+  }
+
+  usePriorMonthInfoIfIncomplete(): void {
+    /*
+      This should only be called the very first time that selectedMonthInfo is set.
+      If the previous month is existent and incomplete, then the page should
+      default to the previous month instead of the current month.
+    */
+      let prevMonth = this.selectedMonth - 1;
+      let prevYear = this.selectedYear
+      if (prevMonth == -1) {
+          prevMonth = 11;
+          prevYear -= 1;
+      }
+      this.monthInfoService.getObjectsWithParams({'year': prevYear, 'month': prevMonth})
+          .subscribe(monthInfos => {
+              if (monthInfos.length > 0) {
+                if (!monthInfos[0].completed) {
+                  this.selectedMonth = prevMonth;
+                  this.selectYear(prevYear);
+                  // this.selectedMonthInfo = monthInfos[0];
+                  // this.updateArrays();
+                }
               }
           })
   }
@@ -360,10 +417,6 @@ export class MonthlyReviewPageComponent implements OnInit {
       this.getInvestmentIncomesByMonthInfo();
       this.getTransactionsByMonth(this.selectedMonthInfo.year, this.selectedMonthInfo.month);
       this.getAssetAccountEntriesByMonthInfo();
-  }
-
-  monthIsComplete(): void {
-
   }
 
   // markCurrentMonthComplete(): void {

@@ -837,8 +837,17 @@ class MonthReflectionResource(Resource):
         month_info = MonthInfo.query.filter_by(id=month_info_id).first()
         if month_info is None:
             return abort(400, description="no such month-info exists for reflection")
-        if not month_info.completed:
-            return abort(400, description="month-info has not been completed prior to reflection")
+
+        # if today's date is prior to the end of this MonthInfo's month, don't save this survey
+        today = datetime.date.today()
+        earliest_survey_date_year = month_info.year
+        earliest_survey_date_month = month_info.month + 1
+        if earliest_survey_date_month == 13:
+            earliest_survey_date_month = 1
+            earliest_survey_date_year += 1
+        earliest_survey_date = datetime.date(earliest_survey_date_year, earliest_survey_date_month, 1)
+        if today < earliest_survey_date:
+            return abort(400, description="survey can only be saved after the month is over")
 
         q_living_dying = request_dict.get('q_living_dying', "")
         q_employment_purpose = request_dict.get('q_employment_purpose', "")
@@ -852,6 +861,12 @@ class MonthReflectionResource(Resource):
         )
         db.session.add(month_reflection)
 
+        # if all survey responses have been filled, then set completed to true
+        if q_living_dying != "" and q_employment_purpose != "" and q_spending_evaluation != "":
+            month_info.completed = True
+        else:
+            month_info.completed = False
+
         return try_commit(month_reflection, month_reflection_schema)
 
     def put(self):
@@ -859,7 +874,7 @@ class MonthReflectionResource(Resource):
 
         id = request_dict.get('id')
         if id is None:
-            return abort(400, "cannot update nonexistend month-reflection")
+            return abort(400, "cannot update nonexistent month-reflection")
         month_reflection = MonthReflection.query.filter_by(id=id).first()
         if month_reflection is None:
             return abort(400, "month-reflection with this id does not exist")
@@ -868,8 +883,6 @@ class MonthReflectionResource(Resource):
         month_info = MonthInfo.query.filter_by(id=month_info_id).first()
         if month_info is None:
             return abort(400, description="no such month-info exists for reflection")
-        if not month_info.completed:
-            return abort(400, description="month-info has not been completed prior to reflection")
 
         q_living_dying = request_dict.get('q_living_dying', "")
         q_employment_purpose = request_dict.get('q_employment_purpose', "")
@@ -878,6 +891,12 @@ class MonthReflectionResource(Resource):
         month_reflection.q_living_dying = q_living_dying
         month_reflection.q_employment_purpose = q_employment_purpose
         month_reflection.q_spending_evaluation = q_spending_evaluation
+
+        # if all survey responses have been filled, then set completed to true
+        if q_living_dying != "" and q_employment_purpose != "" and q_spending_evaluation != "":
+            month_info.completed = True
+        else:
+            month_info.completed = False
 
         return try_commit(month_reflection, month_reflection_schema)
 

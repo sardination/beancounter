@@ -73,18 +73,23 @@ button.add-single {
 
 button.add:hover {
     background-color: #6aa84f;
+    color: #ffffff;
 }
 
 button.add-single:hover {
     color: #6aa84f;
 }
 
-button.button-red {
+.button-red {
     background-color: #e06868;
 }
 
-button.button-green {
+.button-green {
     background-color: #80b569;
+}
+
+.red {
+  color: #e06868;
 }
 
 /* dialog area */
@@ -103,4 +108,8 @@ button.button-green {
 /* tooltips */
 .mat-tooltip {
     font-size: 120% !important;
+}
+
+.unfinished-month {
+    background-color: #e06868;
 }

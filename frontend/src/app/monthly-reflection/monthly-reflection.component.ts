@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import { FormControl } from '@angular/forms';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { MonthInfo } from '../interfaces/month-info';
 import { MonthReflection } from '../interfaces/month-reflection';
@@ -13,6 +14,10 @@ import { MonthReflectionService } from '../services/api-object.service';
   styleUrls: ['./monthly-reflection.component.css']
 })
 export class MonthlyReflectionComponent implements OnInit {
+
+  faExclamationCircle = faExclamationCircle;
+
+  todayDate: Date = new Date();
 
   @Input()
   get monthInfo(): MonthInfo {return this._monthInfo;}
@@ -53,9 +58,15 @@ export class MonthlyReflectionComponent implements OnInit {
       }
       this.monthReflectionService.getObjectsWithParams({'month_info_id': this.monthInfo.id})
           .subscribe(monthReflections => {
+              let todayYear = this.todayDate.getFullYear();
+              let todayMonth = this.todayDate.getMonth();
               if (monthReflections.length > 0) {
                   this.monthReflection = monthReflections[0];
-              } else if (this.monthInfo.completed) {
+              // } else if (this.monthInfo.completed) {
+              } else if (
+                todayYear > this.monthInfo.year ||
+                (todayYear == this.monthInfo.year && todayMonth > this.monthInfo.month)) {
+                // if this month-info has passed, then create a new reflection
                   let monthReflection = {
                       month_info_id: this.monthInfo.id
                   } as MonthReflection;
@@ -63,6 +74,8 @@ export class MonthlyReflectionComponent implements OnInit {
                       .subscribe(newMonthReflection => {
                           this.monthReflection = newMonthReflection;
                       })
+              } else {
+                this.monthReflection = {} as MonthReflection;
               }
           })
   }
