@@ -100,6 +100,10 @@ button.add-single:hover {
   color: #e06868;
 }
 
+hr.green {
+  border: 1px dashed #b6d6a8;
+}
+
 /* dialog area */
 .mat-dialog-content {
     text-align: center;
