@@ -48,7 +48,7 @@ export abstract class BaseMonthChartComponent implements OnInit {
                         this.monthInfos.pop();
                   }
               }
-                    this.drawLineChart();
+              this.drawLineChart();
           })
   }
 

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as d3 from "d3";
+import { legendColor } from "d3-svg-legend";
 
 import { BaseMonthChartComponent } from '../base-month-chart/base-month-chart.component';
 
@@ -35,11 +36,12 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
     this.drawLine(svg, this.monthInfos, netWorthLine, "#444");
     svg.selectAll("net-worth-circle")
        .data(this.monthInfos)
-       .join("text")
-         .text(d => d.assets - d.liabilities)
-         .attr("dy", "-0.5em")
-         .attr("x", function(d) {return x(new Date(d.year, d.month, 1))})
-         .attr("y", function(d) {return y(d.assets - d.liabilities)})
+       // .join("text")
+       //   .text(d => d.assets - d.liabilities)
+       //   .attr("dy", "-0.5em")
+       //   .attr("dx", "-0.5em")
+       //   .attr("x", function(d) {return x(new Date(d.year, d.month, 1))})
+       //   .attr("y", function(d) {return y(d.assets - d.liabilities)})
        .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
        .attr("cy", function(d) {return y(d.assets - d.liabilities)})
 
@@ -104,6 +106,20 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
       .attr('d', areaBelowLiabilityLine)
       .attr('clip-path', 'url(#clip-asset)')
       .attr("fill", "#ddd")
+
+    // create legend
+    var ordinal = d3.scaleOrdinal()
+      .domain(["Assets", "Liabilities", "Net Worth"])
+      .range([ "#0f0", "#f00", "#444" ]);
+    svg.append("g")
+      .attr("class", "legendOrdinal")
+      .attr("transform", "translate(20,20)");
+    var legendOrdinal = legendColor()
+      .shape("path", d3.symbol().type(d3.symbolSquare).size(150)())
+      .shapePadding(10)
+      .scale(ordinal);
+    svg.select(".legendOrdinal")
+      .call(legendOrdinal);
   }
 
 }

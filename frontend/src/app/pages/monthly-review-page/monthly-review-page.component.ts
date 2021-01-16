@@ -72,20 +72,20 @@ export class MonthlyReviewPageComponent implements OnInit {
    private _transactionCategories = [];
 
    // NOTE: frontend has month zero-indexed and backend has month one-indexed
-   months = [
-     "January",
-     "February",
-     "March",
-     "April",
-     "May",
-     "June",
-     "July",
-     "August",
-     "September",
-     "October",
-     "November",
-     "December"
-   ]
+   // months = [
+   //   "January",
+   //   "February",
+   //   "March",
+   //   "April",
+   //   "May",
+   //   "June",
+   //   "July",
+   //   "August",
+   //   "September",
+   //   "October",
+   //   "November",
+   //   "December"
+   // ]
    startDate: Date = new Date();
    todayDate: Date = new Date();
    selectedYear: number;

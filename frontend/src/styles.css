@@ -84,8 +84,16 @@ button.add-single:hover {
     background-color: #e06868;
 }
 
+.button-red:hover {
+    background-color: #ee9696;
+}
+
 .button-green {
     background-color: #80b569;
+}
+
+.button-green:hover {
+    background-color: #b6d6a8;
 }
 
 .red {

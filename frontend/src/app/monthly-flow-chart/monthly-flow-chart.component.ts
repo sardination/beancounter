@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import * as d3 from "d3";
+import { legendColor } from "d3-svg-legend";
 
 import { BaseMonthChartComponent } from '../base-month-chart/base-month-chart.component';
 
@@ -93,6 +94,21 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
     // draw projection lines
     this.drawLine(svg, this.monthInfos, expenditureProjectionLine, "#ccc");
     this.drawLine(svg, this.monthInfos, investmentIncomeProjectionLine, "#165");
+
+    // create legend
+    var ordinal = d3.scaleOrdinal()
+      .domain(["Income", "Expenditure", "Investment Income", "Projected Expenditure", "Projected Investment Income"])
+      .range([ "#0f0", "#f00", "#00f", "#ccc", "#165" ]);
+    svg.append("g")
+      .attr("class", "legendOrdinal")
+      .attr("transform", "translate(20,20)");
+    var legendOrdinal = legendColor()
+      .shape("path", d3.symbol().type(d3.symbolSquare).size(150)())
+      .shapePadding(10)
+      .scale(ordinal);
+    svg.select(".legendOrdinal")
+      .call(legendOrdinal);
+
   }
 
 }

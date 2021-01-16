@@ -465,9 +465,24 @@ month_infos_schema = MonthInfoSchema(many=True)
 month_info_schema = MonthInfoSchema()
 class MonthInfoResource(Resource):
     def get(self):
-        filter_kwargs = year_month_dict_from_request(request.args)
+        request_dict = request.args
+        filter_kwargs = year_month_dict_from_request(request_dict)
+        latest = request_dict.get('latest')
 
-        month_infos = MonthInfo.query.filter_by(**filter_kwargs).all()
+        try:
+            latest = (latest.lower() == "true")
+        except AttributeError:
+            latest = False
+
+        month_infos = []
+        if latest:
+            month_infos = MonthInfo.query.filter_by(completed=True).order_by(
+                desc(MonthInfo.year),
+                desc(MonthInfo.month)
+            ).limit(1).all()
+        else:
+            month_infos = MonthInfo.query.filter_by(**filter_kwargs).all()
+
         return month_infos_schema.dump(month_infos)
 
     def post(self):
@@ -715,17 +730,23 @@ class MonthAssetAccountEntryResource(Resource):
         request_dict = request.args
         month_info_id = request_dict.get('month_info_id')
 
+        # try:
+        #     if (month_info_id == 'latest'):
+        #         # get the latest completed MonthInfo
+        #         month_info_id = MonthInfo.query.filter_by(completed=True).join(MonthAssetAccountEntry).order_by(
+        #             desc(MonthInfo.year),
+        #             desc(MonthInfo.month)
+        #         ).limit(1).all()[0].id
+        #     else:
+        #         month_info_id = int(month_info_id)
+        #     filter_kwargs['month_info_id'] = month_info_id
+        # except (IndexError, TypeError, ValueError):
+        #     pass
         try:
-            if (month_info_id == 'latest'):
-                month_info_id = MonthInfo.query.join(MonthAssetAccountEntry).order_by(
-                    desc(MonthInfo.year),
-                    desc(MonthInfo.month)
-                ).limit(1).all()[0].id
-            else:
-                month_info_id = int(month_info_id)
+            month_info_id = int(month_info_id)
             filter_kwargs['month_info_id'] = month_info_id
-        except (IndexError, TypeError, ValueError):
-            pass
+        except (TypeError, ValueError):
+            return abort(400, description='Month info id is not valid')
 
         month_asset_account_entries = MonthAssetAccountEntry.query.filter_by(**filter_kwargs).all()
         return month_asset_account_entries_schema.dump(month_asset_account_entries)

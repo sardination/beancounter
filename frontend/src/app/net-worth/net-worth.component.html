@@ -1,3 +1,5 @@
+<h3 class="current-net-worth-header" *ngIf="lastCompletedMonthInfo">Your Current Net Worth (as of {{ getVerboseLatestCompletedMonth() }}): <span>${{ currentNetWorth | number: '1.2-2' }}</span></h3>
+
 <app-net-worth-chart [svgID]="'net-worth-chart'"></app-net-worth-chart>
 
 <button mat-raised-button (click)="openAddAssetAccountDialog()" class="icon-button add">

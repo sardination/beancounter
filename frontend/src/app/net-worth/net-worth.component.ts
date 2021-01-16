@@ -2,10 +2,15 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
-import { AssetAccountService, MonthAssetAccountEntryService } from '../services/api-object.service';
+import {
+  AssetAccountService,
+  MonthAssetAccountEntryService,
+  MonthInfoService,
+} from '../services/api-object.service';
 
 import { AssetAccount } from '../interfaces/asset-account';
 import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry';
+import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
   selector: 'app-net-worth',
@@ -18,16 +23,21 @@ export class NetWorthComponent implements OnInit {
 
   assetAccounts: AssetAccount[];
   latestAssetAccountEntries: MonthAssetAccountEntry[];
+  lastCompletedMonthInfo: MonthInfo;
+
+  currentNetWorth: number = 0;
 
   constructor(
       private assetAccountService: AssetAccountService,
       private monthAssetAccountEntryService: MonthAssetAccountEntryService,
+      private monthInfoService: MonthInfoService,
       public addAssetAccountDialog: MatDialog
    ) { }
 
   ngOnInit(): void {
     this.getAssetAccounts();
-    this.getLatestAssetAccountEntries();
+    this.getLastCompletedMonthInfo();
+    // this.getLatestAssetAccountEntries();
   }
 
   openAddAssetAccountDialog(): void {
@@ -59,10 +69,31 @@ export class NetWorthComponent implements OnInit {
         })
   }
 
+  getLastCompletedMonthInfo(): void {
+    /*
+      Get the last completed month info and fill in the asset account entries
+      if month info is given by calling getLatestAssetAccountEntries()
+    */
+    this.monthInfoService.getObjectsWithParams({'latest': "true"})
+        .subscribe(monthInfos => {
+            if (monthInfos.length > 0) {
+                this.lastCompletedMonthInfo = monthInfos[0];
+                this.getLatestAssetAccountEntries();
+            }
+        })
+  }
+
   getLatestAssetAccountEntries(): void {
-    this.monthAssetAccountEntryService.getObjectsWithParams({'month_info_id': 'latest'})
+    /*
+      Gets the asset account entries from the latest completed month
+    */
+    this.monthAssetAccountEntryService.getObjectsWithParams({'month_info_id': this.lastCompletedMonthInfo.id})
         .subscribe(accountEntries => {
             this.latestAssetAccountEntries = accountEntries;
+
+            accountEntries.forEach((account) => {
+                this.currentNetWorth += account.asset_value - account.liability_value;
+            })
         })
   }
 
@@ -76,6 +107,18 @@ export class NetWorthComponent implements OnInit {
         .subscribe(updatedAssetAccount => {
             assetAccount = updatedAssetAccount;
         })
+  }
+
+  getVerboseLatestCompletedMonth(): string {
+    /*
+      Returns month string (e.g. October 2020) from MonthInfo object
+    */
+
+    if (!this.lastCompletedMonthInfo) {
+      return "";
+    }
+    const latestMonthDate = new Date(this.lastCompletedMonthInfo.year, this.lastCompletedMonthInfo.month, 1);
+    return latestMonthDate.toLocaleString('default', { month: 'long' , year: 'numeric'});
   }
 
 }
