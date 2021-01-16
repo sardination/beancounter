@@ -356,7 +356,6 @@ export class MonthlyReviewPageComponent implements OnInit {
 
   updateMonthInfoAndCategories(): void {
       let firstTime = this.selectedMonthInfo === undefined;
-      console.log(firstTime + " " + this.selectedYear + " " + this.selectedMonth);
       // backend has month one-indexed
       this.monthInfoService.getObjectsWithParams({'year': this.selectedYear, 'month': this.selectedMonth})
           .subscribe(monthInfos => {

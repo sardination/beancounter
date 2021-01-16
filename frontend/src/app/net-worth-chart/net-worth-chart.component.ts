@@ -32,37 +32,6 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(function(d) {return y(d.assets - d.liabilities)});
 
-    // draw lines
-    this.drawLine(svg, this.monthInfos, netWorthLine, "#444");
-    svg.selectAll("net-worth-circle")
-       .data(this.monthInfos)
-       // .join("text")
-       //   .text(d => d.assets - d.liabilities)
-       //   .attr("dy", "-0.5em")
-       //   .attr("dx", "-0.5em")
-       //   .attr("x", function(d) {return x(new Date(d.year, d.month, 1))})
-       //   .attr("y", function(d) {return y(d.assets - d.liabilities)})
-       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
-       .attr("cy", function(d) {return y(d.assets - d.liabilities)})
-
-    this.drawLine(svg, this.monthInfos, assetLine, "#0f0");
-    svg.selectAll("asset-circle")
-       .data(this.monthInfos)
-       .enter().append("circle")
-       .attr("fill", "#0f0")
-       .attr("r", 5)
-       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
-       .attr("cy", function(d) {return y(d.assets)})
-
-    this.drawLine(svg, this.monthInfos, liabilityLine, "#f00");
-    svg.selectAll("liability-circle")
-       .data(this.monthInfos)
-       .enter().append("circle")
-       .attr("fill", "#f00")
-       .attr("r", 5)
-       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
-       .attr("cy", function(d) {return y(d.liabilities)})
-
     // fill space between assets and liability lines to indicate net worth
     var areaAboveAssetLine = d3.area<MonthInfo>()
             .x(assetLine.x())
@@ -106,6 +75,37 @@ export class NetWorthChartComponent extends BaseMonthChartComponent implements O
       .attr('d', areaBelowLiabilityLine)
       .attr('clip-path', 'url(#clip-asset)')
       .attr("fill", "#ddd")
+
+    // draw lines
+    this.drawLine(svg, this.monthInfos, assetLine, "#0f0");
+    svg.selectAll("asset-circle")
+       .data(this.monthInfos)
+       .enter().append("circle")
+       .attr("fill", "#0f0")
+       .attr("r", 5)
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.assets)})
+
+    this.drawLine(svg, this.monthInfos, liabilityLine, "#f00");
+    svg.selectAll("liability-circle")
+       .data(this.monthInfos)
+       .enter().append("circle")
+       .attr("fill", "#f00")
+       .attr("r", 5)
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.liabilities)})
+
+    this.drawLine(svg, this.monthInfos, netWorthLine, "#444");
+    svg.selectAll("net-worth-circle")
+       .data(this.monthInfos)
+       // .join("text")
+       //   .text(d => d.assets - d.liabilities)
+       //   .attr("dy", "-0.5em")
+       //   .attr("dx", "-0.5em")
+       //   .attr("x", function(d) {return x(new Date(d.year, d.month, 1))})
+       //   .attr("y", function(d) {return y(d.assets - d.liabilities)})
+       .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
+       .attr("cy", function(d) {return y(d.assets - d.liabilities)})
 
     // create legend
     var ordinal = d3.scaleOrdinal()

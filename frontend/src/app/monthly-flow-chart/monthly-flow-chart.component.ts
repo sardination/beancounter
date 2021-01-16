@@ -60,10 +60,15 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
             .y(function(d) {
               // capital += d.income - d.expenditure;
               capital = d.assets - d.liabilities
-              return y(capital * _this._longTermInterestRate / 12);
+              return Math.max(y(capital * _this._longTermInterestRate / 12), 0);
             })
 
     // draw lines
+
+    // draw projection lines
+    this.drawLine(svg, this.monthInfos, expenditureProjectionLine, "#ccc");
+    this.drawLine(svg, this.monthInfos, investmentIncomeProjectionLine, "#b7d1f5");
+
     this.drawLine(svg, this.monthInfos, incomeLine, "#0f0");
     svg.selectAll("income-circle")
        .data(this.monthInfos)
@@ -91,14 +96,10 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
        .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
        .attr("cy", function(d) {return y(d.investment_income)})
 
-    // draw projection lines
-    this.drawLine(svg, this.monthInfos, expenditureProjectionLine, "#ccc");
-    this.drawLine(svg, this.monthInfos, investmentIncomeProjectionLine, "#165");
-
     // create legend
     var ordinal = d3.scaleOrdinal()
       .domain(["Income", "Expenditure", "Investment Income", "Projected Expenditure", "Projected Investment Income"])
-      .range([ "#0f0", "#f00", "#00f", "#ccc", "#165" ]);
+      .range([ "#0f0", "#f00", "#00f", "#ccc", "#b7d1f5" ]);
     svg.append("g")
       .attr("class", "legendOrdinal")
       .attr("transform", "translate(20,20)");

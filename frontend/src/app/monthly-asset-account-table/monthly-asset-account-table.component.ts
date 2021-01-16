@@ -35,6 +35,7 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   @Input()
   get monthInfoId(): number { return this._monthInfoId };
   set monthInfoId(monthInfoId: number) {
+      this.cancelEditAccountEntry();
       this._monthInfoId = monthInfoId;
   }
   private _monthInfoId: number;

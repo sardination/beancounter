@@ -776,7 +776,7 @@ class MonthAssetAccountEntryResource(Resource):
         db.session.add(new_month_asset_account_entry)
 
         month_info.assets += asset_value
-        month_info.liabilities -= liability_value
+        month_info.liabilities += liability_value
 
         return try_commit(new_month_asset_account_entry, month_asset_account_entry_schema)
 
@@ -805,7 +805,7 @@ class MonthAssetAccountEntryResource(Resource):
         if month_info is None:
             return abort(400, description='Month info with this id does not exist')
         month_info.assets -= month_asset_account_entry.asset_value
-        month_info.liabilities += month_asset_account_entry.liability_value
+        month_info.liabilities -= month_asset_account_entry.liability_value
 
         month_asset_account_entry.asset_account_id = asset_account_id
         month_asset_account_entry.asset_value = asset_value
@@ -813,7 +813,7 @@ class MonthAssetAccountEntryResource(Resource):
 
         # add value back to appropriate month-info
         month_info.assets += month_asset_account_entry.asset_value
-        month_info.liabilities -= month_asset_account_entry.liability_value
+        month_info.liabilities += month_asset_account_entry.liability_value
 
         return try_commit(month_asset_account_entry, month_asset_account_entry_schema)
 
