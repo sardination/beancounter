@@ -6,7 +6,7 @@ import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { MonthInfo } from '../interfaces/month-info';
 import { MonthReflection } from '../interfaces/month-reflection';
 
-import { MonthReflectionService } from '../services/api-object.service';
+import { MonthReflectionService, MonthInfoService } from '../services/api-object.service';
 
 @Component({
   selector: 'app-monthly-reflection',
@@ -45,7 +45,10 @@ export class MonthlyReflectionComponent implements OnInit {
   spendingManagementEntry: FormControl = new FormControl();
   livingDyingEntry: FormControl = new FormControl();
 
-  constructor(private monthReflectionService: MonthReflectionService) { }
+  constructor(
+    private monthReflectionService: MonthReflectionService,
+    private monthInfoService: MonthInfoService,
+  ) { }
 
   ngOnInit(): void {
 
@@ -81,6 +84,9 @@ export class MonthlyReflectionComponent implements OnInit {
   }
 
   saveReflection(): void {
+    /*
+      Save the reflection and then re-retrieve the month info to check for completion
+    */
       let updatingMonthReflection = this.monthReflection;
       updatingMonthReflection.q_employment_purpose = this.employmentPurposeEntry.value;
       updatingMonthReflection.q_spending_evaluation = this.spendingManagementEntry.value;
@@ -88,6 +94,12 @@ export class MonthlyReflectionComponent implements OnInit {
       this.monthReflectionService.updateObject(updatingMonthReflection)
           .subscribe(updatedMonthReflection => {
               this.monthReflection = updatedMonthReflection;
+              this.monthInfoService.getObjectsWithParams({'year': this.monthInfo.year, 'month': this.monthInfo.month})
+                  .subscribe(retrievedMonthInfos => {
+                    if (retrievedMonthInfos.length > 0) {
+                        this.monthInfo = retrievedMonthInfos[0];
+                    }
+                  })
           })
   }
 
