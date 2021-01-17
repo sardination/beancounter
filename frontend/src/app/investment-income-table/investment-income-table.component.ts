@@ -38,7 +38,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
   @Input()
   get monthInfoId(): number { return this._monthInfoId };
   set monthInfoId(monthInfoId: number) {
-      this.cancelEditAccountEntry();
+      this.cancelEditIncome();
       this._monthInfoId = monthInfoId;
   }
   private _monthInfoId: number;
@@ -109,7 +109,9 @@ export class InvestmentIncomeTableComponent implements OnInit {
   }
 
   cancelEditIncome(): void {
-    this.tableDataSource.data = this.investmentIncomes;
+    if (this.tableDataSource) {
+        this.tableDataSource.data = this.investmentIncomes;
+    }
     this.editingIncome = null;
   }
 

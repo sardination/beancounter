@@ -128,7 +128,9 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   }
 
   cancelEditAccountEntry(): void {
-    this.tableDataSource.data = this.assetAccounts;
+    if (this.tableDataSource) {
+        this.tableDataSource.data = this.assetAccounts;
+    }
     this.editingAccount = null;
   }
 

@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { isDevMode } from '@angular/core';
+import { PythonShell } from "python-shell";
 
 function createWindow() {
   // Create the browser window.
@@ -14,6 +15,11 @@ function createWindow() {
       ? 'http://localhost:4200'
       : `file://${path.join(__dirname, 'dist/index.html')}`,
   )
+
+  // let options = {
+  //   mode: 'text',
+
+  // }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();

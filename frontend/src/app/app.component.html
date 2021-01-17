@@ -1,18 +1,24 @@
-<div class="top-bar">
-    <h1>{{title}}</h1>
+<div class="page-container">
+    <div class="content-wrap">
+        <div class="top-bar">
+            <h1>{{title}}</h1>
 
-    <nav>
-        |
-        <a routerLink="/prior-inventory" routerLinkActive='active'>Day 1</a> |
-        <a routerLink="/current-job" routerLinkActive='active'>Current Job</a> |
-        <a routerLink="/daily-transactions" routerLinkActive='active'>Daily Transactions</a> |
-        <a routerLink="/monthly-review" routerLinkActive='active'>Monthly Review</a> |
-        <a routerLink="/fi-projection" routerLinkActive='active'>FI Projection</a> |
-        <a routerLink="/net-worth" routerLinkActive='active'>Net Worth</a> |
-    </nav>
-    <br />
-</div>
+            <nav>
+                |
+                <a routerLink="/prior-inventory" routerLinkActive='active'>Day 1</a> |
+                <a routerLink="/current-job" routerLinkActive='active'>Current Job</a> |
+                <a routerLink="/daily-transactions" routerLinkActive='active'>Daily Transactions</a> |
+                <a routerLink="/monthly-review" routerLinkActive='active'>Monthly Review</a> |
+                <a routerLink="/fi-projection" routerLinkActive='active'>FI Projection</a> |
+                <a routerLink="/net-worth" routerLinkActive='active'>Net Worth</a> |
+            </nav>
+            <br />
+        </div>
 
-<div class="content">
-    <router-outlet></router-outlet>
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+
+    <footer>Copyright © 2021 Suriya Kandaswamy</footer>
 </div>
