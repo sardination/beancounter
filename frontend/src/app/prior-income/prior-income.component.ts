@@ -13,6 +13,7 @@ import { PriorIncomeService } from '../services/api-object.service';
 export class PriorIncomeComponent implements OnInit {
 
     priorIncomes: PriorIncome[];
+    totalPriorIncome: number;
 
     @Input() startDate: Date;
 
@@ -26,12 +27,15 @@ export class PriorIncomeComponent implements OnInit {
     this.priorIncomeService.getObjects()
       .subscribe(priorIncomes => {
         this.priorIncomes = priorIncomes;
+        this.calculateTotalPriorIncome();
       });
   }
 
-  totalPriorIncome(): number {
-    if (this.priorIncomes == undefined) return 0;
-    return this.priorIncomes.reduce((sum, current) => sum + current.amount, 0);
+  calculateTotalPriorIncome(): void {
+    if (this.priorIncomes == undefined) {
+      this.totalPriorIncome = 0;
+    };
+    this.totalPriorIncome = this.priorIncomes.reduce((sum, current) => sum + current.amount, 0);
   }
 
 }

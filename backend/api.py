@@ -67,7 +67,11 @@ def try_commit(row, schema):
 info_schema = InfoSchema()
 class InfoResource(Resource):
     def get(self, title):
-        info = Info.query.filter_by(title=title).first_or_404()
+        info = Info.query.filter_by(title=title).first()
+        if info is None and title in Info.permitted_titles:
+            info = Info(title=title, value=Info.default_values.get(title))
+        else:
+            return abort(404, description='Not a permitted value title')
         return info_schema.dump(info)
 
     def post(self, title):

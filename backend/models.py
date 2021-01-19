@@ -39,6 +39,13 @@ class Info(db.Model):
         'long_term_interest_rate' # stored as decimal (e.g., 5% stored as 0.05)
     ]
 
+    default_values = {
+        'start_date': datetime.date.today(),
+        'real_hourly_wage': 0,
+        'average_monthly_expense': 0,
+        'long_term_interest_rate': 0
+    }
+
 
 # STEP 1 - how much have you earned in your life and balance sheet of assets + liabilities (up to start point)
 class PriorIncome(db.Model):
