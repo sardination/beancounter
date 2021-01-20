@@ -1,10 +1,14 @@
 __pycache__
 .DS_Store
 
-*/migrations/versions
+*/migrations/versions*
 settings.py
 
 node_modules
 
 frontend/main.js
 frontend/dist/
+
+build/*
+dist/*
+*.spec

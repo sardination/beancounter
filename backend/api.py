@@ -12,10 +12,7 @@ from sqlalchemy import (
 
 import datetime
 
-from app import (
-    app,
-    db,
-)
+from db import db
 from enums import TransactionType
 from models import (
     AssetAccount,
@@ -52,7 +49,7 @@ from utils import (
 )
 
 
-api = Api(app)
+api = Api()
 
 
 def try_commit(row, schema):
@@ -65,13 +62,15 @@ def try_commit(row, schema):
 
 
 info_schema = InfoSchema()
+@api.resource("/info/<title>")
 class InfoResource(Resource):
     def get(self, title):
         info = Info.query.filter_by(title=title).first()
-        if info is None and title in Info.permitted_titles:
-            info = Info(title=title, value=Info.default_values.get(title))
-        else:
-            return abort(404, description='Not a permitted value title')
+        if info is None:
+            if title in Info.permitted_titles:
+                info = Info(title=title, value=Info.default_values.get(title))
+            else:
+                return abort(404, description='Not a permitted value title')
         return info_schema.dump(info)
 
     def post(self, title):
@@ -101,6 +100,7 @@ class InfoResource(Resource):
 
 prior_incomes_schema = PriorIncomeSchema(many=True)
 prior_income_schema = PriorIncomeSchema()
+@api.resource("/prior-income")
 class PriorIncomeResource(Resource):
     def get(self):
         prior_incomes = PriorIncome.query.all()
@@ -164,6 +164,7 @@ class PriorIncomeResource(Resource):
 
 balance_sheet_entries_schema = BalanceSheetEntrySchema(many=True)
 balance_sheet_entry_schema = BalanceSheetEntrySchema()
+@api.resource("/balance-sheet")
 class BalanceSheetEntryResource(Resource):
     def get(self):
         balance_sheet_entries = BalanceSheetEntry.query.all()
@@ -201,6 +202,7 @@ class BalanceSheetEntryResource(Resource):
 
 weekly_job_transactions_schema = WeeklyJobTransactionSchema(many=True)
 weekly_job_transaction_schema = WeeklyJobTransactionSchema()
+@api.resource("/weekly-job-transaction")
 class WeeklyJobTransactionResource(Resource):
     def get(self):
         weekly_job_transactions = WeeklyJobTransaction.query.all()
@@ -240,6 +242,7 @@ class WeeklyJobTransactionResource(Resource):
 
 transactions_schema = TransactionSchema(many=True)
 transaction_schema = TransactionSchema()
+@api.resource("/transaction")
 class TransactionResource(Resource):
     def get(self):
         transactions = Transaction.query.all()
@@ -348,6 +351,7 @@ class TransactionResource(Resource):
 
 transaction_categories_schema = TransactionCategorySchema(many=True)
 transaction_category_schema = TransactionCategorySchema()
+@api.resource("/transaction-category")
 class TransactionCategoryResource(Resource):
     def get(self):
         categories = TransactionCategory.query.all()
@@ -387,6 +391,7 @@ def year_month_dict_from_request(request_dict):
 
 asset_accounts_schema = AssetAccountSchema(many=True)
 asset_account_schema = AssetAccountSchema()
+@api.resource("/asset-account")
 class AssetAccountResource(Resource):
     def get(self):
         request_dict = request.args
@@ -467,6 +472,7 @@ class AssetAccountResource(Resource):
 
 month_infos_schema = MonthInfoSchema(many=True)
 month_info_schema = MonthInfoSchema()
+@api.resource("/month-info")
 class MonthInfoResource(Resource):
     def get(self):
         request_dict = request.args
@@ -560,6 +566,7 @@ class MonthInfoResource(Resource):
 
 month_categories_schema = MonthCategorySchema(many=True)
 month_category_schema = MonthCategorySchema()
+@api.resource("/month-category")
 class MonthCategoryResource(Resource):
     def get(self):
         filter_kwargs = {}
@@ -625,6 +632,7 @@ class MonthCategoryResource(Resource):
 
 investment_incomes_schema = InvestmentIncomeSchema(many=True)
 investment_income_schema = InvestmentIncomeSchema()
+@api.resource("/investment-income")
 class InvestmentIncomeResource(Resource):
     def get(self):
         filter_kwargs = {}
@@ -728,6 +736,7 @@ class InvestmentIncomeResource(Resource):
 
 month_asset_account_entries_schema = MonthAssetAccountEntrySchema(many=True)
 month_asset_account_entry_schema = MonthAssetAccountEntrySchema()
+@api.resource("/month-asset-account-entry")
 class MonthAssetAccountEntryResource(Resource):
     def get(self):
         filter_kwargs = {}
@@ -841,6 +850,7 @@ class MonthAssetAccountEntryResource(Resource):
 
 month_reflections_schema = MonthReflectionSchema(many=True)
 month_reflection_schema = MonthReflectionSchema()
+@api.resource("/month-reflection")
 class MonthReflectionResource(Resource):
     def get(self):
         filter_kwargs = {}
@@ -924,17 +934,3 @@ class MonthReflectionResource(Resource):
             month_info.completed = False
 
         return try_commit(month_reflection, month_reflection_schema)
-
-
-api.add_resource(InfoResource, "/info/<title>")
-api.add_resource(PriorIncomeResource, "/prior-income")
-api.add_resource(BalanceSheetEntryResource, "/balance-sheet")
-api.add_resource(WeeklyJobTransactionResource, "/weekly-job-transaction")
-api.add_resource(TransactionResource, "/transaction")
-api.add_resource(TransactionCategoryResource, "/transaction-category")
-api.add_resource(AssetAccountResource, "/asset-account")
-api.add_resource(MonthInfoResource, "/month-info")
-api.add_resource(MonthCategoryResource, "/month-category")
-api.add_resource(InvestmentIncomeResource, "/investment-income")
-api.add_resource(MonthAssetAccountEntryResource, "/month-asset-account-entry")
-api.add_resource(MonthReflectionResource, "/month-reflection")

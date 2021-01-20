@@ -7,7 +7,7 @@ from models import (
     Transaction,
 )
 
-from app import db
+from db import db
 
 import datetime
 
