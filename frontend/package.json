@@ -6,7 +6,8 @@
     "ng": "ng",
     "start": "tsc main.ts && ng build --base-href ./ && electron .",
     "start:dev": "tsc main.ts && electron .",
-    "build": "ng build",
+    "build": "git clean -dfx && npm run frontend:prod && ../build-macos.py py2app",
+    "frontend:prod": "ng build --base-href && parcel build dist/index.html --public-url . --no-source-maps -d built",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

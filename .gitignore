@@ -12,3 +12,4 @@ frontend/dist/
 build/*
 dist/*
 *.spec
+*.db

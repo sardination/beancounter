@@ -3,7 +3,43 @@ import * as path from "path";
 import { isDevMode } from '@angular/core';
 import { PythonShell } from "python-shell";
 
+var pyProc;
+
+// functions for starting the backend python server
+function getBackendProgramPath() {
+  // if (isDevMode) {
+  //   return path.join(__dirname, '../backend', 'run.py');
+  // }
+
+  return path.join(__dirname, '../dist', 'run');
+}
+
+function startBackendServer() {
+  let backendPath = getBackendProgramPath();
+
+  // if (isDevMode) {
+  //   let pyProc = require('child_process').spawn('python', [backendPath]);
+  //   console.log(pyProc);
+  //   return;
+  // }
+
+  pyProc = require('child_process').execFile(backendPath);
+  if (pyProc == null) {
+    console.log("backend server failed to start");
+  }
+}
+
 function createWindow() {
+
+  // start the backend server:
+  // if not in dev mode, then need to simultaneously run
+  //    in backend, python run.py (or python manage.py runserver)
+  //    in frontend, ng serve
+  //    in frontend, npm run start:dev
+  if (isDevMode) {
+    startBackendServer();
+  }
+
   // Create the browser window.
   const mainWindow = new BrowserWindow();
   mainWindow.maximize();
@@ -15,11 +51,6 @@ function createWindow() {
       ? 'http://localhost:4200'
       : `file://${path.join(__dirname, 'dist/index.html')}`,
   )
-
-  // let options = {
-  //   mode: 'text',
-
-  // }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -42,7 +73,10 @@ app.on("ready", () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+  if (process.platform == "darwin") {
+    if (pyProc) {
+      pyProc.kill();
+    }
     app.quit();
   }
 });
