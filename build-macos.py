@@ -21,7 +21,7 @@ DATA_FILES = tree('frontend/built')
 OPTIONS = {
     'argv_emulation': False,
     'strip': True,
-    'iconfile': 'src/assets/logo.icns',
+    # 'iconfile': 'src/assets/logo.icns',
     'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn']
 }
 

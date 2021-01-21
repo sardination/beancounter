@@ -1,31 +1,22 @@
-from flask import request
-
+from requests import Session
 import webview
+from wsgiadapter import WSGIAdapter
 
-from app import create_app
-
+from app import create_webview_app
 
 
 class PyWebviewApi:
-    def __init__():
-        self.app = create_app()
+    def __init__(self):
+        self.app = create_webview_app()
+
+        self.session = Session()
+        self.session.mount('http://financeapp/', WSGIAdapter(self.app))
 
     def make_request(self, request):
-        # HANDLE THE FORMAT PASSED FROM ANGULAR
-        with self.app.test_request_context(request.path, method=request.method):
-            # MORE ARGS
-            return app.full_dispatch_request()
+        # HANDLE THE FORMAT PASSED FROM ANGULAR AND PASS MORE ARGS BELOW:
+        self.session.request(request.method, request.url)
 
 if __name__ == '__main__':
-    # # serve(app, host='127.0.0.1', port=5000)
-    # # app = create_app()
-
-    # # import ipdb
-    # # ipdb.set_trace()
-
-    # with app.test_request_context('/prior-income', method="GET"):
-    #     return app.full_dispatch_request()
-
     webview_api = PyWebviewApi()
     window = webview.create_window('Financial Planner', html="??????", js_api=webview_api)
     webview.start()
