@@ -45,6 +45,7 @@ import { DailyTransactionsPageComponent } from './pages/daily-transactions-page/
 import { MonthlyReviewPageComponent } from './pages/monthly-review-page/monthly-review-page.component';
 import { FIProjectionPageComponent } from './pages/fi-projection-page/fi-projection-page.component';
 import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.component';
+import { PageDirective } from './pages/page.directive';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
     MonthlyReviewPageComponent,
     FIProjectionPageComponent,
     NetWorthPageComponent,
+    PageDirective,
   ],
   imports: [
     BrowserModule,
@@ -101,6 +103,12 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
   ],
   entryComponents: [
     AddEntryDialog,
+    PriorInventoryPageComponent,
+    CurrentJobPageComponent,
+    DailyTransactionsPageComponent,
+    MonthlyReviewPageComponent,
+    FIProjectionPageComponent,
+    NetWorthPageComponent,
   ],
   providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}],
   bootstrap: [AppComponent]

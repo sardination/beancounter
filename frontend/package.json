@@ -10,7 +10,9 @@
     "frontend:prod": "ng build --base-href && parcel build dist/index.html --public-url . --no-source-maps -d built",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "concat": "node concat-build.js",
+    "build2": "ng build --prod --output-hashing=none && npm run concat"
   },
   "private": true,
   "dependencies": {
@@ -31,6 +33,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@types/d3": "^5.16.3",
+    "concat": "^1.0.3",
     "d3": "^6.2.0",
     "d3-svg-legend": "^2.25.6",
     "electron": "^10.1.3",

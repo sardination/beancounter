@@ -3,7 +3,7 @@
         <div class="top-bar">
             <h1>{{title}}</h1>
 
-            <nav>
+<!--             <nav>
                 |
                 <a routerLink="/prior-inventory" routerLinkActive='active'>Day 1</a> |
                 <a routerLink="/current-job" routerLinkActive='active'>Current Job</a> |
@@ -11,12 +11,35 @@
                 <a routerLink="/monthly-review" routerLinkActive='active'>Monthly Review</a> |
                 <a routerLink="/fi-projection" routerLinkActive='active'>FI Projection</a> |
                 <a routerLink="/net-worth" routerLinkActive='active'>Net Worth</a> |
+            </nav> -->
+
+            <nav>
+                |
+                <a (click)="loadPage('prior-inventory')" class="{{ activePage('prior-inventory') }}">
+                    Day 1
+                </a> |
+                <a (click)="loadPage('current-job')" class="{{ activePage('current-job') }}">
+                    Current Job
+                </a> |
+                <a (click)="loadPage('daily-transactions')" class="{{ activePage('daily-transactions') }}">
+                    Daily Transactions
+                </a> |
+                <a (click)="loadPage('monthly-review')" class="{{ activePage('monthly-review') }}">
+                    Monthly Review
+                </a> |
+                <a (click)="loadPage('fi-projection')" class="{{ activePage('fi-projection') }}">
+                    FI Projection
+                </a> |
+                <a (click)="loadPage('net-worth')" class="{{ activePage('net-worth') }}">
+                    Net Worth
+                </a> |
             </nav>
             <br />
         </div>
 
         <div class="content">
-            <router-outlet></router-outlet>
+            <!-- <router-outlet></router-outlet> -->
+            <ng-template pageHost></ng-template>
         </div>
     </div>
 

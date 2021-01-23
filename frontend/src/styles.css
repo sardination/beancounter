@@ -13,6 +13,15 @@ table {
   width: 100%;
 }
 
+a {
+  text-decoration: underline;
+  color: #001fff;
+}
+
+a:hover {
+  cursor: pointer;
+}
+
 /* everywhere else */
 * {
   font-family: "TW Cen MT", "Tahoma", sans-serif;
