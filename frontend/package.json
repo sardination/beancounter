@@ -6,13 +6,11 @@
     "ng": "ng",
     "start": "tsc main.ts && ng build --base-href ./ && electron .",
     "start:dev": "tsc main.ts && electron .",
-    "build": "rm -rf dist built && npm run frontend:prod && python ../build-macos.py py2app",
-    "frontend:prod": "ng build --base-href && parcel build dist/index.html --public-url . --no-source-maps -d built",
+    "build": "ng build --prod --optimization true --base-href ./ && rm dist/*-es2015.*.js && python remove-script-modules.py",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "concat": "node concat-build.js",
-    "build2": "ng build --prod --output-hashing=none && npm run concat"
+    "concat": "node concat-build.js"
   },
   "private": true,
   "dependencies": {
