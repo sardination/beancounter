@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
@@ -16,12 +17,12 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MomentDateModule } from '@angular/material-moment-adapter';
+import { MomentDateModule, MAT_MOMENT_DATE_FORMATS } from '@angular/material-moment-adapter';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
+// import { AppRoutingModule } from './app-routing.module';
 import { PriorIncomeComponent } from './prior-income/prior-income.component';
 import { AddEntryDialog, BalanceSheetComponent } from './balance-sheet/balance-sheet.component';
 import { PriorIncomeTableComponent } from './prior-income/prior-income-table/prior-income-table.component';
@@ -83,7 +84,7 @@ import { PageDirective } from './pages/page.directive';
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    AppRoutingModule,
+    // AppRoutingModule,
     BrowserAnimationsModule,
     MatTableModule,
     MatTabsModule,
@@ -110,7 +111,10 @@ import { PageDirective } from './pages/page.directive';
     FIProjectionPageComponent,
     NetWorthPageComponent,
   ],
-  providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}],
+  providers: [
+      {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}},
+      {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

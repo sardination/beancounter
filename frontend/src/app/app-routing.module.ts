@@ -9,22 +9,22 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
 import { FIProjectionPageComponent } from './pages/fi-projection-page/fi-projection-page.component';
 
 
-// const routes: Routes = [
-//     {path: '', redirectTo: '/daily-transactions', pathMatch: 'full'},
-//     {path: 'prior-inventory', component: PriorInventoryPageComponent},
-//     {path: 'current-job', component: CurrentJobPageComponent},
-//     {path: 'daily-transactions', component: DailyTransactionsPageComponent},
-//     {path: 'monthly-review', component: MonthlyReviewPageComponent},
-//     {path: 'net-worth', component: NetWorthPageComponent},
-//     {path: 'fi-projection', component: FIProjectionPageComponent},
-// ];
+const routes: Routes = [
+    {path: '', redirectTo: '/daily-transactions', pathMatch: 'full'},
+    {path: 'prior-inventory', component: PriorInventoryPageComponent},
+    {path: 'current-job', component: CurrentJobPageComponent},
+    {path: 'daily-transactions', component: DailyTransactionsPageComponent},
+    {path: 'monthly-review', component: MonthlyReviewPageComponent},
+    {path: 'net-worth', component: NetWorthPageComponent},
+    {path: 'fi-projection', component: FIProjectionPageComponent},
+];
 
 
 @NgModule({
   declarations: [],
   imports: [],
   exports: []
-  // imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
-  // exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+  exports: [RouterModule]
 })
 export class AppRoutingModule { }

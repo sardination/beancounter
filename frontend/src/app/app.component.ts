@@ -1,4 +1,12 @@
-import { Component, Input, OnInit, AfterViewInit, ViewChild, ComponentFactoryResolver } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ComponentFactoryResolver,
+  isDevMode,
+} from '@angular/core';
 
 import { PageDirective } from './pages/page.directive';
 import { PriorInventoryPageComponent } from './pages/prior-inventory-page/prior-inventory-page.component';
@@ -32,9 +40,17 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-      setTimeout(() => {
+      if (isDevMode) {
+        setTimeout(() => {
           this.loadPage(this.currentPath)
-      });
+        });
+      } else {
+        window.addEventListener('pywebviewready', function() {
+          setTimeout(() => {
+            this.loadPage(this.currentPath)
+          });
+        })
+      }
   }
 
   normalizePath(path: string): string {

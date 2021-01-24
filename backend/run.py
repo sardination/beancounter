@@ -6,6 +6,9 @@ from wsgiadapter import WSGIAdapter
 
 from app import create_webview_app
 
+# hidden imports
+import sqlalchemy.sql.default_comparator
+
 
 class WebviewApi:
     """
