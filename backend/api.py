@@ -65,6 +65,8 @@ info_schema = InfoSchema()
 @api.resource("/info/<title>")
 class InfoResource(Resource):
     def get(self, title):
+        import ipdb
+        ipdb.set_trace()
         info = Info.query.filter_by(title=title).first()
         if info is None:
             if title in Info.permitted_titles:
@@ -74,6 +76,8 @@ class InfoResource(Resource):
         return info_schema.dump(info)
 
     def post(self, title):
+        import ipdb
+        ipdb.set_trace()
         request_dict = info_schema.load(request.json)
         value = request_dict['value']
 

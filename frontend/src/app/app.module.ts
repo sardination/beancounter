@@ -118,3 +118,10 @@ import { PageDirective } from './pages/page.directive';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+// make sure it is known that pywebview is a property of Window
+declare global {
+    interface Window {
+        pywebview: any;
+    }
+}

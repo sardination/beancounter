@@ -40,14 +40,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-      if (isDevMode) {
+      if (isDevMode()) {
         setTimeout(() => {
           this.loadPage(this.currentPath)
         });
       } else {
+        let _this = this;
         window.addEventListener('pywebviewready', function() {
           setTimeout(() => {
-            this.loadPage(this.currentPath)
+            _this.loadPage(_this.currentPath)
           });
         })
       }

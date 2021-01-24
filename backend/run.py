@@ -1,8 +1,8 @@
+from httpx import Client
+import json
 import os
-from requests import Session
 import tkinter as tk
 import webview
-from wsgiadapter import WSGIAdapter
 
 from app import create_webview_app
 
@@ -14,14 +14,29 @@ class WebviewApi:
     """
     Api to access python functions from js
     """
+    path_start = 'http://financeapp/'
+
     def __init__(self):
         self.app = create_webview_app()
-
-        self.session = Session()
-        self.session.mount('http://financeapp/', WSGIAdapter(self.app))
+        self.client = Client(app=self.app, base_url=self.path_start)
 
     def fullscreen(self):
         webview.windows[0].toggle_fullscreen()
+
+    def request(self, method, path, options):
+        kwargs = {}
+        headers = options.get('headers')
+        params = options.get('params')
+        body = options.get('body')
+        if headers is not None:
+            kwargs['headers'] = headers
+        if params is not None:
+            kwargs['params'] = params
+        if body is not None:
+            kwargs['json'] = body
+
+        resp = self.client.request(method, path, **kwargs)
+        return json.loads(resp.content.decode("utf-8"))
 
 
 def get_entrypoint():

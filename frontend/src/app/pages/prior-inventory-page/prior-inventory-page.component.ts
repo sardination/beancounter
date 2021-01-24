@@ -24,7 +24,7 @@ export class PriorInventoryPageComponent implements OnInit {
 
   updateStartDate(date: Date): void {
       if (!date) return;
-      this.infoService.updateInfo("start_date", date)
+      this.infoService.updateInfo("start_date", date.toISOString().substring(0,10))
           .subscribe(info => {
               console.log(info);
               this.startDate = info.value;

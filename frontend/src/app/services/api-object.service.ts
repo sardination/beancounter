@@ -39,7 +39,8 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   }
 
   getObjectsWithParams(params: any): Observable<T[]> {
-      return this.http.get<T[]>(this.apiUrl, {params: params})
+      // return this.http.get<T[]>(this.apiUrl, {params: params})
+      return this.sendRequest<T[]>("GET", this.apiUrl, params)
                 .pipe(
                   map(objects => {
                     objects.forEach(object => {
@@ -55,23 +56,27 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   }
 
   addObject(object: T): Observable<T> {
-      return this.http.post<T>(this.apiUrl, object, this.httpOptions).pipe(
+      // return this.http.post<T>(this.apiUrl, object, this.httpOptions).pipe(
+      return this.sendRequest<T>("POST", this.apiUrl, undefined, object).pipe(
           tap((newObject: T) => console.log(`added ${this.paramType} with id=${newObject.id}`)),
           catchError(this.handleError<T>('addObject'))
       );
   }
 
   updateObject(object: T): Observable<T> {
-      return this.http.put<T>(this.apiUrl, object, this.httpOptions).pipe(
+      // return this.http.put<T>(this.apiUrl, object, this.httpOptions).pipe(
+      return this.sendRequest<T>("PUT", this.apiUrl, undefined, object).pipe(
           tap((updatedObject: T) => console.log(`updated ${this.paramType} with id=${updatedObject.id}`)),
           catchError(this.handleError<T>('updateObject'))
       );
   }
 
   deleteObject(object: T): Observable<T> {
-    var options = this.httpOptions;
-    options.params = new HttpParams().set('id', object.id.toString());
-    return this.http.delete<T>(this.apiUrl, this.httpOptions).pipe(
+    // var options = this.httpOptions;
+    // options.params = new HttpParams().set('id', object.id.toString());
+    const params = new HttpParams().set('id', object.id.toString())
+    // return this.http.delete<T>(this.apiUrl, this.httpOptions).pipe(
+    return this.sendRequest<T>("DELETE", this.apiUrl, params, object).pipe(
       tap((removedObject: T) => console.log(`removed ${this.paramType} with id=${removedObject.id}`)),
       catchError(this.handleError<T>('deleteObject'))
     );

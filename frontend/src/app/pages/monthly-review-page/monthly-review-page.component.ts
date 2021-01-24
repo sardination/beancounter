@@ -374,6 +374,7 @@ export class MonthlyReviewPageComponent implements OnInit {
                       year: this.selectedYear,
                       month: this.selectedMonth
                   } as MonthInfo;
+                  console.log(monthInfo);
                   this.monthInfoService.addObject(monthInfo)
                       .subscribe(newMonthInfo => {
                           this.selectedMonthInfo = newMonthInfo;
