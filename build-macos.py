@@ -22,7 +22,8 @@ OPTIONS = {
     'argv_emulation': False,
     'strip': True,
     # 'iconfile': 'src/assets/logo.icns',
-    'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn']
+    'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn'],
+    'excludes': ['psycopg2']
 }
 
 setup(
