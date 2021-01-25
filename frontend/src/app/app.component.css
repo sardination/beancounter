@@ -53,6 +53,11 @@ footer {
 
 /* other stuff */
 
+img.logo {
+  height: 0.75em;
+  vertical-align: middle;
+}
+
 nav {
   text-align: center;
   background-color: #daf5b3;

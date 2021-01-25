@@ -48,7 +48,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         let _this = this;
         window.addEventListener('pywebviewready', function() {
           setTimeout(() => {
-            _this.loadPage(_this.currentPath)
+            window.pywebview.api.resize(window.screen.width, window.screen.height);
+            _this.loadPage(_this.currentPath);
           });
         })
       }

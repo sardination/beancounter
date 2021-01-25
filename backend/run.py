@@ -23,7 +23,19 @@ class WebviewApi:
     def fullscreen(self):
         webview.windows[0].toggle_fullscreen()
 
+    def resize(self, width, height):
+        webview.windows[0].resize(width, height)
+
     def request(self, method, path, options):
+        """
+        Pass a request through to the Flask server
+
+        Arguments:
+            method (str): GET, POST, PUT, or DELETE
+            path (str): the path (including host) to which the request is going
+            options (dict): any options included in the request
+        """
+
         kwargs = {}
         headers = options.get('headers')
         params = options.get('params')
@@ -59,33 +71,15 @@ def get_entrypoint():
     raise Exception('No index.html found')
 
 
-def get_curr_screen_geometry():
-    """
-    Workaround to get the size of the current screen in a multi-screen setup.
-
-    Returns:
-        (width, height): width and height of the current screen
-    """
-    root = tk.Tk()
-    root.update_idletasks()
-    root.attributes('-fullscreen', False)
-    root.state('iconic')
-    width = root.winfo_screenwidth()
-    height = root.winfo_screenheight()
-    root.destroy()
-    return width, height
-
 
 entry = get_entrypoint()
 
 if __name__ == '__main__':
-    screen_width, screen_height = get_curr_screen_geometry()
-
     window = webview.create_window(
         'Bean Counter',
         entry,
         js_api=WebviewApi(),
-        width=screen_width,
-        height=screen_height
+        x=0,
+        y=0
     )
     webview.start(debug=True)

@@ -5,8 +5,8 @@ import shutil
 from distutils.core import setup
 
 def tree(src):
-    return [(root, map(lambda f: os.path.join(root, f), files))
-        for (root, dirs, files) in os.walk(os.path.normpath(src))]
+    return [(root, [os.path.join(root, f) for f in files])
+        for (root, _, files) in os.walk(os.path.normpath(src))]
 
 
 if os.path.exists('build'):
@@ -18,6 +18,7 @@ if os.path.exists('dist/index.app'):
 ENTRY_POINT = ['backend/run.py']
 
 DATA_FILES = tree('frontend/dist')
+
 OPTIONS = {
     'argv_emulation': False,
     'strip': True,
