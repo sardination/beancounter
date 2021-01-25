@@ -22,7 +22,7 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  title: string = 'Financial Planner';
+  title: string = 'Bean Counter';
   currentPath: string = "/";
   availablePages: Map<string, any> = new Map<string, any>(); // key by path to component value
 

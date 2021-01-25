@@ -24,7 +24,7 @@
     <div *ngIf="selectedMonthInfoHasPassed()">
         <app-monthly-reflection [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
         <br />
-        <hr class="green" />
+        <hr />
     </div>
 
     <app-category-totals
@@ -34,7 +34,7 @@
         [selectedMonthInfo]="selectedMonthInfo"
         (updateCategories)="setTransactionCategories($event)"
     ></app-category-totals>
-    <hr class="green" />
+    <hr />
 </div>
 
 <mat-tab-group>

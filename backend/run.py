@@ -14,7 +14,7 @@ class WebviewApi:
     """
     Api to access python functions from js
     """
-    path_start = 'http://financeapp/'
+    path_start = 'http://beancounter/'
 
     def __init__(self):
         self.app = create_webview_app()
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     screen_width, screen_height = get_curr_screen_geometry()
 
     window = webview.create_window(
-        'Financial Planner',
+        'Bean Counter',
         entry,
         js_api=WebviewApi(),
         width=screen_width,

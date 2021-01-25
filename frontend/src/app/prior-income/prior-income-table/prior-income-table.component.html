@@ -9,7 +9,11 @@
                 {{ priorIncome.date | date }}
             </div>
             <ng-template #editDate>
-                <input [formControl]="editingIncomeDate" type="date" max="{{ startDate }}"/>
+                <mat-form-field>
+                    <input matInput [matDatepicker]="incomeDatePicker" [formControl]="editingIncomeDate" max="{{ startDate }}" />
+                    <mat-datepicker-toggle matSuffix [for]="incomeDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #incomeDatePicker></mat-datepicker>
+                </mat-form-field>
             </ng-template>
         </td>
     </ng-container>

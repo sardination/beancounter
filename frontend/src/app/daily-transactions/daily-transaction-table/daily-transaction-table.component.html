@@ -11,7 +11,11 @@
                     {{ transaction.date | date }}
                 </div>
                 <ng-template #editDate>
-                    <input [formControl]="editingTransactionDate" type="date" min="{{ startDate }}" max="{{ todayDate.toISOString().substring(0,10) }}"/>
+                    <mat-form-field>
+                        <input matInput [matDatepicker]="transactionDatePicker" [formControl]="editingTransactionDate" min="{{ startDate }}" max="{{ todayDate }}" />
+                        <mat-datepicker-toggle matSuffix [for]="transactionDatePicker"></mat-datepicker-toggle>
+                        <mat-datepicker #transactionDatePicker></mat-datepicker>
+                    </mat-form-field>
                 </ng-template>
             </td>
         </ng-container>

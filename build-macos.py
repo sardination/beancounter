@@ -21,13 +21,14 @@ DATA_FILES = tree('frontend/dist')
 OPTIONS = {
     'argv_emulation': False,
     'strip': True,
-    # 'iconfile': 'src/assets/logo.icns',
+    'iconfile': 'assets/logo.icns',
     'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn'],
     'excludes': ['psycopg2']
 }
 
 setup(
     app=ENTRY_POINT,
+    name='Bean Counter',
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
     setup_requires=['py2app'],

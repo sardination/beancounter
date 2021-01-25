@@ -5,6 +5,7 @@ from flask_restful import Api
 
 from api import api
 from db import db
+import settings
 
 
 def create_app():
@@ -15,8 +16,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app, origins="http://localhost:4200")
 
-    app.config.from_pyfile('settings.py', silent=True)
-    app.config['DEBUG'] = False
+    app.config.from_object(settings.DevConfig())
 
     db.init_app(app)
     api.init_app(app)
@@ -29,10 +29,9 @@ def create_webview_app():
     """
 
     app = Flask(__name__)
-    CORS(app, origins="http://financeapp/")
+    CORS(app, origins="http://beancounter/")
 
-    app.config.from_pyfile('settings.py', silent=True)
-    app.config['DEBUG'] = False
+    app.config.from_object(settings.ProdConfig())
 
     db.init_app(app)
     api.init_app(app)

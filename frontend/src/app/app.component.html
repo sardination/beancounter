@@ -3,16 +3,6 @@
         <div class="top-bar">
             <h1>{{title}}</h1>
 
-<!--             <nav>
-                |
-                <a routerLink="/prior-inventory" routerLinkActive='active'>Day 1</a> |
-                <a routerLink="/current-job" routerLinkActive='active'>Current Job</a> |
-                <a routerLink="/daily-transactions" routerLinkActive='active'>Daily Transactions</a> |
-                <a routerLink="/monthly-review" routerLinkActive='active'>Monthly Review</a> |
-                <a routerLink="/fi-projection" routerLinkActive='active'>FI Projection</a> |
-                <a routerLink="/net-worth" routerLinkActive='active'>Net Worth</a> |
-            </nav> -->
-
             <nav>
                 |
                 <a (click)="loadPage('prior-inventory')" class="{{ activePage('prior-inventory') }}">
@@ -38,7 +28,6 @@
         </div>
 
         <div class="content">
-            <!-- <router-outlet></router-outlet> -->
             <ng-template pageHost></ng-template>
         </div>
     </div>
