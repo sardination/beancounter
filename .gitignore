@@ -1,7 +1,6 @@
 __pycache__
 .DS_Store
 
-*/migrations/versions*
 secrets.py
 
 node_modules
