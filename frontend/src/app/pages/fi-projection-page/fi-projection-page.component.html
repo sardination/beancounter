@@ -1,5 +1,5 @@
 <div class="page-header"><h2>FI Projection</h2></div>
-<p>Now that you're tracking all of your income and expenses, you can try to project when you would achieve financial independence. Financial independence is when your investment income each month is enough to offset all of your expected monthly expenses. By using the long-term interest rate and your projected monthly expense level, you can see how much you need in assets in order to retire. The chart below will show you your expenses, active income, passive income, and projected expenses over time. When the investment income line crosses the expenses line, you've officially achieved financial independence.</p>
+<p>Now that you're tracking all of your income and expenses, you can try to project when you would achieve financial independence. Financial independence is when your investment income each month is enough to offset all of your expected monthly expenses. By using the long-term interest rate and your projected monthly expense level - both of which you provide, you can see how much you need in assets in order to retire. The chart below will show you your expenses, active income, passive income, and projected expenses over time. Projected investment income is calculated using the current long-term interest rate and your total assets. When the investment income line crosses the expenses line, you've officially achieved financial independence.</p>
 
 <app-monthly-flow-chart
     [averageMonthlyExpense]="monthlyExpense"
@@ -14,12 +14,12 @@
     <mat-form-field>
         <mat-label>Estimated Monthly Expense</mat-label>
         <span matPrefix>$&nbsp;</span>
-        <input matInput type="number" step="0.01" [ngModel]="monthlyExpense | number: '1.2-2'" (ngModelChange)=updateMonthlyExpense($event)>
+        <input matInput type="number" step="0.01" value="{{ monthlyExpenseString }}" (input)="updateMonthlyExpense($event.target.value)" (blur)="onBlur()"/>
     </mat-form-field>
     <br />
     <mat-form-field>
         <mat-label>Current Long-Term Interest Rate</mat-label>
-        <input matInput type="number" step="0.01" [ngModel]="longTermInterestRate | number: '1.2-2'" (ngModelChange)=updateLongTermInterestRate($event)>
+        <input matInput type="number" step="0.01" value="{{ longTermInterestRateString }}" (input)="updateLongTermInterestRate($event.target.value)" (blur)="onBlur()"/>
         <span matSuffix>%</span>
     </mat-form-field>
 </div>

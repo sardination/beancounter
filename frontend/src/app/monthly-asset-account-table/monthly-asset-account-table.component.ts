@@ -37,6 +37,7 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   set monthInfoId(monthInfoId: number) {
       this.cancelEditAccountEntry();
       this._monthInfoId = monthInfoId;
+      this.getAssetAccounts();
   }
   private _monthInfoId: number;
 
@@ -54,9 +55,7 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
     private monthAssetAccountEntryService: MonthAssetAccountEntryService
   ) { }
 
-  ngOnInit(): void {
-      this.getAssetAccounts();
-  }
+  ngOnInit(): void { }
 
   getAssetAccounts(): void {
     this.assetAccountService.getObjectsWithParams({'month_info_id': this.monthInfoId})

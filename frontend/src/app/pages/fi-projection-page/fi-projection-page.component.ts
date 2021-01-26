@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { formatNumber } from '@angular/common';
 
 import { FormControl } from '@angular/forms';
 
@@ -17,6 +18,9 @@ export class FIProjectionPageComponent implements OnInit {
   monthlyExpense: number = 0;
   longTermInterestRate: number = 0;
 
+  monthlyExpenseString: string = "";
+  longTermInterestRateString: string = "";
+
   constructor(private infoService: InfoService) { }
 
   ngOnInit(): void {
@@ -27,12 +31,25 @@ export class FIProjectionPageComponent implements OnInit {
       this.infoService.getInfo("average_monthly_expense")
           .subscribe(info =>  {
               this.monthlyExpense = info.value;
+              this.monthlyExpenseString = this.valueToString(this.monthlyExpense);
           });
 
       this.infoService.getInfo("long_term_interest_rate")
           .subscribe(info =>  {
               this.longTermInterestRate = info.value;
+              this.longTermInterestRateString = this.valueToString(this.longTermInterestRate);
           });
+  }
+
+  valueToString(value: number): string {
+    let parts = value.toString().split(".");
+    console.log(parts.length == 2 && parts[1].length == 1)
+    if (parts.length == 1) {
+      return `${parts[0]}.00`;
+    } else if (parts.length == 2 && parts[1].length == 1) {
+      return `${parts[0]}.${parts[1]}0`;
+    }
+    return value.toString();
   }
 
   updateMonthlyExpense(monthlyExpense: number) {
@@ -47,6 +64,11 @@ export class FIProjectionPageComponent implements OnInit {
         .subscribe(info => {
             this.longTermInterestRate = info.value;
         });
+  }
+
+  onBlur(): void {
+    this.monthlyExpenseString = this.valueToString(this.monthlyExpense);
+    this.longTermInterestRateString = this.valueToString(this.longTermInterestRate);
   }
 
   // updateProjectionValues(): void {

@@ -29,6 +29,9 @@ export abstract class BaseMonthChartComponent implements OnInit {
   }
 
   getMonthInfos(): void {
+    /*
+      Fill in the MonthInfos and sort chronologically ascending
+    */
       this.monthInfoService.getObjects()
           .subscribe(monthInfos => {
               this.monthInfos = monthInfos.sort((a, b) => {

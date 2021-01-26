@@ -44,6 +44,7 @@
                 ${{ income.value | number: '1.2-2' }}
             </div>
             <ng-template #editValue>
+                <span matPrefix>$&nbsp;</span>
                 <input [formControl]="editingIncomeValue" type="number" min="0" step="0.01" />
             </ng-template>
         </td>

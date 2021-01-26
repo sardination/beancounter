@@ -55,15 +55,14 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
     var expenditureProjectionLine = d3.line<MonthInfo>()
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(y(this.averageMonthlyExpense));
-    // TODO: make this a function of actual accumulated capital => requires savings tracking + monitoring, good practice!
-    var capital = 0;
+    var prevCapital = 0;
     var _this = this;
     var investmentIncomeProjectionLine = d3.line<MonthInfo>()
             .x(function(d) {return x(new Date(d.year, d.month, 1))})
             .y(function(d) {
-              // capital += d.income - d.expenditure;
-              capital = d.assets - d.liabilities
-              return Math.max(y(capital * _this._longTermInterestRate / 12), 0);
+              let ret = y(Math.max(prevCapital * (_this._longTermInterestRate / 100) / 12, 0));
+              prevCapital = d.assets - d.liabilities;
+              return ret;
             })
 
     // draw lines

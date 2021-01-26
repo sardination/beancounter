@@ -411,19 +411,18 @@ class AssetAccountResource(Resource):
             #   account opened in this month or earlier
 
             if month_info.month == 12:
-                latest_open_date = datetime.date(month_info.year + 1, 1, 1)
+                after_latest_open_date = datetime.date(month_info.year + 1, 1, 1)
             else:
-                latest_open_date = datetime.date(month_info.year, month_info.month + 1, 1)
+                after_latest_open_date = datetime.date(month_info.year, month_info.month + 1, 1)
 
-            asset_accounts.filter(
+            asset_accounts = asset_accounts.filter(
                 or_(
                     AssetAccount.close_date == None,
                     AssetAccount.close_date >= datetime.date(month_info.year, month_info.month, 1)
                 )
             ).filter(
-                AssetAccount.open_date < latest_open_date
+                AssetAccount.open_date < after_latest_open_date
             )
-
         asset_accounts = asset_accounts.all()
 
         return asset_accounts_schema.dump(asset_accounts)
@@ -779,6 +778,23 @@ class MonthAssetAccountEntryResource(Resource):
         asset_account = AssetAccount.query.filter_by(id=asset_account_id).first()
         if asset_account is None:
             return abort(400, description='Asset account with this id does not exist')
+
+        if month_info is not None:
+            # filter:
+            #   (account has not closed OR
+            #   account has closed this month or later) AND
+            #   account opened in this month or earlier
+
+            if month_info.month == 12:
+                after_latest_open_date = datetime.date(month_info.year + 1, 1, 1)
+            else:
+                after_latest_open_date = datetime.date(month_info.year, month_info.month + 1, 1)
+
+            earliest_close_date = datetime.date(month_info.year, month_info.month, 1)
+
+            if ((asset_account.close_date != None and asset_account.close_date < earliest_close_date) or
+                asset_account.open_date >= after_latest_open_date):
+                return abort(400, description='Trying to add asset entry during account closure period')
 
         new_month_asset_account_entry = MonthAssetAccountEntry(
             month_info_id=month_info_id,
