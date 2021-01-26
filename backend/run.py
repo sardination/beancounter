@@ -1,6 +1,7 @@
 from httpx import Client
 import json
 import os
+from settings import VERSION
 import tkinter as tk
 import webview
 
@@ -66,6 +67,9 @@ class WebviewApi:
 
     def resize(self, width, height):
         webview.windows[0].resize(width, height)
+
+    def get_version(self):
+        return VERSION
 
     def request(self, method, path, options):
         """

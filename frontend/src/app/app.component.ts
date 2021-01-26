@@ -23,6 +23,7 @@ import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.com
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title: string = 'Bean Counter';
+  version: string = 'DEV';
   currentPath: string = "/";
   availablePages: Map<string, any> = new Map<string, any>(); // key by path to component value
 
@@ -49,6 +50,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         window.addEventListener('pywebviewready', function() {
           setTimeout(() => {
             window.pywebview.api.resize(window.screen.width, window.screen.height);
+            window.pywebview.api.get_version().then(
+              (version) => {_this.version = version;}
+            );
             _this.loadPage(_this.currentPath);
           });
         })
