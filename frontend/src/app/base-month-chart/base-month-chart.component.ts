@@ -6,13 +6,18 @@ import { MonthInfoService } from '../services/api-object.service';
 import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
-  template: '<svg id="{{ svgID }}"></svg>'
+  template: `
+    <div style="text-align:center"><h3><strong>{{ usePlaceholderText }}</strong></h3></div>
+    <svg id="{{ svgID }}"></svg>
+  `
 })
 export abstract class BaseMonthChartComponent implements OnInit {
 
   monthInfos: MonthInfo[] = [];
 
   @Input() svgID: string;
+  @Input() placeholderText: string = "You'll see a chart here once you've completed a month!";
+  usePlaceholderText: string = "";
 
   abstract yDomain(): [number, number];
   abstract drawLines(svg: any, x: any, y: any): void;
@@ -47,8 +52,10 @@ export abstract class BaseMonthChartComponent implements OnInit {
                       finalMonthInfo.year == today.getFullYear()) {
                         this.monthInfos.pop();
                   }
+                  this.drawLineChart();
+              } else {
+                this.usePlaceholderText = this.placeholderText;
               }
-              this.drawLineChart();
           })
   }
 

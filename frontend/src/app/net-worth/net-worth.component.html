@@ -1,6 +1,9 @@
 <h3 class="current-net-worth-header" *ngIf="lastCompletedMonthInfo">Your Current Net Worth (as of {{ getVerboseLatestCompletedMonth() }}): <span>${{ currentNetWorth | number: '1.2-2' }}</span></h3>
 
-<app-net-worth-chart [svgID]="'net-worth-chart'"></app-net-worth-chart>
+<app-net-worth-chart
+    [svgID]="'net-worth-chart'"
+    [placeholderText]="'You\'ll see your net worth value and chart here once you\'ve completed a month!'"
+></app-net-worth-chart>
 
 <button mat-raised-button (click)="openAddAssetAccountDialog()" class="icon-button add">
     Add New Asset Account <fa-icon [icon]="faPlusSquare"></fa-icon>
@@ -10,11 +13,3 @@
     [latestAssetAccountEntries]="latestAssetAccountEntries"
     (toggleAccountActivationEvent)="toggleAccountActivation($event)"
 ></app-asset-account-table>
-
-<!--allow user to add account
-maybe allow user to select account opening day?
-allow user to close account
-list open accounts on top and closed accounts below
-allow user to reopen account (this should clear the account close date in the db)
-    if reopen, create intermediate month-asset-account-entries with 0 asset/0 liability for each entry
-show most recent value when listing in chart (from the previous month or last open month)-->
