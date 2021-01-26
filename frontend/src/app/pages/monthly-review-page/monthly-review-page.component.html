@@ -22,7 +22,10 @@
 
 <div class="month-evaluation-content">
     <div *ngIf="selectedMonthInfoHasPassed()">
-        <app-monthly-reflection [monthInfo]="selectedMonthInfo"></app-monthly-reflection>
+        <app-monthly-reflection
+            [monthInfo]="selectedMonthInfo"
+            (updateMonthInfo)="updateMonthInfoAndCategories()"
+        ></app-monthly-reflection>
         <br />
         <hr />
     </div>

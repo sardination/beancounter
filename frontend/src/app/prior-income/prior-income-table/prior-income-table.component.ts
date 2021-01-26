@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 import { MatDatepicker } from '@angular/material/datepicker';
@@ -22,6 +22,8 @@ export class PriorIncomeTableComponent implements OnInit {
   faPlusSquare = faPlusSquare;
 
   @Input() startDate: Date;
+
+  @Output() updatePriorIncomes = new EventEmitter<PriorIncome[]>();
 
   @Input()
   get priorIncomes(): PriorIncome[] { return this._priorIncomes; };
@@ -95,6 +97,7 @@ export class PriorIncomeTableComponent implements OnInit {
                 this.priorIncomes = this.sortIncomes(this.priorIncomes);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
+                this.updatePriorIncomes.emit(this.priorIncomes);
             })
       } else {
         this.priorIncomeService.updateObject(priorIncome)
@@ -103,6 +106,7 @@ export class PriorIncomeTableComponent implements OnInit {
                 this.priorIncomes = this.sortIncomes(this.priorIncomes);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;
+                this.updatePriorIncomes.emit(this.priorIncomes);
             })
       }
   }
@@ -133,6 +137,7 @@ export class PriorIncomeTableComponent implements OnInit {
             this.tableDataSource.data = [this.editingIncome].concat(this.priorIncomes);
           }
           this.tableDataSource._updateChangeSubscription();
+          this.updatePriorIncomes.emit(this.priorIncomes);
         })
   }
 

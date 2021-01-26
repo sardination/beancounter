@@ -124,7 +124,7 @@ export class CategoryTotalsComponent implements OnInit {
 
   changeCategoryFulfilment(categoryId: number): void {
       if (categoryId == undefined) return;
-      // if (this.selectedMonthInfo != undefined && this.selectedMonthInfo.completed) return;
+      if (this.selectedMonthInfo != undefined && this.selectedMonthInfo.completed) return;
       let monthCategory = this.monthCategories.get(categoryId);
       if (monthCategory == undefined) {
           monthCategory = {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { FormControl } from '@angular/forms';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +18,8 @@ export class MonthlyReflectionComponent implements OnInit {
   faExclamationCircle = faExclamationCircle;
 
   todayDate: Date = new Date();
+
+  @Output() updateMonthInfo = new EventEmitter();
 
   @Input()
   get monthInfo(): MonthInfo {return this._monthInfo;}
@@ -65,7 +67,6 @@ export class MonthlyReflectionComponent implements OnInit {
               let todayMonth = this.todayDate.getMonth();
               if (monthReflections.length > 0) {
                   this.monthReflection = monthReflections[0];
-              // } else if (this.monthInfo.completed) {
               } else if (
                 todayYear > this.monthInfo.year ||
                 (todayYear == this.monthInfo.year && todayMonth > this.monthInfo.month)) {
@@ -94,12 +95,7 @@ export class MonthlyReflectionComponent implements OnInit {
       this.monthReflectionService.updateObject(updatingMonthReflection)
           .subscribe(updatedMonthReflection => {
               this.monthReflection = updatedMonthReflection;
-              this.monthInfoService.getObjectsWithParams({'year': this.monthInfo.year, 'month': this.monthInfo.month})
-                  .subscribe(retrievedMonthInfos => {
-                    if (retrievedMonthInfos.length > 0) {
-                        this.monthInfo = retrievedMonthInfos[0];
-                    }
-                  })
+              this.updateMonthInfo.emit();
           })
   }
 

@@ -3,4 +3,8 @@
     <h3 class="total-header header-column">Spending to date: <span class="expenditures">${{ totalExpenditures | number: '1.2-2' }}</span></h3>
 </div>
 
-<app-daily-transaction-table [transactions]="transactions" [startDate]="startDate"></app-daily-transaction-table>
+<app-daily-transaction-table
+    [transactions]="transactions"
+    [startDate]="startDate"
+    (updateTransactions)="setTransactions($event)"
+></app-daily-transaction-table>

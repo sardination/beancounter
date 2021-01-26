@@ -47,4 +47,14 @@ export class BalanceSheetEntryTableComponent implements OnInit {
     this.deleteEntryEvent.emit(entry);
   }
 
+  getAssetType(entry: BalanceSheetEntry): string {
+    if (entry.entry_type == "fixed_asset") {
+      return "(Fixed)";
+    } else if (entry.entry_type == "liquid_asset") {
+      return "(Liquid)";
+    }
+
+    return "";
+  }
+
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Output, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
@@ -27,6 +27,8 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @Input() startDate: Date;
+
+  @Output() updateTransactions = new EventEmitter<Transaction[]>();
 
   @Input()
   get transactions(): Transaction[] { return this._transactions };
@@ -129,6 +131,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
                 this.transactions.push(newTransaction);
                 this.transactions = this.sortTransactions(this.transactions)
                 this.editingTransaction = null;
+                this.updateTransactions.emit(this.transactions);
             })
       } else {
         this.transactionService.updateObject(transaction)
@@ -136,6 +139,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
                 transaction = updatedTransaction;
                 this.transactions = this.sortTransactions(this.transactions);
                 this.editingTransaction = null;
+                this.updateTransactions.emit(this.transactions);
             })
       }
   }
@@ -168,6 +172,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
             this.tableDataSource.data = [this.editingTransaction].concat(this.transactions);
           }
           this.tableDataSource._updateChangeSubscription();
+          this.updateTransactions.emit(this.transactions);
         })
   }
 

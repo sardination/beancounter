@@ -13,7 +13,14 @@ export class DailyTransactionsComponent implements OnInit {
 
   @Input() startDate: Date;
 
-  transactions: Transaction[] = [];
+  get transactions(): Transaction[] { return this._transactions };
+  set transactions(transactions: Transaction[]) {
+    this._transactions = transactions;
+    this.calculateTotalIncome();
+    this.calculateTotalExpenditures();
+  }
+  private _transactions: Transaction[] = [];
+
   totalIncome: number = 0;
   totalExpenditures: number = 0;
 
@@ -27,9 +34,11 @@ export class DailyTransactionsComponent implements OnInit {
       this.transactionService.getObjects()
           .subscribe(transactions => {
               this.transactions = transactions;
-              this.calculateTotalIncome();
-              this.calculateTotalExpenditures();
           })
+  }
+
+  setTransactions(transactions: Transaction[]): void {
+    this.transactions = transactions;
   }
 
   calculateTotalIncome(): void {
