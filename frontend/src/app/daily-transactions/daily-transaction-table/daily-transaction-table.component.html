@@ -12,7 +12,7 @@
                 </div>
                 <ng-template #editDate>
                     <mat-form-field>
-                        <input matInput [matDatepicker]="transactionDatePicker" [formControl]="editingTransactionDate" min="{{ startDate }}" max="{{ todayDate }}" />
+                        <input matInput [matDatepicker]="transactionDatePicker" [formControl]="editingTransactionDate" min="{{ startDate }}" max="{{ todayDate.toISOString() }}" />
                         <mat-datepicker-toggle matSuffix [for]="transactionDatePicker"></mat-datepicker-toggle>
                         <mat-datepicker #transactionDatePicker></mat-datepicker>
                     </mat-form-field>

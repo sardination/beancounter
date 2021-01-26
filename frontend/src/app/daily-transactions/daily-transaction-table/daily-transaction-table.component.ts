@@ -83,19 +83,15 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  todaysDateInputValueString(): string {
-    return (new Date()).toISOString().substring(0,10)
-  }
-
   zeroFormControls(): void {
-    this.editingTransactionDate = new FormControl(this.todaysDateInputValueString());
+    this.editingTransactionDate = new FormControl();
     this.editingTransactionType = new FormControl("expenditure");
     this.editingTransactionValue = new FormControl(0);
     this.editingTransactionDescription = new FormControl("");
   }
 
   setFormControls(transaction: Transaction): void {
-    this.editingTransactionDate = new FormControl(transaction.date.toISOString().substring(0,10));
+    this.editingTransactionDate = new FormControl(transaction.date);
     if (transaction.transaction_type == "income") {
         this.editingTransactionType = new FormControl("income");
     } else {
@@ -132,7 +128,6 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
             .subscribe(newTransaction => {
                 this.transactions.push(newTransaction);
                 this.transactions = this.sortTransactions(this.transactions)
-                this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })
       } else {
@@ -140,7 +135,6 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
             .subscribe(updatedTransaction => {
                 transaction = updatedTransaction;
                 this.transactions = this.sortTransactions(this.transactions);
-                this.tableDataSource.data = this.transactions;
                 this.editingTransaction = null;
             })
       }

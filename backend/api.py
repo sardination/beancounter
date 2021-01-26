@@ -693,7 +693,7 @@ class InvestmentIncomeResource(Resource):
         investment_income_type = request_dict['investment_income_type']
 
         month_info_id = request_dict.get('month_info_id') # don't update month
-        month_info = MonthInfo.query.filter_by(id=month_info_id)
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first_or_404();
 
         if date is not None:
             if date > datetime.date.today() or date < get_start_date():
@@ -704,7 +704,7 @@ class InvestmentIncomeResource(Resource):
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
         # remove old value from month-info for old income
-        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id)
+        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
         old_month_info.investment_income -= investment_income.value
 
         investment_income.investment_income_type = investment_income_type
@@ -723,7 +723,7 @@ class InvestmentIncomeResource(Resource):
             return abort(400, description='No id to delete')
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
-        month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id)
+        month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
 
         db.session.delete(investment_income)
 

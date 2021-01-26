@@ -38,17 +38,22 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
     return !(!(arg as {date: Date}).date);
   }
 
+  convertDateIfComponent(object: any): any {
+    if (!this.containsDate(object)) {
+      return object;
+    }
+    let dateParts = object.date.toString().split('-'); // YYYY-MM-DD
+    object.date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2])); // months are 0-indexed
+    return object
+  }
+
   getObjectsWithParams(params: any): Observable<T[]> {
       // return this.http.get<T[]>(this.apiUrl, {params: params})
       return this.sendRequest<T[]>("GET", this.apiUrl, params)
                 .pipe(
                   map(objects => {
                     objects.forEach(object => {
-                      if (this.containsDate(object)) {
-                        let dateParts = object.date.toString().split('-'); // YYYY-MM-DD
-                        object.date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2])); // months are 0-indexed
-                        return object
-                      }
+                      return this.convertDateIfComponent(object);
                     })
                     return objects;
                   })
@@ -58,6 +63,9 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   addObject(object: T): Observable<T> {
       // return this.http.post<T>(this.apiUrl, object, this.httpOptions).pipe(
       return this.sendRequest<T>("POST", this.apiUrl, undefined, object).pipe(
+          map(newObject => {
+            return this.convertDateIfComponent(newObject);
+          }),
           tap((newObject: T) => console.log(`added ${this.paramType} with id=${newObject.id}`)),
           catchError(this.handleError<T>('addObject'))
       );
@@ -66,6 +74,9 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
   updateObject(object: T): Observable<T> {
       // return this.http.put<T>(this.apiUrl, object, this.httpOptions).pipe(
       return this.sendRequest<T>("PUT", this.apiUrl, undefined, object).pipe(
+          map(updatedObject => {
+            return this.convertDateIfComponent(updatedObject);
+          }),
           tap((updatedObject: T) => console.log(`updated ${this.paramType} with id=${updatedObject.id}`)),
           catchError(this.handleError<T>('updateObject'))
       );
@@ -77,6 +88,9 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
     const params = new HttpParams().set('id', object.id.toString())
     // return this.http.delete<T>(this.apiUrl, this.httpOptions).pipe(
     return this.sendRequest<T>("DELETE", this.apiUrl, params, object).pipe(
+      map(removedObject => {
+          return this.convertDateIfComponent(removedObject);
+        }),
       tap((removedObject: T) => console.log(`removed ${this.paramType} with id=${removedObject.id}`)),
       catchError(this.handleError<T>('deleteObject'))
     );

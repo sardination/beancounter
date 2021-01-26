@@ -26,7 +26,7 @@ export class PriorIncomeTableComponent implements OnInit {
   @Input()
   get priorIncomes(): PriorIncome[] { return this._priorIncomes; };
   set priorIncomes(priorIncomes: PriorIncome[]) {
-    this._priorIncomes = this.sortIncomes(priorIncomes);;
+    this._priorIncomes = this.sortIncomes(priorIncomes);
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<PriorIncome>(this._priorIncomes);
     } else {
@@ -59,12 +59,12 @@ export class PriorIncomeTableComponent implements OnInit {
 
   zeroFormControls(): void {
     this.editingIncomeDate = new FormControl();
-    this.editingIncomeAmount = new FormControl(0);
+    this.editingIncomeAmount = new FormControl(this.startDate);
     this.editingIncomeDescription = new FormControl("");
   }
 
   setFormControls(priorIncome: PriorIncome): void {
-    this.editingIncomeDate = new FormControl(priorIncome.date.toISOString().substring(0,10));
+    this.editingIncomeDate = new FormControl(priorIncome.date);
     this.editingIncomeAmount = new FormControl(priorIncome.amount);
     this.editingIncomeDescription = new FormControl(priorIncome.description);
   }
@@ -111,12 +111,12 @@ export class PriorIncomeTableComponent implements OnInit {
     if (this.editingIncome == undefined) {
       this.editingIncome =  {
         id: 0,
-        date: this.editingIncomeDate.value,
+        date: this.editingIncomeDate.value.toISOString().substring(0,10),
         amount: this.editingIncomeAmount.value,
         description: this.editingIncomeDescription.value.trim()
       } as PriorIncome;
     } else {
-      this.editingIncome.date = this.editingIncomeDate.value;
+      this.editingIncome.date = this.editingIncomeDate.value.toISOString().substring(0,10);
       this.editingIncome.amount = this.editingIncomeAmount.value;
       this.editingIncome.description = this.editingIncomeDescription.value.trim();
     }

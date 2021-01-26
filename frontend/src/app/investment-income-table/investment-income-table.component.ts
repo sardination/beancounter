@@ -1,5 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
+import { MAT_DATE_FORMATS } from '@angular/material/core';
+import { MAT_MOMENT_DATE_FORMATS } from '@angular/material-moment-adapter';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +13,10 @@ import { InvestmentIncome } from '../interfaces/investment-income';
 @Component({
   selector: 'app-investment-income-table',
   templateUrl: './investment-income-table.component.html',
-  styleUrls: ['./investment-income-table.component.css']
+  styleUrls: ['./investment-income-table.component.css'],
+  providers: [
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS}
+  ]
 })
 export class InvestmentIncomeTableComponent implements OnInit {
 
@@ -24,7 +29,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
   @Input()
   get investmentIncomes(): InvestmentIncome[] { return this._investmentIncomes };
   set investmentIncomes(investmentIncomes: InvestmentIncome[]) {
-    this._investmentIncomes = investmentIncomes;
+    this._investmentIncomes = this.sortIncomes(investmentIncomes);
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<InvestmentIncome>(this._investmentIncomes);
     } else {
@@ -96,7 +101,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
     } else {
         this.editingIncomeDate = new FormControl();
     }
-    this.editingIncomeType = new FormControl(this.getLabelFromTypeKey(income.investment_income_type));
+    this.editingIncomeType = new FormControl(income.investment_income_type);
     this.editingIncomeValue = new FormControl(income.value);
     this.editingIncomeDescription = new FormControl(income.description);
   }
@@ -125,7 +130,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
         this.investmentIncomeService.addObject(income)
             .subscribe(newIncome => {
                 this.investmentIncomes.push(newIncome);
-                this.investmentIncomes = this.investmentIncomes;
+                this.investmentIncomes = this.sortIncomes(this.investmentIncomes);
                 this.tableDataSource.data = this.investmentIncomes;
                 this.editingIncome = null;
             })
@@ -133,7 +138,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
         this.investmentIncomeService.updateObject(income)
             .subscribe(updatedIncome => {
                 income = updatedIncome;
-                this.investmentIncomes = this.investmentIncomes;
+                this.investmentIncomes = this.sortIncomes(this.investmentIncomes);
                 this.tableDataSource.data = this.investmentIncomes;
                 this.editingIncome = null;
             })
@@ -170,6 +175,21 @@ export class InvestmentIncomeTableComponent implements OnInit {
           }
           this.tableDataSource._updateChangeSubscription();
         })
+  }
+
+  sortIncomes(incomes: InvestmentIncome[]): InvestmentIncome[] {
+    if (!incomes) {
+      return [];
+    }
+    return incomes.sort((a, b) => {
+        if (a.date > b.date) {
+            return -1;
+        } else if (a.date < b.date) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
   }
 
 }
