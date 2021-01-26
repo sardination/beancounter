@@ -10,7 +10,6 @@ frontend/dist/
 
 build/*
 dist/*
-*.spec
 *.db
 *.dmg
 !packages/*
