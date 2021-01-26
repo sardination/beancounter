@@ -8,7 +8,48 @@ from app import create_webview_app
 
 # hidden imports
 import sqlalchemy.sql.default_comparator
+import pygments.styles.default
 
+
+# --- FILE CHECKERS ---
+def exists(path):
+        return os.path.exists(os.path.join(os.path.dirname(__file__), path))
+
+
+def get_entrypoint():
+    """
+    Return the entrypoint filepath
+    """
+
+    if exists('../frontend/dist/index.html'): # unfrozen development
+        return '../frontend/dist/index.html'
+
+    if exists('../Resources/frontend/dist/index.html'): # frozen py2app
+        return '../Resources/frontend/dist/index.html'
+
+    if exists('./frontend/dist/index.html'):
+        return './frontend/dist/index.html'
+
+    raise Exception('No index.html found')
+
+
+def get_migrations_directory():
+    """
+    Return the alembic migrations filepath
+    """
+
+    if exists('migrations'): # unfrozen development
+        return 'migrations'
+
+    if exists('../Resources/backend/migrations'): # frozen py2app
+        return '../Resources/backend/migrations'
+
+    if exists('./backend/migrations'):
+        return './backend/migrations'
+
+    raise Exception('No migrations directory found')
+
+# --- WEBVIEW CONTENT ---
 
 class WebviewApi:
     """
@@ -17,7 +58,7 @@ class WebviewApi:
     path_start = 'http://beancounter/'
 
     def __init__(self):
-        self.app = create_webview_app()
+        self.app = create_webview_app(migrations=get_migrations_directory())
         self.client = Client(app=self.app, base_url=self.path_start)
 
     def fullscreen(self):
@@ -51,26 +92,7 @@ class WebviewApi:
         return json.loads(resp.content.decode("utf-8"))
 
 
-def get_entrypoint():
-    """
-    Return the entrypoint filepath
-    """
-
-    def exists(path):
-        return os.path.exists(os.path.join(os.path.dirname(__file__), path))
-
-    if exists('../frontend/dist/index.html'): # unfrozen development
-        return '../frontend/dist/index.html'
-
-    if exists('../Resources/frontend/dist/index.html'): # frozen py2app
-        return '../Resources/frontend/dist/index.html'
-
-    if exists('./frontend/dist/index.html'):
-        return './frontend/dist/index.html'
-
-    raise Exception('No index.html found')
-
-
+# --- IMPLEMENTATION ---
 
 entry = get_entrypoint()
 

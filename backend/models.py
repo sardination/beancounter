@@ -8,7 +8,6 @@ from sqlalchemy.orm import relationship
 
 import datetime
 
-# from app import db
 from db import db
 from enums import (
     BalanceSheetEntryType,

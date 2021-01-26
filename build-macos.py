@@ -17,7 +17,8 @@ if os.path.exists('dist/index.app'):
 
 ENTRY_POINT = ['backend/run.py']
 
-DATA_FILES = tree('frontend/dist')
+DATA_FILES = tree('frontend/dist') # frontend files
+DATA_FILES.extend(tree('backend/migrations')) # alembic migrations
 
 OPTIONS = {
     'argv_emulation': False,
