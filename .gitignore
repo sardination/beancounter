@@ -13,3 +13,4 @@ dist/*
 *.spec
 *.db
 *.dmg
+!packages/*
