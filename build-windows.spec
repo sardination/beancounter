@@ -8,7 +8,7 @@ added_files = [
 ]
 
 a = Analysis(['.\\backend\\run.py'],
-             pathex=['.\\dist'],
+             pathex=['.\\dist', '.\\backend'],
              binaries=None,
              datas=added_files,
              hiddenimports=['clr'],

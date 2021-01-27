@@ -1,7 +1,7 @@
 from appdirs import user_data_dir
 import os
 
-from secrets import SECRET_KEY
+from appsecrets import SECRET_KEY
 
 
 VERSION = "1.0.0"
