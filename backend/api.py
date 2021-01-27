@@ -152,7 +152,7 @@ class PriorIncomeResource(Resource):
         return try_commit(prior_income, prior_income_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         prior_income = PriorIncome.query.filter_by(id=id).first_or_404()
@@ -190,7 +190,7 @@ class BalanceSheetEntryResource(Resource):
         return try_commit(new_entry, balance_sheet_entry_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         entry = BalanceSheetEntry.query.filter_by(id=id).first_or_404()
@@ -230,7 +230,7 @@ class WeeklyJobTransactionResource(Resource):
         return try_commit(new_transaction, weekly_job_transaction_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         transaction = WeeklyJobTransaction.query.filter_by(id=id).first_or_404()
@@ -330,7 +330,7 @@ class TransactionResource(Resource):
         return try_commit(transaction, transaction_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         transaction = Transaction.query.filter_by(id=id).first_or_404()
@@ -717,7 +717,7 @@ class InvestmentIncomeResource(Resource):
         return try_commit(investment_income, investment_income_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
@@ -847,7 +847,7 @@ class MonthAssetAccountEntryResource(Resource):
         return try_commit(month_asset_account_entry, month_asset_account_entry_schema)
 
     def delete(self):
-        id = request.args.get('id')
+        id = request.json.get('id')
         if id is None:
             return abort(400, description='No id to delete')
         month_asset_account_entry = MonthAssetAccountEntry.query.filter_by(id=id).first_or_404()

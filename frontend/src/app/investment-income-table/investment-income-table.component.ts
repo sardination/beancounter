@@ -9,6 +9,7 @@ import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/fr
 import { InvestmentIncomeService } from '../services/api-object.service';
 
 import { InvestmentIncome } from '../interfaces/investment-income';
+import { MonthInfo } from '../interfaces/month-info';
 
 @Component({
   selector: 'app-investment-income-table',
@@ -41,12 +42,22 @@ export class InvestmentIncomeTableComponent implements OnInit {
   editingIncome: InvestmentIncome;
 
   @Input()
-  get monthInfoId(): number { return this._monthInfoId };
-  set monthInfoId(monthInfoId: number) {
+  get monthInfo(): MonthInfo { return this._monthInfo };
+  set monthInfo(monthInfo: MonthInfo) {
       this.cancelEditIncome();
-      this._monthInfoId = monthInfoId;
+      this._monthInfo = monthInfo;
+
+      const today = new Date();
+      this.minDate = new Date(this.monthInfo.year, this.monthInfo.month, 1);
+
+      if (this.minDate.getMonth() != today.getMonth() || this.minDate.getFullYear() != today.getFullYear()) {
+        this.maxDate = new Date(this.monthInfo.year, this.monthInfo.month + 1, 0); // last day of month
+      }
   }
-  private _monthInfoId: number;
+  private _monthInfo: MonthInfo;
+
+  maxDate: Date = new Date();
+  minDate: Date = new Date();
 
   tableDataSource: MatTableDataSource<InvestmentIncome>;
   columnsToDisplay = ['date', 'type', 'value', 'description', 'edit', 'delete'];
@@ -149,7 +160,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
     if (this.editingIncome == undefined) {
       this.editingIncome =  {
         id: 0,
-        month_info_id: this.monthInfoId,
+        month_info_id: this.monthInfo.id,
         date: this.editingIncomeDate.value,
         value: this.editingIncomeValue.value,
         investment_income_type: this.editingIncomeType.value,

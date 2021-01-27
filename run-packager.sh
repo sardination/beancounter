@@ -5,6 +5,7 @@ echo Cleaning...
 rm -rf build dist
 rm -rf frontend/dist
 rm *.dmg
+rm packages/*.dmg
 
 # build frontend
 echo Building frontend...
@@ -32,7 +33,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
                --icon "Bean Counter.app" 100 200 \
                --hide-extension "Bean Counter.app" \
                --app-drop-link 500 200 \
-               "Bean Counter Installer.dmg" dist
+               "packages/Bean Counter Installer.dmg" dist
 elif [[ "$OSTYPE" == "msys" ]]; then # use MinGW
     echo Windows packager not implemented yet
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then

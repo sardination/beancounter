@@ -10,7 +10,7 @@
             </div>
             <ng-template #editDate>
                 <mat-form-field>
-                    <input matInput [matDatepicker]="incomeDatePicker" [formControl]="editingIncomeDate" />
+                    <input matInput [matDatepicker]="incomeDatePicker" [formControl]="editingIncomeDate" min="{{ minDate.toISOString() }}" max="{{ maxDate.toISOString() }}" />
                     <mat-datepicker-toggle matSuffix [for]="incomeDatePicker"></mat-datepicker-toggle>
                     <mat-datepicker #incomeDatePicker></mat-datepicker>
                 </mat-form-field>
