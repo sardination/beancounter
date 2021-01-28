@@ -108,4 +108,4 @@ if __name__ == '__main__':
         x=0,
         y=0
     )
-    webview.start(debug=True)
+    webview.start(debug=False)
