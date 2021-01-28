@@ -67,7 +67,13 @@ export class InvestmentIncomeTableComponent implements OnInit {
   maxDate: Date = new Date();
   minDate: Date = new Date();
 
-  @Input() startDate: Date;
+  @Input()
+  get startDate(): Date { return this._startDate };
+  set startDate(startDate: Date) {
+    this._startDate = startDate;
+    this.monthInfo = this.monthInfo;
+  }
+  private _startDate: Date;
 
   tableDataSource: MatTableDataSource<InvestmentIncome>;
   columnsToDisplay = ['date', 'type', 'value', 'description', 'edit', 'delete'];
