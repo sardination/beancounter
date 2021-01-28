@@ -86,7 +86,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   }
 
   zeroFormControls(): void {
-    this.editingTransactionDate = new FormControl();
+    this.editingTransactionDate = new FormControl(this.todayDate);
     this.editingTransactionType = new FormControl("expenditure");
     this.editingTransactionValue = new FormControl(0);
     this.editingTransactionDescription = new FormControl("");
@@ -115,16 +115,43 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     this.editingTransaction = null;
   }
 
+  validateFormControls(): boolean {
+    let valid = true;
+    if (!this.editingTransactionDate.value ||
+        this.editingTransactionDate.value > this.todayDate ||
+        this.editingTransactionDate.value < this.startDate
+    ) {
+      this.editingTransactionDate.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingTransactionDate.setErrors(null);
+    }
+
+    if (!this.editingTransactionValue.value) {
+      this.editingTransactionValue.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingTransactionValue.setErrors(null);
+    }
+
+    if (!this.editingTransactionDescription.value) {
+      this.editingTransactionDescription.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingTransactionDescription.setErrors(null);
+    }
+
+    // TODO: checking for type (not necessary right now)
+
+    return valid;
+  }
+
   updateEditingTransaction(): void {
+      if (!this.validateFormControls()) return;
       this.tableDataSource.data = this.transactions;
       this.updateEditingTransactionFromFormControls();
       var transaction = this.editingTransaction;
 
-      if (!transaction.date || !transaction.value || !transaction.description) {
-        // put the editing transaction back on top of the data source
-        this.tableDataSource.data = [this.editingTransaction].concat(this.transactions);
-        return;
-      }
       if (!transaction.id) {
         this.transactionService.addObject(transaction)
             .subscribe(newTransaction => {

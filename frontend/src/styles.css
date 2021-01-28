@@ -134,3 +134,16 @@ button.add-single:hover {
 .unfinished-month {
     background-color: #e06868;
 }
+
+/* touched form control */
+/* Border Color */
+.ng-invalid {
+    border-color: red;
+}
+.ng-invalid button {
+  color: red;
+}
+
+.asterisk-notice {
+  color: red;
+}

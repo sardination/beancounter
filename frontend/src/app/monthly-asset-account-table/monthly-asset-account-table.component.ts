@@ -133,7 +133,31 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
     this.editingAccount = null;
   }
 
+  validateFormControls(): boolean {
+    let valid = true;
+
+    if (this.editingAssetValue.value == undefined) {
+      this.editingAssetValue.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingAssetValue.setErrors(null);
+    }
+
+    if (this.editingLiabilityValue.value == undefined) {
+      this.editingLiabilityValue.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingLiabilityValue.setErrors(null);
+    }
+
+    // TODO: checking for type (not necessary right now)
+
+    return valid;
+  }
+
   updateEditingAccountEntry(): void {
+      if (!this.validateFormControls()) return;
+
       this.tableDataSource.data = this.assetAccounts;
       this.updateEditingAccountEntryFromFormControls();
       var accountEntry = this.accountEntryFromAccount(this.editingAccount);

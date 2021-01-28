@@ -93,6 +93,12 @@ export class AddEntryDialog {
     {key:'liability', label:"Liability"}
   ]
 
+  notice = {
+    'value': '',
+    'entry_type': '',
+    'description': ''
+  };
+
   constructor(
     public dialogRef: MatDialogRef<AddEntryDialog>,
     @Inject(MAT_DIALOG_DATA) public data: BalanceSheetEntry
@@ -102,5 +108,30 @@ export class AddEntryDialog {
     this.dialogRef.close();
   }
 
+  isInvalid(entry: BalanceSheetEntry): boolean {
+    let invalid = false;
+    if (!entry.value) {
+      invalid = true;
+      this.notice['value'] = '*';
+    } else {
+      this.notice['value'] = '';
+    }
+
+    if (!entry.entry_type) {
+      invalid = true;
+      this.notice['entry_type'] = '*';
+    } else {
+      this.notice['entry_type'] = '';
+    }
+
+    if (!entry.description) {
+      invalid = true;
+      this.notice['description'] = '*';
+    } else {
+      this.notice['description'] = '';
+    }
+
+    return invalid;
+  }
 }
 

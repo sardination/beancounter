@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
@@ -60,8 +60,8 @@ export class PriorIncomeTableComponent implements OnInit {
   }
 
   zeroFormControls(): void {
-    this.editingIncomeDate = new FormControl();
-    this.editingIncomeAmount = new FormControl(this.startDate);
+    this.editingIncomeDate = new FormControl(this.startDate);
+    this.editingIncomeAmount = new FormControl();
     this.editingIncomeDescription = new FormControl("");
   }
 
@@ -83,13 +83,39 @@ export class PriorIncomeTableComponent implements OnInit {
     this.editingIncome = null;
   }
 
+  validateFormControls(): boolean {
+    let valid = true;
+    if (!this.editingIncomeDate.value || this.editingIncomeDate.value > this.startDate) {
+      this.editingIncomeDate.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDate.setErrors(null);
+    }
+
+    if (!this.editingIncomeAmount.value) {
+      this.editingIncomeAmount.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeAmount.setErrors(null);
+    }
+
+    if (!this.editingIncomeDescription.value) {
+      this.editingIncomeDescription.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDescription.setErrors(null);
+    }
+
+    return valid;
+  }
+
   updatePriorIncome(): void {
+      if (!this.validateFormControls()) return;
+
       this.tableDataSource.data = this.priorIncomes;
       this.updateEditingIncomeFromFormControls();
       var priorIncome = this.editingIncome;
 
-      if (!priorIncome.date || !priorIncome.amount || !priorIncome.description) return;
-      if (priorIncome.date > this.startDate) return;
       if (!priorIncome.id) {
         this.priorIncomeService.addObject(priorIncome)
             .subscribe(newPriorIncome => {

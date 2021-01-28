@@ -49,15 +49,21 @@ export class InvestmentIncomeTableComponent implements OnInit {
 
       const today = new Date();
       this.minDate = new Date(this.monthInfo.year, this.monthInfo.month, 1);
+      if (this.startDate > this.minDate) {
+        this.minDate = this.startDate;
+      }
 
       if (this.minDate.getMonth() != today.getMonth() || this.minDate.getFullYear() != today.getFullYear()) {
         this.maxDate = new Date(this.monthInfo.year, this.monthInfo.month + 1, 0); // last day of month
-      }
+      } // if today does fall under the currently evaluated month, then keep maxDate as today
   }
   private _monthInfo: MonthInfo;
 
   maxDate: Date = new Date();
   minDate: Date = new Date();
+
+  @Input()
+  startDate: Date = new Date();
 
   tableDataSource: MatTableDataSource<InvestmentIncome>;
   columnsToDisplay = ['date', 'type', 'value', 'description', 'edit', 'delete'];
@@ -131,12 +137,43 @@ export class InvestmentIncomeTableComponent implements OnInit {
     this.editingIncome = null;
   }
 
+  validateFormControls(): boolean {
+    let valid = true;
+    if (this.editingIncomeDate.value &&
+        (this.editingIncomeDate.value > this.maxDate ||
+        this.editingIncomeDate.value < this.minDate)
+    ) {
+      this.editingIncomeDate.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDate.setErrors(null);
+    }
+
+    if (!this.editingIncomeValue.value) {
+      this.editingIncomeValue.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeValue.setErrors(null);
+    }
+
+    if (!this.editingIncomeDescription.value) {
+      this.editingIncomeDescription.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDescription.setErrors(null);
+    }
+
+    // TODO: checking for type (not necessary right now)
+
+    return valid;
+  }
+
   updateEditingIncome(): void {
+      if (!this.validateFormControls()) return;
       this.tableDataSource.data = this.investmentIncomes;
       this.updateEditingIncomeFromFormControls();
       var income = this.editingIncome;
 
-      if (!income.value || !income.description) return;
       if (!income.id) {
         this.investmentIncomeService.addObject(income)
             .subscribe(newIncome => {
