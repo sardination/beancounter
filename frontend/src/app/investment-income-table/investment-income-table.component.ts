@@ -131,12 +131,43 @@ export class InvestmentIncomeTableComponent implements OnInit {
     this.editingIncome = null;
   }
 
+  validateFormControls(): boolean {
+    let valid = true;
+    if (this.editingIncomeDate.value &&
+        (this.editingIncomeDate.value > this.maxDate ||
+        this.editingIncomeDate.value < this.minDate)
+    ) {
+      this.editingIncomeDate.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDate.setErrors(null);
+    }
+
+    if (!this.editingIncomeValue.value) {
+      this.editingIncomeValue.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeValue.setErrors(null);
+    }
+
+    if (!this.editingIncomeDescription.value) {
+      this.editingIncomeDescription.setErrors({'incorrect': true});
+      valid = false;
+    } else {
+      this.editingIncomeDescription.setErrors(null);
+    }
+
+    // TODO: checking for type (not necessary right now)
+
+    return valid;
+  }
+
   updateEditingIncome(): void {
+      if (!this.validateFormControls()) return;
       this.tableDataSource.data = this.investmentIncomes;
       this.updateEditingIncomeFromFormControls();
       var income = this.editingIncome;
 
-      if (!income.value || !income.description) return;
       if (!income.id) {
         this.investmentIncomeService.addObject(income)
             .subscribe(newIncome => {

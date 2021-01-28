@@ -147,12 +147,7 @@ export class MonthlyReviewPageComponent implements OnInit {
   setStartDate(): void {
       this.infoService.getInfo("start_date")
           .subscribe(info => {
-            let dateParts = info.value;
-            if (!dateParts) {
-              return;
-            }
-            dateParts = dateParts.split("-");
-            this.startDate = new Date(dateParts[0], dateParts[1]-1, dateParts[2]); // month is 0-indexed
+            this.startDate = info.value;
           });
   }
 
