@@ -6,6 +6,7 @@ rm -rf build dist
 rm -rf frontend/dist
 rm *.dmg
 rm packages/*.dmg
+mkdir packages
 
 # build frontend
 echo Building frontend...
