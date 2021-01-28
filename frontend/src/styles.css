@@ -143,3 +143,7 @@ button.add-single:hover {
 .ng-invalid button {
   color: red;
 }
+
+.asterisk-notice {
+  color: red;
+}

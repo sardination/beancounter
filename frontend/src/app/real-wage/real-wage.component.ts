@@ -112,6 +112,13 @@ export class AddJobTransactionDialog {
     {key:'expenditure', label:"Expenditure"},
   ]
 
+  notice = {
+    'transaction_type': '',
+    'description': '',
+    'hours': '',
+    'value': ''
+  };
+
   constructor(
     public dialogRef: MatDialogRef<AddJobTransactionDialog>,
     @Inject(MAT_DIALOG_DATA) public data: WeeklyJobTransaction
@@ -119,6 +126,39 @@ export class AddJobTransactionDialog {
 
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  isInvalid(transaction: WeeklyJobTransaction): boolean {
+    let invalid = false;
+    if (!transaction.value) {
+      invalid = true;
+      this.notice['value'] = '*';
+    } else {
+      this.notice['value'] = '';
+    }
+
+    if (!transaction.transaction_type) {
+      invalid = true;
+      this.notice['transaction_type'] = '*';
+    } else {
+      this.notice['transaction_type'] = '';
+    }
+
+    if (!transaction.description) {
+      invalid = true;
+      this.notice['description'] = '*';
+    } else {
+      this.notice['description'] = '';
+    }
+
+    if (!transaction.hours) {
+      invalid = true;
+      this.notice['hours'] = '*';
+    } else {
+      this.notice['hours'] = '';
+    }
+
+    return invalid;
   }
 
 }
