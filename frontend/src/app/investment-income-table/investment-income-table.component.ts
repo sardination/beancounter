@@ -49,21 +49,25 @@ export class InvestmentIncomeTableComponent implements OnInit {
 
       const today = new Date();
       this.minDate = new Date(this.monthInfo.year, this.monthInfo.month, 1);
-      if (this.startDate > this.minDate) {
+      if (this.startDate && this.startDate.getMonth() == this.monthInfo.month &&
+          this.startDate.getFullYear() == this.monthInfo.year &&
+          this.startDate > this.minDate) {
         this.minDate = this.startDate;
       }
 
       if (this.minDate.getMonth() != today.getMonth() || this.minDate.getFullYear() != today.getFullYear()) {
         this.maxDate = new Date(this.monthInfo.year, this.monthInfo.month + 1, 0); // last day of month
-      } // if today does fall under the currently evaluated month, then keep maxDate as today
+      } else {
+        // if today does fall under the currently evaluated month, then keep maxDate as today
+        this.maxDate = new Date();
+      }
   }
   private _monthInfo: MonthInfo;
 
   maxDate: Date = new Date();
   minDate: Date = new Date();
 
-  @Input()
-  startDate: Date = new Date();
+  @Input() startDate: Date;
 
   tableDataSource: MatTableDataSource<InvestmentIncome>;
   columnsToDisplay = ['date', 'type', 'value', 'description', 'edit', 'delete'];
