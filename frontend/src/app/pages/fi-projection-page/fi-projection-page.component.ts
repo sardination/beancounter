@@ -42,8 +42,8 @@ export class FIProjectionPageComponent implements OnInit {
   }
 
   valueToString(value: number): string {
+    if (value == 0) return "0.00";
     let parts = value.toString().split(".");
-    console.log(parts.length == 2 && parts[1].length == 1)
     if (parts.length == 1) {
       return `${parts[0]}.00`;
     } else if (parts.length == 2 && parts[1].length == 1) {
@@ -52,7 +52,18 @@ export class FIProjectionPageComponent implements OnInit {
     return value.toString();
   }
 
+  checkValidity(value: number): boolean {
+    if ((!value && value !== 0) || value < 0) {
+      return false;
+    }
+    return true;
+  }
+
   updateMonthlyExpense(monthlyExpense: number) {
+    if (!this.checkValidity(monthlyExpense)) {
+      monthlyExpense = 0;
+    }
+
     this.infoService.updateInfo("average_monthly_expense", monthlyExpense)
         .subscribe(info => {
             this.monthlyExpense = info.value;
@@ -60,6 +71,10 @@ export class FIProjectionPageComponent implements OnInit {
   }
 
   updateLongTermInterestRate(interestRate: number) {
+    if (!this.checkValidity(interestRate)) {
+      interestRate = 0;
+    }
+
     this.infoService.updateInfo("long_term_interest_rate", interestRate)
         .subscribe(info => {
             this.longTermInterestRate = info.value;
