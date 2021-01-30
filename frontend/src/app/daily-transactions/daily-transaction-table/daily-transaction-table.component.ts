@@ -152,8 +152,6 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
       this.updateEditingTransactionFromFormControls();
       var transaction = this.editingTransaction;
 
-      console.log(transaction);
-
       if (!transaction.id) {
         this.transactionService.addObject(transaction)
             .subscribe(newTransaction => {
