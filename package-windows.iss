@@ -1,6 +1,6 @@
 [Setup]
 AppName=Bean Counter
-AppVersion=1.0.1
+AppVersion=1.0.2
 WizardStyle=modern
 DefaultDirName={autopf}\Bean Counter
 DefaultGroupName=Bean Counter
