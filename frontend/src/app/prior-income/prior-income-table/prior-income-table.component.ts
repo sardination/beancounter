@@ -141,12 +141,12 @@ export class PriorIncomeTableComponent implements OnInit {
     if (this.editingIncome == undefined) {
       this.editingIncome =  {
         id: 0,
-        date: this.editingIncomeDate.value.toISOString().substring(0,10),
+        date: this.editingIncomeDate.value,
         amount: this.editingIncomeAmount.value,
         description: this.editingIncomeDescription.value.trim()
       } as PriorIncome;
     } else {
-      this.editingIncome.date = this.editingIncomeDate.value.toISOString().substring(0,10);
+      this.editingIncome.date = this.editingIncomeDate.value;
       this.editingIncome.amount = this.editingIncomeAmount.value;
       this.editingIncome.description = this.editingIncomeDescription.value.trim();
     }

@@ -18,6 +18,7 @@ from models import (
     TransactionCategory,
     WeeklyJobTransaction,
 )
+from utils import convert_zulu_timestamp_to_datestring
 
 from marshmallow import (
     fields,
@@ -57,6 +58,15 @@ class InfoSchema(SQLAlchemySchema):
 
         return data
 
+    @pre_load
+    def format_date(self, data, **kwargs):
+        """
+        Convert collected date format into datetime
+        """
+        if data["title"] == "start_date":
+            data["value"] = convert_zulu_timestamp_to_datestring(data["value"])
+        return data
+
     @post_dump
     def ctod_and_dtop(self, data, **kwargs):
         """
@@ -91,6 +101,14 @@ class PriorIncomeSchema(SQLAlchemySchema):
         Convert de-serialized amount to cents before backend
         """
         data["amount"] = data["amount"] * 100
+        return data
+
+    @pre_load
+    def format_date(self, data, **kwargs):
+        """
+        Convert collected date format into datetime
+        """
+        data["date"] = convert_zulu_timestamp_to_datestring(data["date"])
         return data
 
     @post_dump
@@ -179,7 +197,7 @@ class TransactionSchema(SQLAlchemySchema):
         """
         Convert collected date format into datetime
         """
-        data["date"] = data["date"][:10]
+        data["date"] = convert_zulu_timestamp_to_datestring(data["date"])
         return data
 
     @post_dump
@@ -215,12 +233,12 @@ class AssetAccountSchema(SQLAlchemySchema):
         Convert collected date format into datetime
         """
         if data.get("open_date") is not None:
-            data["open_date"] = data["open_date"][:10]
+            data["open_date"] = convert_zulu_timestamp_to_datestring(data["open_date"])
         else:
             data["open_date"] = None
 
         if data.get("close_date") is not None:
-            data["close_date"] = data["close_date"][:10]
+            data["close_date"] = convert_zulu_timestamp_to_datestring(data["close_date"])
         else:
             data["close_date"] = None
 
@@ -312,7 +330,7 @@ class InvestmentIncomeSchema(SQLAlchemySchema):
         Convert collected date format into datetime
         """
         if data.get("date") is not None:
-            data["date"] = data["date"][:10]
+            data["date"] = convert_zulu_timestamp_to_datestring(data["date"])
         else:
             data["date"] = None
         return data

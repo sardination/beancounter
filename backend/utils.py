@@ -10,6 +10,7 @@ from models import (
 from db import db
 
 import datetime
+from dateutil import tz
 
 def get_start_date():
     start_date_info = Info.query.filter_by(title="start_date").first()
@@ -83,4 +84,16 @@ def month_year_between_dates(earliest_date, latest_date, month, year):
     if year == latest_date.year:
         return month <= latest_date.month
     return year > earliest_date.year and year < latest_date.month
+
+def convert_zulu_timestamp_to_datestring(zulu_timestamp):
+    """
+    Convert a zulu (UTC) timestamp to a simple local time date string
+    """
+    try:
+        date = datetime.datetime.strptime(zulu_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=tz.tzutc())
+        date = date.astimezone(tz.tzlocal())
+        return date.strftime("%Y-%m-%d")
+    except:
+        pass
+    return zulu_timestamp[:10]
 
