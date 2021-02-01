@@ -89,7 +89,7 @@ export class MonthlyFlowChartComponent extends BaseMonthChartComponent implement
        .attr("cx", function(d) {return x(new Date(d.year, d.month, 1))})
        .attr("cy", function(d) {return y(d.expenditure)})
 
-    this.drawLine(svg, this.monthInfos, investmentIncomeLine, "#f00");
+    this.drawLine(svg, this.monthInfos, investmentIncomeLine, "#00f");
     svg.selectAll("investment-income-circle")
        .data(this.monthInfos)
        .enter().append("circle")
