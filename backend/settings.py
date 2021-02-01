@@ -4,7 +4,7 @@ import os
 from appsecrets import SECRET_KEY
 
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
