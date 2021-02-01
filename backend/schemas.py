@@ -252,12 +252,12 @@ class MonthInfoSchema(SQLAlchemySchema):
     id = auto_field()
     month = auto_field()
     year = auto_field()
-    income = auto_field()
-    expenditure = auto_field()
-    investment_income = auto_field()
-    assets = auto_field()
-    liabilities = auto_field()
-    real_hourly_wage = auto_field()
+    income = fields.Float()
+    expenditure = fields.Float()
+    investment_income = fields.Float()
+    assets = fields.Float()
+    liabilities = fields.Float()
+    real_hourly_wage = fields.Float()
     completed = auto_field()
 
     @post_load
@@ -312,7 +312,7 @@ class InvestmentIncomeSchema(SQLAlchemySchema):
     id = auto_field()
     month_info_id = auto_field()
     investment_income_type = EnumField(InvestmentIncomeType)
-    value = auto_field()
+    value = fields.Float()
     description = auto_field()
     date = auto_field()
 
@@ -351,8 +351,8 @@ class MonthAssetAccountEntrySchema(SQLAlchemySchema):
     id = auto_field()
     month_info_id = auto_field()
     asset_account_id = auto_field()
-    asset_value = auto_field()
-    liability_value = auto_field()
+    asset_value = fields.Float()
+    liability_value = fields.Float()
 
     @post_load
     def value_to_cents(self, data, **kwargs):
