@@ -186,8 +186,6 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   updateEditingAccountEntryFromFormControls(): void {
     let editingAccountEntry = this.accountEntryFromAccount(this.editingAccount);
     if (editingAccountEntry != undefined) {
-      console.log(this.editingAssetValue.value);
-      console.log(this.editingLiabilityValue.value);
       editingAccountEntry.asset_value = this.editingAssetValue.value;
       editingAccountEntry.liability_value = this.editingLiabilityValue.value;
       this.assetAccountToEntryMap.set(this.editingAccount.id, editingAccountEntry);
