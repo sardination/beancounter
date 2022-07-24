@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
@@ -42,9 +42,9 @@ export class PriorIncomeTableComponent implements OnInit {
   tableDataSource: MatTableDataSource<PriorIncome>;
   columnsToDisplay = ['date', 'amount', 'description', 'edit', 'delete'];
 
-  editingIncomeDate: FormControl;
-  editingIncomeAmount: FormControl;
-  editingIncomeDescription: FormControl;
+  editingIncomeDate: UntypedFormControl;
+  editingIncomeAmount: UntypedFormControl;
+  editingIncomeDescription: UntypedFormControl;
 
   constructor(private priorIncomeService: PriorIncomeService) {
   }
@@ -60,15 +60,15 @@ export class PriorIncomeTableComponent implements OnInit {
   }
 
   zeroFormControls(): void {
-    this.editingIncomeDate = new FormControl(this.startDate);
-    this.editingIncomeAmount = new FormControl();
-    this.editingIncomeDescription = new FormControl("");
+    this.editingIncomeDate = new UntypedFormControl(this.startDate);
+    this.editingIncomeAmount = new UntypedFormControl();
+    this.editingIncomeDescription = new UntypedFormControl("");
   }
 
   setFormControls(priorIncome: PriorIncome): void {
-    this.editingIncomeDate = new FormControl(priorIncome.date);
-    this.editingIncomeAmount = new FormControl(priorIncome.amount);
-    this.editingIncomeDescription = new FormControl(priorIncome.description);
+    this.editingIncomeDate = new UntypedFormControl(priorIncome.date);
+    this.editingIncomeAmount = new UntypedFormControl(priorIncome.amount);
+    this.editingIncomeDescription = new UntypedFormControl(priorIncome.description);
   }
 
   addNewEmptyIncome(): void {

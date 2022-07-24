@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 import { faCheck, faArrowUp, faArrowDown, faPlusSquare, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -44,7 +44,7 @@ export class CategoryTotalsComponent implements OnInit {
   displayCategories: TransactionCategory[];
   // realHourlyWage: number;
 
-  newCategoryFormControl: FormControl;
+  newCategoryFormControl: UntypedFormControl;
 
   @Input()
   get monthCategories(): Map<number, MonthCategory> { return this._monthCategories };
@@ -63,7 +63,7 @@ export class CategoryTotalsComponent implements OnInit {
               private infoService: InfoService) { }
 
   ngOnInit(): void {
-      this.newCategoryFormControl = new FormControl();
+      this.newCategoryFormControl = new UntypedFormControl();
       // this.getRealHourlyWage();
   }
 
@@ -94,7 +94,7 @@ export class CategoryTotalsComponent implements OnInit {
           .subscribe(newCategory => {
               this.categories.push(newCategory);
               this.updateCategories.emit(this.categories);
-              this.newCategoryFormControl = new FormControl();
+              this.newCategoryFormControl = new UntypedFormControl();
           })
   }
 
