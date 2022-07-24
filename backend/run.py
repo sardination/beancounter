@@ -5,7 +5,9 @@ import os
 from settings import VERSION
 import sys
 import tkinter as tk
+from tkinter import ttk
 import webview
+import webview.menu as wm
 
 from app import create_webview_app
 
@@ -113,6 +115,14 @@ class WebviewApi:
 
 # --- IMPLEMENTATION ---
 
+def check_for_updates():
+    print("HELLO WORLD")
+    window = webview.active_window()
+    print(window)
+    # window.create_text_dialog("HELLO WORLD", "This is my very important message")
+    window.create_file_dialog(webview.SAVE_DIALOG, directory='/', save_filename='test.file')
+
+
 if __name__ == '__main__':
     is_dev = True # default to dev
     serving = False # default to bundled mode
@@ -138,6 +148,16 @@ if __name__ == '__main__':
 
     entry = get_entrypoint(serving=serving)
 
+    # Put update option under Help menu
+    bar_menu_items = [
+        wm.Menu(
+            'Help',
+            [
+                wm.MenuAction('Check for Updates', check_for_updates),
+            ]
+        )
+    ]
+
     window = webview.create_window(
         'Bean Counter',
         entry,
@@ -145,4 +165,5 @@ if __name__ == '__main__':
         x=0,
         y=0
     )
-    webview.start(debug=is_dev)
+
+    webview.start(debug=is_dev, menu=bar_menu_items)

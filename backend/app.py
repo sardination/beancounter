@@ -52,6 +52,7 @@ def create_webview_app(migrations=None, dev_mode=False):
         config = settings.DevConfig()
     else:
         config = settings.ProdConfig()
+
     app.config.from_object(config)
 
     db.init_app(app)
