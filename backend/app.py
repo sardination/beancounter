@@ -41,7 +41,7 @@ def create_app():
     return app
 
 
-def create_webview_app(migrations=None):
+def create_webview_app(migrations=None, dev_mode=False):
     """
     Create the Flask application for webview
     """
@@ -49,7 +49,10 @@ def create_webview_app(migrations=None):
     app = Flask(__name__)
     CORS(app, origins="http://beancounter/")
 
-    config = settings.ProdConfig()
+    if dev_mode:
+        config = settings.DevConfig()
+    else:
+        config = settings.ProdConfig()
     app.config.from_object(config)
 
     db.init_app(app)

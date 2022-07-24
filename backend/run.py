@@ -1,7 +1,9 @@
 from httpx import Client
+import getopt
 import json
 import os
 from settings import VERSION
+import sys
 import tkinter as tk
 import webview
 
@@ -58,8 +60,8 @@ class WebviewApi:
     """
     path_start = 'http://beancounter/'
 
-    def __init__(self):
-        self.app = create_webview_app(migrations=get_migrations_directory())
+    def __init__(self, dev_mode=False):
+        self.app = create_webview_app(migrations=get_migrations_directory(), dev_mode=dev_mode)
         self.client = Client(app=self.app, base_url=self.path_start)
 
     def fullscreen(self):
@@ -101,11 +103,23 @@ class WebviewApi:
 entry = get_entrypoint()
 
 if __name__ == '__main__':
+    is_dev = False
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "d")
+    except getopt.GetoptError:
+        # if bad arguments, then just run in prod mode
+        pass
+
+    for opt, arg in opts:
+        if opt == '-d':
+            is_dev = True
+
     window = webview.create_window(
         'Bean Counter',
         entry,
-        js_api=WebviewApi(),
+        js_api=WebviewApi(dev_mode=is_dev),
         x=0,
         y=0
     )
-    webview.start(debug=False)
+    webview.start(debug=is_dev)

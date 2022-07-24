@@ -4,18 +4,18 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { Observable, of, from } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
+import { environment } from '../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiEndpointService {
 
-  protected apiUrl = 'http://financeapp';
+  protected apiUrl = 'undefined';
 
   constructor(protected http: HttpClient, apiExtension: string) {
-    if (isDevMode()) {
-      this.apiUrl = 'http://127.0.0.1:5000';
-    }
+    this.apiUrl = environment.apiUrl;
 
     this.apiUrl = `${this.apiUrl}/${apiExtension}`;
   }
@@ -35,7 +35,7 @@ export class ApiEndpointService {
       body: body,
     };
 
-    if (isDevMode()) {
+    if (!environment.useWebview) {
       return this.http.request<T>(method, path, httpOptions);
     } else if (window.pywebview) {
       return from(
@@ -44,12 +44,6 @@ export class ApiEndpointService {
     }
 
     return of<T>();
-
-    // if (isDevMode()) {
-    //   return this.http.request<T>(method, path, httpOptions);
-    // } else {
-    //   return pywebview.api.request(method, path, httpOptions);
-    // }
   }
 
   sendGetRequest<T>(path: string, params?: any, body?: any): Observable<T> {

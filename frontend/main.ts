@@ -3,6 +3,9 @@ import * as path from "path";
 import { isDevMode } from '@angular/core';
 import { PythonShell } from "python-shell";
 
+// TODO: FIND OUT WHAT'S GOING ON HERE WRT DEV/BUNDLED
+// TODO: FIGURE OUT HOW TO ALWAYS PROTECT PROD DATA FROM DEV
+
 var pyProc;
 
 // functions for starting the backend python server
@@ -47,7 +50,7 @@ function createWindow() {
   // and load the index.html of the app.
   // mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
   mainWindow.loadURL(
-    isDevMode
+    environment.useWebview
       ? 'http://localhost:4200'
       : `file://${path.join(__dirname, 'dist/index.html')}`,
   )
