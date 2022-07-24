@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { faEdit, faCheck, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -47,8 +47,8 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   tableDataSource: MatTableDataSource<AssetAccount>;
   columnsToDisplay = ['name', 'asset_value', 'liability_value', 'description', 'edit'];
 
-  editingAssetValue: FormControl;
-  editingLiabilityValue: FormControl;
+  editingAssetValue: UntypedFormControl;
+  editingLiabilityValue: UntypedFormControl;
 
   constructor(
     private assetAccountService: AssetAccountService,
@@ -117,13 +117,13 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   }
 
   zeroFormControls(): void {
-    this.editingAssetValue = new FormControl(0);
-    this.editingLiabilityValue = new FormControl(0);
+    this.editingAssetValue = new UntypedFormControl(0);
+    this.editingLiabilityValue = new UntypedFormControl(0);
   }
 
   setFormControls(accountEntry: MonthAssetAccountEntry): void {
-    this.editingAssetValue = new FormControl(accountEntry.asset_value);
-    this.editingLiabilityValue = new FormControl(accountEntry.liability_value);
+    this.editingAssetValue = new UntypedFormControl(accountEntry.asset_value);
+    this.editingLiabilityValue = new UntypedFormControl(accountEntry.liability_value);
   }
 
   cancelEditAccountEntry(): void {

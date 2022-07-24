@@ -3,7 +3,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MAT_MOMENT_DATE_FORMATS } from '@angular/material-moment-adapter';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { InvestmentIncomeService } from '../services/api-object.service';
@@ -86,10 +86,10 @@ export class InvestmentIncomeTableComponent implements OnInit {
     {key:'royalty', label:"Royalty"},
   ]
 
-  editingIncomeDate: FormControl;
-  editingIncomeType: FormControl;
-  editingIncomeValue: FormControl;
-  editingIncomeDescription: FormControl;
+  editingIncomeDate: UntypedFormControl;
+  editingIncomeType: UntypedFormControl;
+  editingIncomeValue: UntypedFormControl;
+  editingIncomeDescription: UntypedFormControl;
 
   constructor(private investmentIncomeService: InvestmentIncomeService) { }
 
@@ -116,21 +116,21 @@ export class InvestmentIncomeTableComponent implements OnInit {
   }
 
   zeroFormControls(): void {
-    this.editingIncomeDate = new FormControl();
-    this.editingIncomeType = new FormControl("interest");
-    this.editingIncomeValue = new FormControl(0);
-    this.editingIncomeDescription = new FormControl("");
+    this.editingIncomeDate = new UntypedFormControl();
+    this.editingIncomeType = new UntypedFormControl("interest");
+    this.editingIncomeValue = new UntypedFormControl(0);
+    this.editingIncomeDescription = new UntypedFormControl("");
   }
 
   setFormControls(income: InvestmentIncome): void {
     if (income.date) {
-        this.editingIncomeDate = new FormControl(income.date.toISOString().substring(0,10));
+        this.editingIncomeDate = new UntypedFormControl(income.date.toISOString().substring(0,10));
     } else {
-        this.editingIncomeDate = new FormControl();
+        this.editingIncomeDate = new UntypedFormControl();
     }
-    this.editingIncomeType = new FormControl(income.investment_income_type);
-    this.editingIncomeValue = new FormControl(income.value);
-    this.editingIncomeDescription = new FormControl(income.description);
+    this.editingIncomeType = new UntypedFormControl(income.investment_income_type);
+    this.editingIncomeValue = new UntypedFormControl(income.value);
+    this.editingIncomeDescription = new UntypedFormControl(income.description);
   }
 
   addNewEmptyIncome(): void {

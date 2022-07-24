@@ -5,7 +5,7 @@ import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepicker, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Moment } from 'moment';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { faChevronCircleLeft, faChevronCircleRight, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import * as moment from 'moment';
@@ -56,7 +56,7 @@ export class MonthlyReviewPageComponent implements OnInit {
    transactions: Transaction[] = [];
    // investmentIncomes: InvestmentIncome[] = [];
 
-   normalizedSelectedDate = new FormControl(moment());
+   normalizedSelectedDate = new UntypedFormControl(moment());
 
    selectedMonthInfo: MonthInfo;
    selectedTransactions: Transaction[] = [];

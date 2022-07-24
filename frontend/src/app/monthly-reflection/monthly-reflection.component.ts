@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { MonthInfo } from '../interfaces/month-info';
@@ -43,9 +43,9 @@ export class MonthlyReflectionComponent implements OnInit {
   }
   private _monthReflection: MonthReflection;
 
-  employmentPurposeEntry: FormControl = new FormControl();
-  spendingManagementEntry: FormControl = new FormControl();
-  livingDyingEntry: FormControl = new FormControl();
+  employmentPurposeEntry: UntypedFormControl = new UntypedFormControl();
+  spendingManagementEntry: UntypedFormControl = new UntypedFormControl();
+  livingDyingEntry: UntypedFormControl = new UntypedFormControl();
 
   constructor(
     private monthReflectionService: MonthReflectionService,
