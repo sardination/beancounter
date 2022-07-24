@@ -8,7 +8,7 @@ node_modules
 
 frontend/main.js
 frontend/dist/
-frontent/.angular/*
+frontend/.angular/*
 
 build/*
 dist/*
