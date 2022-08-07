@@ -62,7 +62,15 @@
                   "maximumError": "10kb"
                 }
               ]
-            }
+            },
+            "devbundled": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.devbundled.ts"
+                }
+              ]
+            },
           },
           "defaultConfiguration": ""
         },

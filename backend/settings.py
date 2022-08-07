@@ -41,6 +41,7 @@ def create_db_path_if_not_exists(folder_path, db_name):
     return full_db_path
 
 
+# TODO: How to ensure that only the packaged app can use prod?
 class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///beancounter.db"
     DEBUG = False
