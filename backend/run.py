@@ -16,13 +16,17 @@ import pygments.styles.default
 
 # --- FILE CHECKERS ---
 def exists(path):
-        return os.path.exists(os.path.join(os.path.dirname(__file__), path))
+    return os.path.exists(os.path.join(os.path.dirname(__file__), path))
 
 
-def get_entrypoint():
+def get_entrypoint(serving=False):
     """
     Return the entrypoint filepath
     """
+
+    # If running frontend via ng serve, allow hot updates for dev
+    if serving:
+        return 'http://localhost:4200/'
 
     if exists('../frontend/dist/index.html'): # unfrozen development
         return '../frontend/dist/index.html'
@@ -32,9 +36,6 @@ def get_entrypoint():
 
     if exists('./frontend/dist/index.html'):
         return './frontend/dist/index.html'
-
-    # TODO: allow webview development for ng serve (w/o build)
-    return 'http://localhost:4200/'
 
     raise Exception('No index.html found')
 
@@ -112,20 +113,30 @@ class WebviewApi:
 
 # --- IMPLEMENTATION ---
 
-entry = get_entrypoint()
-
 if __name__ == '__main__':
-    is_dev = True
+    is_dev = True # default to dev
+    serving = False # default to bundled mode
+
+    # don't allow running as prod from the terminal (prevent accidents this way)
+    in_terminal = sys.stdin and sys.stdin.isatty()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "p")
+        opts, args = getopt.getopt(sys.argv[1:], "ps")
     except getopt.GetoptError:
         # if bad arguments, then just run in dev mode
         pass
 
     for opt, arg in opts:
-        if opt == '-p':
+        if opt == '-p' and not in_terminal:
             is_dev = False
+        elif opt == '-s':
+            serving = True
+
+    # ng serve mode should only be allowed in dev mode
+    if serving and not is_dev:
+        serving = False
+
+    entry = get_entrypoint(serving=serving)
 
     window = webview.create_window(
         'Bean Counter',
