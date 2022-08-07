@@ -43,11 +43,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-      if (!environment.useWebview) {
-        setTimeout(() => {
-          this.loadPage(this.currentPath)
-        });
-      } else {
+      // We're not supporting web app mode right now, so it will always be using webview
+      // if (!environment.useWebview) {
+      //   setTimeout(() => {
+      //     this.loadPage(this.currentPath)
+      //   });
+      // } else {
         let _this = this;
         window.addEventListener('pywebviewready', function() {
           setTimeout(() => {
@@ -61,7 +62,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             _this.loadPage(_this.currentPath);
           });
         })
-      }
+      // }
   }
 
   normalizePath(path: string): string {

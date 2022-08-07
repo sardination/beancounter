@@ -1,4 +1,4 @@
-from httpx import Client
+from httpx import Client, Response
 import getopt
 import json
 import os
@@ -33,6 +33,9 @@ def get_entrypoint():
     if exists('./frontend/dist/index.html'):
         return './frontend/dist/index.html'
 
+    # TODO: allow webview development for ng serve (w/o build)
+    return 'http://localhost:4200/'
+
     raise Exception('No index.html found')
 
 
@@ -58,11 +61,12 @@ class WebviewApi:
     """
     Api to access python functions from js
     """
-    path_start = 'http://beancounter/'
+    dev_mode = True
 
     def __init__(self, dev_mode=False):
+        self.dev_mode = dev_mode
         self.app = create_webview_app(migrations=get_migrations_directory(), dev_mode=dev_mode)
-        self.client = Client(app=self.app, base_url=self.path_start)
+        self.client = Client(app=self.app)
 
     def fullscreen(self):
         webview.windows[0].toggle_fullscreen()
@@ -94,8 +98,16 @@ class WebviewApi:
         if body is not None:
             kwargs['json'] = body
 
-        resp = self.client.request(method, path, **kwargs)
-        return json.loads(resp.content.decode("utf-8"))
+        # Since hostname is irrelevant for our requests in webview, we use it to differentiate between
+        #     dev and prod. Prod uses "beancounter" and dev uses "beancounter-dev".
+        hostname = path.split("//")[1].split("/")[0]
+        if (not self.dev_mode and hostname == "beancounter") or \
+            (self.dev_mode and hostname == "beancounter-dev"):
+            resp = self.client.request(method, path, **kwargs)
+            return json.loads(resp.content.decode("utf-8"))
+
+        # If dev mode and hostname don't match, then return 403
+        return Response(status_code=403)
 
 
 # --- IMPLEMENTATION ---
@@ -103,17 +115,17 @@ class WebviewApi:
 entry = get_entrypoint()
 
 if __name__ == '__main__':
-    is_dev = False
+    is_dev = True
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d")
+        opts, args = getopt.getopt(sys.argv[1:], "p")
     except getopt.GetoptError:
-        # if bad arguments, then just run in prod mode
+        # if bad arguments, then just run in dev mode
         pass
 
     for opt, arg in opts:
-        if opt == '-d':
-            is_dev = True
+        if opt == '-p':
+            is_dev = False
 
     window = webview.create_window(
         'Bean Counter',

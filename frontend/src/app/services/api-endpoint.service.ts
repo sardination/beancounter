@@ -15,9 +15,7 @@ export class ApiEndpointService {
   protected apiUrl = 'undefined';
 
   constructor(protected http: HttpClient, apiExtension: string) {
-    this.apiUrl = environment.apiUrl;
-
-    this.apiUrl = `${this.apiUrl}/${apiExtension}`;
+    this.apiUrl = `${environment.apiUrl}/${apiExtension}`;
   }
 
   createEndpoint(endpoint: string) {
@@ -27,17 +25,15 @@ export class ApiEndpointService {
   sendRequest<T>(method: string, path: string, params?: any, body?: any): Observable<T> {
     params = params || {};
     var httpOptions = {
-      // headers: new HttpHeaders({
-      //   'Content-Type': 'application/json'
-      // }),
       headers: {'Content-Type': 'application/json'},
       params: params,
       body: body,
     };
-
-    if (!environment.useWebview) {
-      return this.http.request<T>(method, path, httpOptions);
-    } else if (window.pywebview) {
+    // We're not supporting web app mode right now, so it will always be using webview
+    // if (!environment.useWebview) {
+    //   return this.http.request<T>(method, path, httpOptions);
+    // } else if (window.pywebview) {
+    if (window.pywebview) {
       return from(
         window.pywebview.api.request(method, path, httpOptions) as PromiseLike<T>
       );

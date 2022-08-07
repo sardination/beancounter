@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://financeapp',
-  useWebview: true,
+  apiUrl: 'http://beancounter-dev',
+  bundled: true,
 };

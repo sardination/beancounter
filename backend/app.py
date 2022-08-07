@@ -47,7 +47,6 @@ def create_webview_app(migrations=None, dev_mode=False):
     """
 
     app = Flask(__name__)
-    CORS(app, origins="http://beancounter/")
 
     if dev_mode:
         config = settings.DevConfig()
