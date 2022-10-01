@@ -17,6 +17,28 @@ from enums import (
 )
 
 
+class Config(db.Model):
+    """
+    Store config key-pairs
+
+    Config keypairs that are currently stored:
+    * Latest skipped version
+    """
+
+    __tablename__ = 'config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128), nullable=False, unique=True)
+    value = db.Column(db.String(128), nullable=False) # while the value itself might not be a string, it is the most comprehensive
+
+    permitted_titles = [
+        'latest_skipped_version',
+    ]
+
+    default_values = {
+        'latest_skipped_version': '0.0.0',
+    }
+
 class Info(db.Model):
     """
     Store individual values that need to be saved but are one-off

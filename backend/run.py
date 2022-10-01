@@ -1,3 +1,4 @@
+# from datetime import datetime
 from httpx import Client, Response
 import getopt
 import json
@@ -6,6 +7,8 @@ from settings import VERSION
 import sys
 import tkinter as tk
 from tkinter import ttk
+import urllib
+import webbrowser
 import webview
 import webview.menu as wm
 
@@ -80,7 +83,7 @@ class WebviewApi:
     def get_version(self):
         return VERSION
 
-    def request(self, method, path, options):
+    def request(self, method, path, options, internal=False):
         """
         Pass a request through to the Flask server
 
@@ -88,6 +91,10 @@ class WebviewApi:
             method (str): GET, POST, PUT, or DELETE
             path (str): the path (including host) to which the request is going
             options (dict): any options included in the request
+
+        Kwargs:
+            internal (bool): whether the request is coming from within the app or
+                from an external caller (e.g. frontend JS)
         """
 
         kwargs = {}
@@ -101,11 +108,18 @@ class WebviewApi:
         if body is not None:
             kwargs['json'] = body
 
+        preferred_hostname = "beancounter-dev"
+        if not self.dev_mode:
+            preferred_hostname = "beancounter"
+
+        # If request is internal, stick on the right hostname
+        if internal:
+            path = "https://{}/{}".format(preferred_hostname, path)
+
         # Since hostname is irrelevant for our requests in webview, we use it to differentiate between
         #     dev and prod. Prod uses "beancounter" and dev uses "beancounter-dev".
         hostname = path.split("//")[1].split("/")[0]
-        if (not self.dev_mode and hostname == "beancounter") or \
-            (self.dev_mode and hostname == "beancounter-dev"):
+        if hostname == preferred_hostname:
             resp = self.client.request(method, path, **kwargs)
             return json.loads(resp.content.decode("utf-8"))
 
@@ -115,12 +129,49 @@ class WebviewApi:
 
 # --- IMPLEMENTATION ---
 
-def check_for_updates():
-    print("HELLO WORLD")
+def check_for_updates(startup=False):
+    """
+    If `startup` is True, then don't show a dialog if the latest version hasn't changed
+    """
+
     window = webview.active_window()
-    print(window)
-    # window.create_text_dialog("HELLO WORLD", "This is my very important message")
-    window.create_file_dialog(webview.SAVE_DIALOG, directory='/', save_filename='test.file')
+    js_api = window._js_api
+
+    try:
+        latest_version = urllib.request.urlopen("https://beancounter.me/downloads/version.html").read().decode('UTF-8')
+    except urllib.error.URLError:
+        # If the request for the latest version failed and this is not an automated check,
+        #     pop up a update failure dialog.
+        if not startup:
+            window.create_text_dialog("Update check failed!", "Confirm that you have Internet access and try checking for updates again")
+            return
+
+    current_version = VERSION
+    update_available = current_version != latest_version
+
+    if update_available:
+        # If there is an update available but the latest skipped version is the same as the latest version,
+        #     and this update check is being done on startup, then just don't pop up a dialog.
+        latest_skipped_version = js_api.request("GET", "config/latest_skipped_version", {}, internal=True)
+        if startup and latest_skipped_version == latest_version:
+            return
+
+        res = window.create_text_dialog("Update available", "There is an update available! \
+            Upgrade to Bean Counter v{}?".format(latest_version))
+
+        if res == 1:
+            # Redirect to the Bean Counter downloads page
+            webbrowser.open("https://beancounter.me/#downloads")
+        else:
+            # If user manually declines to update, save latest skipped version to db
+            js_api.request("POST", "config/latest_skipped_version",
+                {'body': {
+                    'title': 'latest_skipped_version',
+                    'value': latest_version
+                }}, internal=True)
+    elif not startup:
+        # Only show this dialog if the user selected manually to check for updates from the menu
+        window.create_text_dialog("No updates available", "You are on the latest version of Bean Counter.")
 
 
 if __name__ == '__main__':
@@ -158,12 +209,17 @@ if __name__ == '__main__':
         )
     ]
 
+    js_api = WebviewApi(dev_mode=is_dev)
+
     window = webview.create_window(
         'Bean Counter',
         entry,
-        js_api=WebviewApi(dev_mode=is_dev),
+        js_api=js_api,
         x=0,
         y=0
     )
+
+    # Check if there are any updates on startup
+    window.events.loaded += lambda:check_for_updates(startup=True)
 
     webview.start(debug=is_dev, menu=bar_menu_items)
