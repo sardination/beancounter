@@ -1,3 +1,5 @@
+from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from flask import Flask
 from flask.wrappers import Request
 from flask_cors import CORS
@@ -5,12 +7,12 @@ from flask_migrate import Migrate, upgrade
 from flask_restful import Api
 
 import datetime
-import os
 
 from api import api
 from db import db
 from models import Info
 import settings
+from utils import backup_database, maybe_backup_database
 
 
 def set_start_date():
@@ -59,11 +61,31 @@ def create_webview_app(migrations=None, dev_mode=False):
     api.init_app(app)
 
     if migrations is not None:
-        # this will upgrade the database if the current schema
+        # This will upgrade the database if the current schema
         #   does not match the latest alembic version
         with app.app_context():
+            # Get the current alembic revision
+            db_conn = db.engine.connect()
+            migrate_context = MigrationContext.configure(db_conn)
+            current_revision = migrate_context.get_current_revision()
+            db_conn.close()
+            db.engine.dispose()
+
             migrate = Migrate(app, db)
-            upgrade(migrations)
+            alembic_config = app.extensions['migrate'].migrate.get_config(migrations)
+            script = ScriptDirectory.from_config(alembic_config)
+            head_revision = script.get_current_head()
+
+            # If the current revision is different from the head revision, we should:
+            #     1. back up db
+            #     2. upgrade db
+            if current_revision != head_revision and config.db_file_path and config.db_name:
+                backup_database(config)
+                upgrade(directory=migrations)
+            else:
+                # If we didn't update, check if it has been a week since the latest backup
+                #     and make another backup if so.
+                maybe_backup_database(config, datetime.timedelta(days=7))
 
     with app.app_context():
         set_start_date()
