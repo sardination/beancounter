@@ -23,7 +23,7 @@ Inspired by the book _Your Money or Your Life_, an application to help someone t
 
 
 ## Notes on updating `pywebview`
-* Clone your fork of `pywebview` into any folder (does not have to be a subdirectory of this repo)
+* Clone your fork of [`pywebview`](https://github.com/r0x0r/pywebview) into any folder (does not have to be a subdirectory of this repo)
 * When testing your changes to `pywebview` on this application, first run `pip install <path-to-local-pywebview>`
 * If your changes to `pywebview` have not been merged upstream on the parent repo, then update pip package path to `pip install git@github:<username>/pywebview.git` to use the path to your forked repo with the changes you want.
 
