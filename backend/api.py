@@ -17,6 +17,7 @@ from enums import TransactionType
 from models import (
     AssetAccount,
     BalanceSheetEntry,
+    Config,
     Info,
     InvestmentIncome,
     MonthAssetAccountEntry,
@@ -31,6 +32,7 @@ from models import (
 from schemas import (
     AssetAccountSchema,
     BalanceSheetEntrySchema,
+    ConfigSchema,
     InfoSchema,
     InvestmentIncomeSchema,
     MonthAssetAccountEntrySchema,
@@ -59,6 +61,36 @@ def try_commit(row, schema):
         return abort(400, description='Bad model arguments')
 
     return schema.dump(row)
+
+
+config_schema = ConfigSchema()
+@api.resource("/config/<title>")
+class ConfigResource(Resource):
+    def get(self, title):
+        config = Config.query.filter_by(title=title).first()
+        if config is None:
+            if title in Config.permitted_titles:
+                config = Config(title=title, value=Config.default_values.get(title))
+            else:
+                return abort(404, description='Not a permitted value title')
+        return config_schema.dump(config)
+
+    def post(self, title):
+        request_dict = config_schema.load(request.json)
+        value = request_dict['value']
+
+        if title not in Config.permitted_titles:
+            return abort(404, description="Not a permitted value title")
+        config = Config.query.filter_by(title=title).one_or_none()
+        if config is None:
+            config = Config(title=title, value=value)
+            db.session.add(config)
+        else:
+            config.value = value
+
+        db.session.commit()
+
+        return config_schema.dump(config)
 
 
 info_schema = InfoSchema()

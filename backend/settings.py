@@ -9,12 +9,26 @@ VERSION = "1.0.3"
 class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    db_file_path = None
+    db_name = None
+
     def __init__(self):
         self.SECRET_KEY = SECRET_KEY
 
 class DevConfig(Config):
-    SQLALCHEMY_DATABASE_URI = "postgres://dev:eloper@127.0.0.1/finance"
+    # SQLALCHEMY_DATABASE_URI = "postgres://dev:eloper@127.0.0.1/finance"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///beancounter-dev.db"
     DEBUG = True
+
+    def __init__(self):
+        author = "Bean Counter"
+        app_name = "Bean Counter Dev"
+        self.db_name = "beancounter-dev.db"
+
+        app_data_path = user_data_dir(app_name, author)
+        self.db_file_path = create_db_path_if_not_exists(app_data_path, self.db_name)
+
+        self.SQLALCHEMY_DATABASE_URI = "sqlite:///{db_path}".format(db_path=self.db_file_path)
 
 
 def create_db_path_if_not_exists(folder_path, db_name):
@@ -49,10 +63,10 @@ class ProdConfig(Config):
     def __init__(self):
         author = "Bean Counter"
         app_name = "Bean Counter"
-        db_name = "beancounter.db"
+        self.db_name = "beancounter.db"
 
-        app_data_path = user_data_dir(author, app_name)
-        db_file_path = create_db_path_if_not_exists(app_data_path, db_name)
+        app_data_path = user_data_dir(app_name, author)
+        self.db_file_path = create_db_path_if_not_exists(app_data_path, self.db_name)
 
-        self.SQLALCHEMY_DATABASE_URI = "sqlite:///{db_path}".format(db_path=db_file_path)
+        self.SQLALCHEMY_DATABASE_URI = "sqlite:///{db_path}".format(db_path=self.db_file_path)
 

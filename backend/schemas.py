@@ -7,6 +7,7 @@ from enums import (
 from models import (
     AssetAccount,
     BalanceSheetEntry,
+    Config,
     Info,
     InvestmentIncome,
     MonthAssetAccountEntry,
@@ -32,6 +33,13 @@ from marshmallow_sqlalchemy import (
     auto_field,
 )
 
+
+class ConfigSchema(SQLAlchemySchema):
+    class Meta:
+        model = Config
+
+    title = auto_field()
+    value = auto_field()
 
 class InfoSchema(SQLAlchemySchema):
     class Meta:
