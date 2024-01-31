@@ -1,6 +1,8 @@
-# financial-planner
+# beancounter
 
-Inspired by the book _Your Money or Your Life_, an application to help someone track their financial activity and make informed decisions for their future financial well-being.
+Inspired by the book _Your Money or Your Life_, an application to help someone track their financial activity and make informed decisions for their future financial well-being. 
+
+I made this as a side project to keep track of my own finances following these principles, so, by design, it is not as feature-complete as many other personal finance apps. It's been serving my needs well enough for a few years now, but if you're looking for more, you're encouraged to contribute!
 
 ## Init Development Environment
 * In `frontend/`, run `npm install`
