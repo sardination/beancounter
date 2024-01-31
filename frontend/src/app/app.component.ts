@@ -16,6 +16,8 @@ import { MonthlyReviewPageComponent } from './pages/monthly-review-page/monthly-
 import { FIProjectionPageComponent } from './pages/fi-projection-page/fi-projection-page.component';
 import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.component';
 
+import { environment } from '../environments/environment';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -41,22 +43,26 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-      if (isDevMode()) {
-        setTimeout(() => {
-          this.loadPage(this.currentPath)
-        });
-      } else {
+      // We're not supporting web app mode right now, so it will always be using webview
+      // if (!environment.useWebview) {
+      //   setTimeout(() => {
+      //     this.loadPage(this.currentPath)
+      //   });
+      // } else {
         let _this = this;
         window.addEventListener('pywebviewready', function() {
           setTimeout(() => {
             window.pywebview.api.resize(window.screen.width, window.screen.height);
-            window.pywebview.api.get_version().then(
-              (version) => {_this.version = version;}
-            );
+            // TODO: modify this so that dev also has versions?
+            if (!isDevMode()) {
+              window.pywebview.api.get_version().then(
+                (version) => {_this.version = version;}
+              );
+            }
             _this.loadPage(_this.currentPath);
           });
         })
-      }
+      // }
   }
 
   normalizePath(path: string): string {

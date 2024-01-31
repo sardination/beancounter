@@ -4,20 +4,18 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { Observable, of, from } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
+import { environment } from '../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiEndpointService {
 
-  protected apiUrl = 'http://financeapp';
+  protected apiUrl = 'undefined';
 
   constructor(protected http: HttpClient, apiExtension: string) {
-    if (isDevMode()) {
-      this.apiUrl = 'http://127.0.0.1:5000';
-    }
-
-    this.apiUrl = `${this.apiUrl}/${apiExtension}`;
+    this.apiUrl = `${environment.apiUrl}/${apiExtension}`;
   }
 
   createEndpoint(endpoint: string) {
@@ -27,29 +25,21 @@ export class ApiEndpointService {
   sendRequest<T>(method: string, path: string, params?: any, body?: any): Observable<T> {
     params = params || {};
     var httpOptions = {
-      // headers: new HttpHeaders({
-      //   'Content-Type': 'application/json'
-      // }),
       headers: {'Content-Type': 'application/json'},
       params: params,
       body: body,
     };
-
-    if (isDevMode()) {
-      return this.http.request<T>(method, path, httpOptions);
-    } else if (window.pywebview) {
+    // We're not supporting web app mode right now, so it will always be using webview
+    // if (!environment.useWebview) {
+    //   return this.http.request<T>(method, path, httpOptions);
+    // } else if (window.pywebview) {
+    if (window.pywebview) {
       return from(
         window.pywebview.api.request(method, path, httpOptions) as PromiseLike<T>
       );
     }
 
     return of<T>();
-
-    // if (isDevMode()) {
-    //   return this.http.request<T>(method, path, httpOptions);
-    // } else {
-    //   return pywebview.api.request(method, path, httpOptions);
-    // }
   }
 
   sendGetRequest<T>(path: string, params?: any, body?: any): Observable<T> {

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, ViewChild, AfterViewInit, EventEmitter } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
@@ -52,10 +52,10 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     {key:'expenditure', label:"Expenditure"},
   ]
 
-  editingTransactionDate: FormControl;
-  editingTransactionType: FormControl;
-  editingTransactionValue: FormControl;
-  editingTransactionDescription: FormControl;
+  editingTransactionDate: UntypedFormControl;
+  editingTransactionType: UntypedFormControl;
+  editingTransactionValue: UntypedFormControl;
+  editingTransactionDescription: UntypedFormControl;
 
   constructor(private transactionService: TransactionService) { }
 
@@ -86,21 +86,21 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   }
 
   zeroFormControls(): void {
-    this.editingTransactionDate = new FormControl(this.todayDate);
-    this.editingTransactionType = new FormControl("expenditure");
-    this.editingTransactionValue = new FormControl(0);
-    this.editingTransactionDescription = new FormControl("");
+    this.editingTransactionDate = new UntypedFormControl(this.todayDate);
+    this.editingTransactionType = new UntypedFormControl("expenditure");
+    this.editingTransactionValue = new UntypedFormControl(0);
+    this.editingTransactionDescription = new UntypedFormControl("");
   }
 
   setFormControls(transaction: Transaction): void {
-    this.editingTransactionDate = new FormControl(transaction.date);
+    this.editingTransactionDate = new UntypedFormControl(transaction.date);
     if (transaction.transaction_type == "income") {
-        this.editingTransactionType = new FormControl("income");
+        this.editingTransactionType = new UntypedFormControl("income");
     } else {
-        this.editingTransactionType = new FormControl("expenditure");
+        this.editingTransactionType = new UntypedFormControl("expenditure");
     }
-    this.editingTransactionValue = new FormControl(transaction.value);
-    this.editingTransactionDescription = new FormControl(transaction.description);
+    this.editingTransactionValue = new UntypedFormControl(transaction.value);
+    this.editingTransactionDescription = new UntypedFormControl(transaction.description);
   }
 
   addNewEmptyTransaction(): void {

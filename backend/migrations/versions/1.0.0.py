@@ -1,6 +1,6 @@
-"""empty message
+"""Create database
 
-Revision ID: 6da410c4dd65
+Revision ID: 1.0.0
 Revises:
 Create Date: 2021-01-23 17:10:48.237807
 

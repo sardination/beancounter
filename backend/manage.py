@@ -1,3 +1,5 @@
+# TODO: bring this up to date! Flask Script is no longer supported. Flask CLI is the standard.
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager

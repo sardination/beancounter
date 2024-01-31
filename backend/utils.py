@@ -9,12 +9,14 @@ from models import (
 
 from db import db
 
-import datetime
+from datetime import datetime
 from dateutil import tz
+import os
+import shutil
 
 def get_start_date():
     start_date_info = Info.query.filter_by(title="start_date").first()
-    start_date = datetime.datetime.strptime(start_date_info.value, "%Y-%m-%d")
+    start_date = datetime.strptime(start_date_info.value, "%Y-%m-%d")
     return start_date.date()
 
 
@@ -90,10 +92,77 @@ def convert_zulu_timestamp_to_datestring(zulu_timestamp):
     Convert a zulu (UTC) timestamp to a simple local time date string
     """
     try:
-        date = datetime.datetime.strptime(zulu_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=tz.tzutc())
+        date = datetime.strptime(zulu_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=tz.tzutc())
         date = date.astimezone(tz.tzlocal())
         return date.strftime("%Y-%m-%d")
     except:
         pass
     return zulu_timestamp[:10]
 
+
+### BACKUP HANDLING ###
+
+def get_backup_folder_path(config):
+    """
+    Returns the backup folder path and creates it if it doesn't exist.
+    """
+
+    # Create a backups folder if it doesn't exist already
+    backup_folder_path = os.path.join(os.path.dirname(config.db_file_path), "backups")
+    if not os.path.isdir(backup_folder_path):
+        os.mkdir(backup_folder_path)
+
+    return backup_folder_path
+
+def backup_database(config):
+    """
+    Create a database backup for the appropriate config (DevConfig or ProdConfig)
+    """
+
+    backup_folder_path = get_backup_folder_path(config)
+
+    # Copy database to backup file
+    backup_filename = "{}-{}".format(datetime.timestamp(datetime.now()), config.db_name)
+    backup_file_path = os.path.join(backup_folder_path, backup_filename)
+    shutil.copy(config.db_file_path, backup_file_path)
+
+    # If there are more than 3 files in the backups directory, delete the earliest N-3 files
+    MAX_BACKUP_COUNT = 3
+    backup_list = os.listdir(backup_folder_path)
+    if len(backup_list) > MAX_BACKUP_COUNT:
+        timestamp_backup_map = {}
+        for backup_filename in backup_list:
+            try:
+                timestamp = float(backup_filename.split("-")[0])
+                timestamp_backup_map[timestamp] = backup_filename
+            except:
+                continue
+
+        to_delete = len(backup_list) - MAX_BACKUP_COUNT
+        timestamp_list = list(timestamp_backup_map.keys())
+        timestamp_list.sort()
+        for timestamp_key in timestamp_list[:to_delete]:
+            file_to_remove = os.path.join(backup_folder_path, timestamp_backup_map[timestamp_key])
+            os.remove(file_to_remove)
+
+def maybe_backup_database(config, time_delta):
+    """
+    Create a database backup, but only if the latest backup was more than `time_delta`
+    ago.
+    """
+
+    backup_folder_path = get_backup_folder_path(config)
+    backup_list = os.listdir(backup_folder_path)
+
+    # If the latest timestamp is more than `time_delta` from now, make another backup
+    backup_list = os.listdir(backup_folder_path)
+    latest_timestamp = -1
+    for backup_filename in backup_list:
+        try:
+            curr_timestamp = float(backup_filename.split("-")[0])
+        except:
+            continue
+        if curr_timestamp > latest_timestamp:
+            latest_timestamp = curr_timestamp
+    if latest_timestamp == -1 or (datetime.now() - datetime.fromtimestamp(latest_timestamp)) > time_delta:
+        backup_database(config)
