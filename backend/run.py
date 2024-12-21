@@ -1,5 +1,5 @@
 # from datetime import datetime
-from httpx import Client, Response
+from httpx import Client, Response, WSGITransport
 import getopt
 import json
 import os
@@ -72,7 +72,7 @@ class WebviewApi:
     def __init__(self, dev_mode=False):
         self.dev_mode = dev_mode
         self.app = create_webview_app(migrations=get_migrations_directory(), dev_mode=dev_mode)
-        self.client = Client(app=self.app)
+        self.transport = WSGITransport(app=self.app)
 
     def fullscreen(self):
         webview.windows[0].toggle_fullscreen()
@@ -120,8 +120,9 @@ class WebviewApi:
         #     dev and prod. Prod uses "beancounter" and dev uses "beancounter-dev".
         hostname = path.split("//")[1].split("/")[0]
         if hostname == preferred_hostname:
-            resp = self.client.request(method, path, **kwargs)
-            return json.loads(resp.content.decode("utf-8"))
+            with Client(transport=self.transport) as client:
+                resp = client.request(method, path, **kwargs)
+                return json.loads(resp.content.decode("utf-8"))
 
         # If dev mode and hostname don't match, then return 403
         return Response(status_code=403)
@@ -129,7 +130,7 @@ class WebviewApi:
 
 # --- IMPLEMENTATION ---
 
-def check_for_updates(startup=False):
+def check_for_updates(startup=False, is_dev=False):
     """
     If `startup` is True, then don't show a dialog if the latest version hasn't changed
     """
@@ -143,11 +144,13 @@ def check_for_updates(startup=False):
         # If the request for the latest version failed and this is not an automated check,
         #     pop up a update failure dialog.
         if not startup:
-            window.create_text_dialog("Update check failed!", "Confirm that you have Internet access and try checking for updates again")
+            window.create_confirmation_dialog(
+                "Update check failed!", "Confirm that you have Internet access and try checking for updates again"
+            )
             return
 
     current_version = VERSION
-    update_available = current_version != latest_version
+    update_available = not is_dev and current_version != latest_version
 
     if update_available:
         # If there is an update available but the latest skipped version is the same as the latest version,
@@ -156,7 +159,7 @@ def check_for_updates(startup=False):
         if startup and latest_skipped_version == latest_version:
             return
 
-        res = window.create_text_dialog("Update available", "There is an update available! \
+        res = window.create_confirmation_dialog("Update available", "There is an update available! \
             Upgrade to Bean Counter v{}?".format(latest_version))
 
         if res == 1:
@@ -171,7 +174,7 @@ def check_for_updates(startup=False):
                 }}, internal=True)
     elif not startup:
         # Only show this dialog if the user selected manually to check for updates from the menu
-        window.create_text_dialog("No updates available", "You are on the latest version of Bean Counter.")
+        window.create_confirmation_dialog("No updates available", "You are on the latest version of Bean Counter.")
 
 
 if __name__ == '__main__':
@@ -183,15 +186,14 @@ if __name__ == '__main__':
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ps")
+        for opt, arg in opts:
+            if opt == '-p' and not in_terminal:
+                is_dev = False
+            elif opt == '-s':
+                serving = True
     except getopt.GetoptError:
         # if bad arguments, then just run in dev mode
         pass
-
-    for opt, arg in opts:
-        if opt == '-p' and not in_terminal:
-            is_dev = False
-        elif opt == '-s':
-            serving = True
 
     # ng serve mode should only be allowed in dev mode
     if serving and not is_dev:
@@ -220,6 +222,6 @@ if __name__ == '__main__':
     )
 
     # Check if there are any updates on startup
-    window.events.loaded += lambda:check_for_updates(startup=True)
+    window.events.loaded += lambda:check_for_updates(startup=True, is_dev=is_dev)
 
     webview.start(debug=is_dev, menu=bar_menu_items)
