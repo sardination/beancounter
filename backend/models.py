@@ -123,6 +123,7 @@ class Transaction(db.Model):
     value = db.Column(db.Integer, nullable=False) # positive, cents
     description = db.Column(db.String(512), nullable=False)
     date = db.Column(db.Date, nullable=False)
+    currency = db.Column(db.String(3), nullable=False, default="USD")
 
     # categorize transaction at the end of each month
     category_id = db.Column(db.Integer, ForeignKey('transaction_category.id'))
@@ -168,12 +169,29 @@ class MonthInfo(db.Model):
     assets = db.Column(db.BigInteger, nullable=False, default=0) # in cents
     liabilities = db.Column(db.BigInteger, nullable=False, default=0) # in cents
 
-    real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rwh for this month
+    real_hourly_wage = db.Column(db.Integer, nullable=False, default=0) # in cents, rhw for this month
     # whether the month has been fully analyzed, should only be true after the month is over and
     #       all survey answers have been filled
     completed = db.Column(db.Boolean, nullable=False, default=False)
 
     __table_args__ = (UniqueConstraint('year', 'month', name='_month_info_year_month_uc'),)
+
+
+class ExchangeRate(db.Model):
+    """
+    Exchange rates for the non-USD currencies used in a month
+    """
+
+    __tablename__ = 'exchange_rate'
+
+    id = db.Column(db.Integer, primary_key=True)
+    month_info_id = db.Column(db.Integer, ForeignKey('month_info.id'), nullable=False)
+    month_info = relationship("MonthInfo")
+
+    currency = db.Column(db.String(3), nullable=False)
+    rate = db.Column(db.Numeric(14,6), nullable=False) # How much of this currency = 1 USD
+
+    __table_args__ = (UniqueConstraint('month_info_id', 'currency', name='_month_currency_uc'),)
 
 
 class MonthCategory(db.Model):
