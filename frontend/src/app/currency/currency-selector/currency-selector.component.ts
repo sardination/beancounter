@@ -12,8 +12,9 @@ export class CurrencySelectorComponent implements OnInit {
 
   getCurrencySymbol = getCurrencySymbol
   currencyIncluded = currencyIncluded
+  includedCurrencies = includedCurrencies
 
-  @Input() formControl: UntypedFormControl
+  @Input() useFormControl: UntypedFormControl
 
   constructor() { }
 

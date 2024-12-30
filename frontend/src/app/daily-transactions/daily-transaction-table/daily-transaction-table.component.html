@@ -42,7 +42,7 @@
                     <mat-form-field style="width: 100px !important;">
                         <input matInput [formControl]="editingTransactionValue" type="number" min="0" step="0.01" />
                     </mat-form-field>
-                    <app-currency-selector [formControl]="editingTransactionCurrency">
+                    <app-currency-selector [useFormControl]="editingTransactionCurrency">
                     </app-currency-selector>
                 </ng-template>
             </td>
