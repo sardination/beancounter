@@ -422,7 +422,7 @@ export class MonthlyReviewPageComponent implements OnInit {
   //     this.selectedMonthInfo.completed = true;
   //     this.monthInfoService.updateObject(this.selectedMonthInfo)
   //         .subscribe(updatedMonthInfo => {
-  //             this.selectedMonthInfo = updatedMonthInfo;
+  //             Object.assign(this.selectedMonthInfo,updatedMonthInfo);
   //         })
   // }
 

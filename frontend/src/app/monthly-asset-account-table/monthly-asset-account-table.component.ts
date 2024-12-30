@@ -9,6 +9,8 @@ import {
   MonthAssetAccountEntryService
 } from '../services/api-object.service';
 
+import { getCurrencySymbol } from '../currency/utils'
+
 import { AssetAccount } from '../interfaces/asset-account';
 import { MonthAssetAccountEntry } from '../interfaces/month-asset-account-entry';
 
@@ -22,6 +24,8 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   faEdit = faEdit;
   faCheck = faCheck;
   faQuestionCircle = faQuestionCircle;
+
+  getCurrencySymbol = getCurrencySymbol;
 
   @Input()
   get monthAssetAccountEntries(): MonthAssetAccountEntry[] { return this._monthAssetAccountEntries };
@@ -173,7 +177,7 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
       } else {
         this.monthAssetAccountEntryService.updateObject(accountEntry)
             .subscribe(updatedAccountEntry => {
-                accountEntry = updatedAccountEntry;
+                Object.assign(accountEntry, updatedAccountEntry);
                 this.monthAssetAccountEntries = this.monthAssetAccountEntries;
                 this.tableDataSource.data = this.assetAccounts;
                 this.editingAccount = null;

@@ -1,0 +1,11 @@
+<mat-form-field style="width: 75px !important;">
+    <mat-select [formControl]="formControl" *ngIf="currencyIncluded(formControl.value); else otherCurrency">
+        <mat-option *ngFor="let currencyMap of includedCurrencies" [value]="currencyMap.code">
+            {{ currencyMap.code }}
+        </mat-option>
+        <mat-option [value]="'???'">???</mat-option>
+    </mat-select>
+    <ng-template #otherCurrency>
+        <input matInput [formControl]="formControl" type="text" />
+    </ng-template>
+</mat-form-field>

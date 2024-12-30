@@ -15,7 +15,7 @@
             <ng-template #transactionExpenditure>
                 <span>-</span>
             </ng-template>
-            ${{ transaction.value | number: '1.2-2' }}
+            {{ getCurrencySymbol(transaction.currency) }}{{ transaction.value | number: '1.2-2' }}
         </td>
     </ng-container>
 

@@ -8,6 +8,8 @@ import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/fr
 
 import { InvestmentIncomeService } from '../services/api-object.service';
 
+import { getCurrencySymbol } from '../currency/utils'
+
 import { InvestmentIncome } from '../interfaces/investment-income';
 import { MonthInfo } from '../interfaces/month-info';
 
@@ -26,6 +28,8 @@ export class InvestmentIncomeTableComponent implements OnInit {
   faTrash = faTrash;
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
+
+  getCurrencySymbol = getCurrencySymbol
 
   @Input()
   get investmentIncomes(): InvestmentIncome[] { return this._investmentIncomes };
@@ -195,7 +199,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
       } else {
         this.investmentIncomeService.updateObject(income)
             .subscribe(updatedIncome => {
-                income = updatedIncome;
+                Object.assign(income, updatedIncome);
                 this.investmentIncomes = this.sortIncomes(this.investmentIncomes);
                 this.tableDataSource.data = this.investmentIncomes;
                 this.editingIncome = null;

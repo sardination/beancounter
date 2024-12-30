@@ -28,7 +28,7 @@
                     <ng-template #transactionExpenditure>
                         <span>-</span>
                     </ng-template>
-                    ${{ transaction.value | number: '1.2-2' }}
+                    {{ getCurrencySymbol(transaction.currency) }}{{ transaction.value | number: '1.2-2' }}
                 </div>
                 <ng-template #editValue>
                     <mat-form-field>
@@ -39,8 +39,11 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <span matPrefix>$&nbsp;</span>
-                    <input [formControl]="editingTransactionValue" type="number" min="0" step="0.01" />
+                    <mat-form-field style="width: 100px !important;">
+                        <input matInput [formControl]="editingTransactionValue" type="number" min="0" step="0.01" />
+                    </mat-form-field>
+                    <app-currency-selector [formControl]="editingTransactionCurrency">
+                    </app-currency-selector>
                 </ng-template>
             </td>
         </ng-container>
@@ -52,7 +55,9 @@
                     {{ transaction.description }}
                 </div>
                 <ng-template #editDescription>
-                    <input [formControl]="editingTransactionDescription" type="text"/>
+                    <mat-form-field>
+                        <input matInput [formControl]="editingTransactionDescription" type="text"/>
+                    </mat-form-field>
                 </ng-template>
             </td>
         </ng-container>

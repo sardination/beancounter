@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker'
+import { Moment } from 'moment'
 
 import { InfoService } from '../../services/info.service';
 
@@ -22,7 +24,8 @@ export class PriorInventoryPageComponent implements OnInit {
           .subscribe(info => this.startDate = info.value);
   }
 
-  updateStartDate(date: Date): void {
+  updateStartDate(date_moment: Moment): void {
+      let date = date_moment.toDate();
       if (!date) return;
       this.infoService.updateInfo("start_date", date)
           .subscribe(info => {
