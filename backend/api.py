@@ -294,8 +294,6 @@ class TransactionResource(Resource):
         if date > datetime.date.today() or date < get_start_date():
             return abort(400, description='Cannot save future transaction or transaction prior to start date')
 
-        month_info = get_month_info(date.year, date.month)
-
         new_transaction = Transaction(
             transaction_type=transaction_type,
             value=value,
@@ -305,10 +303,7 @@ class TransactionResource(Resource):
         )
         db.session.add(new_transaction)
 
-        if transaction_type == TransactionType.income:
-            month_info.income += value
-        else:
-            month_info.expenditure += value
+        get_month_info(date.year, date.month, recalc_totals=True)
 
         return try_commit(new_transaction, transaction_schema)
 
@@ -331,19 +326,8 @@ class TransactionResource(Resource):
         if date > datetime.date.today() or date < get_start_date():
             return abort(400, description='Cannot save future transaction or transaction prior to start date')
 
-        # TODO: probably just recalculate the whole month-info income and expenditure values instead of keeping a running
-        #       total.
         transaction = Transaction.query.filter_by(id=id).first_or_404()
         old_date = transaction.date
-        old_type = transaction.transaction_type
-        old_value = transaction.value
-
-        # remove old value from month-info for old transaction
-        old_month_info = get_month_info(transaction.date.year, transaction.date.month)
-        if transaction.transaction_type == TransactionType.income:
-            old_month_info.income -= transaction.value
-        else:
-            old_month_info.expenditure -= transaction.value
 
         transaction.transaction_type = transaction_type
         transaction.value = value
@@ -353,17 +337,8 @@ class TransactionResource(Resource):
         if category_id is not None:
             transaction.category_id = category_id
 
-        update_month_info = old_month_info
-        # if month and/or year have changed, then update the corresponding monthinfo
-        if old_date.month != date.month or old_date.year != date.year:
-            new_month_info = get_month_info(date.year, date.month)
-            update_month_info = new_month_info
-
-        # add value back to appropriate month-info
-        if transaction_type == TransactionType.income:
-            update_month_info.income += value
-        else:
-            update_month_info.expenditure += value
+        get_month_info(old_date.year, old_date.month, recalc_totals=True)
+        get_month_info(date.year, date.month, recalc_totals=True)
 
         return try_commit(transaction, transaction_schema)
 
@@ -720,7 +695,10 @@ class InvestmentIncomeResource(Resource):
             new_investment_income.date = date
         db.session.add(new_investment_income)
 
-        month_info.investment_income += value
+        month_total = total_investment_income_query = InvestmentIncome.query.with_entities(
+            func.sum(InvestmentIncome.value).label('income_total')
+        ).filter_by(month_info_id=month_info_id).first()
+        month_info.investment_income = month_total if month_total is not None else 0
 
         return try_commit(new_investment_income, investment_income_schema)
 
@@ -747,21 +725,24 @@ class InvestmentIncomeResource(Resource):
 
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
-        # TODO: probably just recalculate the whole month-info income and expenditure values instead of keeping a running
-        #       total.
-
-        # remove old value from month-info for old income
-        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
-        old_month_info.investment_income -= investment_income.value
-
         investment_income.investment_income_type = investment_income_type
         investment_income.value = value
         investment_income.description = description
         investment_income.date = date
         investment_income.currency = currency
 
-        # add value back to appropriate month-info
-        month_info.investment_income += investment_income.value
+        total_investment_income_query = InvestmentIncome.query.with_entities(
+            func.sum(InvestmentIncome.value).label('income_total')
+        )
+
+        # update old month info investment income total
+        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
+        old_month_total = total_investment_income_query.filter_by(month_info_id=old_month_info.id).first()
+        old_month_info.investment_income = old_month_total if old_month_total is not None else 0
+
+        # update new month info investment income total
+        new_month_total = total_investment_income_query.filter_by(month_info_id=month_info.id).first()
+        month_info.investment_income = new_month_total if new_month_total is not None else 0
 
         return try_commit(investment_income, investment_income_schema)
 

@@ -1,4 +1,4 @@
-from sqlalchemy import extract
+from sqlalchemy import extract, func
 
 from enums import TransactionType
 from models import (
@@ -35,19 +35,18 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
     if month_info is not None and not recalc_totals:
         return month_info
 
-    # TODO: possible to get sum using SA?
-    transactions = Transaction.query.filter(
+    transaction_sum_query = Transaction.query.with_entities(
+        func.sum(Transaction.value).label('transaction_total')
+    ).filter(
         extract('year', Transaction.date) == year,
         extract('month', Transaction.date) == month
-    ).all()
-    income = 0
-    expenditure = 0
-    for t in transactions:
-        if t.transaction_type == TransactionType.income:
-            income += t.value
-        else:
-            expenditure += t.value
+    )
+    income = transaction_sum_query.filter_by(transaction_type=TransactionType.income).first().transaction_total
+    expenditure = transaction_sum_query.filter_by(transaction_type=TransactionType.expenditure).first().transaction_total
+    income = income if income is not None else 0
+    expenditure = expenditure if expenditure is not None else 0
 
+    # TODO: is this the most efficient?
     # get current real hourly wage to assign to this month
     real_hourly_wage = Info.query.filter_by(title="real_hourly_wage").first()
     if real_hourly_wage is None:
@@ -86,7 +85,7 @@ def month_year_between_dates(earliest_date, latest_date, month, year):
         return month >= earliest_date.month
     if year == latest_date.year:
         return month <= latest_date.month
-    return year > earliest_date.year and year < latest_date.month
+    return year > earliest_date.year and year < latest_date.year
 
 def convert_zulu_timestamp_to_datestring(zulu_timestamp):
     """
