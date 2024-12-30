@@ -35,6 +35,7 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
     if month_info is not None and not recalc_totals:
         return month_info
 
+    # TODO: possible to get sum using SA?
     transactions = Transaction.query.filter(
         extract('year', Transaction.date) == year,
         extract('month', Transaction.date) == month
@@ -58,7 +59,7 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
         month_info.income = income
         month_info.expenditure = expenditure
         if not month_info.completed:
-            # keep real hourly wage the same unless the month is still uncompleted
+            # keep real hourly wage the same unless the month is still incomplete
             month_info.real_hourly_wage = real_hourly_wage
         return month_info
 

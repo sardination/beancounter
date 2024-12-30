@@ -232,6 +232,7 @@ class InvestmentIncome(db.Model):
     value = db.Column(db.Integer, nullable=False) # can be negative or positive, cents
     description = db.Column(db.String(50), nullable=False)
     date = db.Column(db.Date, nullable=True) # optional date field
+    currency = db.Column(db.String(3), nullable=False, default="USD")
 
 
 class MonthReflection(db.Model):
@@ -266,6 +267,7 @@ class AssetAccount(db.Model):
     name = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(256), nullable=False)
     # TODO: add account type? cash, real estate, stocks, etc.
+    currency = db.Column(db.String(3), nullable=False, default="USD")
 
     # asset accounts can open and close - need this for showing appropriate
     #   accounts to report monthly asset and liability values

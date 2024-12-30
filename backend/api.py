@@ -287,6 +287,7 @@ class TransactionResource(Resource):
         value = request_dict['value']
         description = request_dict['description']
         date = request_dict['date']
+        currency = request_dict.get('currency', 'USD')
 
         if value <= 0:
             return abort(400, description='Value must be greater than 0.')
@@ -299,7 +300,8 @@ class TransactionResource(Resource):
             transaction_type=transaction_type,
             value=value,
             description=description,
-            date=date
+            date=date,
+            currency=currency
         )
         db.session.add(new_transaction)
 
@@ -320,6 +322,7 @@ class TransactionResource(Resource):
         description = request_dict['description']
         date = request_dict['date']
         transaction_type = request_dict['transaction_type']
+        currency = request_dict.get('currency', 'USD')
 
         category_id = request_dict.get('category_id')
 
@@ -328,6 +331,8 @@ class TransactionResource(Resource):
         if date > datetime.date.today() or date < get_start_date():
             return abort(400, description='Cannot save future transaction or transaction prior to start date')
 
+        # TODO: probably just recalculate the whole month-info income and expenditure values instead of keeping a running
+        #       total.
         transaction = Transaction.query.filter_by(id=id).first_or_404()
         old_date = transaction.date
         old_type = transaction.transaction_type
@@ -344,6 +349,7 @@ class TransactionResource(Resource):
         transaction.value = value
         transaction.description = description
         transaction.date = date
+        transaction.currency = currency
         if category_id is not None:
             transaction.category_id = category_id
 
@@ -466,6 +472,7 @@ class AssetAccountResource(Resource):
         description = request_dict['description']
         open_date = request_dict['open_date']
         close_date = request_dict['close_date']
+        currency = request_dict.get('currency', 'USD')
 
         if len(name) == 0:
             return abort(400, description='Supplied empty name for new asset account.')
@@ -474,7 +481,8 @@ class AssetAccountResource(Resource):
             name=name,
             description=description,
             open_date=open_date,
-            close_date=close_date
+            close_date=close_date,
+            currency=currency
         )
         db.session.add(new_asset_account)
 
@@ -491,12 +499,14 @@ class AssetAccountResource(Resource):
         description = request_dict['description']
         open_date = request_dict['open_date']
         close_date = request_dict['close_date']
+        currency = request_dict.get('currency', 'USD')
 
         asset_account = AssetAccount.query.filter_by(id=id).first_or_404()
         asset_account.name = name
         asset_account.description = description
         asset_account.open_date = open_date
         asset_account.close_date = close_date
+        asset_account.currency = currency
 
         return try_commit(asset_account, asset_account_schema)
 
@@ -685,6 +695,7 @@ class InvestmentIncomeResource(Resource):
         value = request_dict['value']
         description = request_dict['description']
         date = request_dict['date']
+        currency = request_dict.get('currency', 'USD')
 
         if date is not None and (date > datetime.date.today() or date < get_start_date()):
             return abort(400, description='Cannot save future investment income or investment income prior to start date')
@@ -702,7 +713,8 @@ class InvestmentIncomeResource(Resource):
             month_info_id=month_info_id,
             investment_income_type=investment_income_type,
             value=value,
-            description=description
+            description=description,
+            currency=currency
         )
         if date is not None:
             new_investment_income.date = date
@@ -722,6 +734,7 @@ class InvestmentIncomeResource(Resource):
         description = request_dict['description']
         date = request_dict['date']
         investment_income_type = request_dict['investment_income_type']
+        currency = request_dict.get('currency', 'USD')
 
         month_info_id = request_dict.get('month_info_id') # don't update month
         month_info = MonthInfo.query.filter_by(id=month_info_id).first_or_404();
@@ -734,6 +747,9 @@ class InvestmentIncomeResource(Resource):
 
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
+        # TODO: probably just recalculate the whole month-info income and expenditure values instead of keeping a running
+        #       total.
+
         # remove old value from month-info for old income
         old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
         old_month_info.investment_income -= investment_income.value
@@ -742,6 +758,7 @@ class InvestmentIncomeResource(Resource):
         investment_income.value = value
         investment_income.description = description
         investment_income.date = date
+        investment_income.currency = currency
 
         # add value back to appropriate month-info
         month_info.investment_income += investment_income.value

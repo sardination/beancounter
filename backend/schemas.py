@@ -191,6 +191,7 @@ class TransactionSchema(SQLAlchemySchema):
     value = fields.Float()
     description = auto_field()
     category_id = auto_field()
+    currency = auto_field()
 
     @post_load
     def value_to_cents(self, data, **kwargs):
@@ -234,6 +235,7 @@ class AssetAccountSchema(SQLAlchemySchema):
     description = auto_field()
     open_date = auto_field()
     close_date = auto_field()
+    currency = auto_field()
 
     @pre_load
     def format_date(self, data, **kwargs):
@@ -323,6 +325,7 @@ class InvestmentIncomeSchema(SQLAlchemySchema):
     value = fields.Float()
     description = auto_field()
     date = auto_field()
+    currency = auto_field()
 
     @post_load
     def value_to_cents(self, data, **kwargs):
