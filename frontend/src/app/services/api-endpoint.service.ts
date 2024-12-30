@@ -33,6 +33,12 @@ export class ApiEndpointService {
       // Need to pass in zulu string
       body.date = body.date.toISOString()
     }
+    if (body && body.open_date) {
+      body.open_date = body.open_date.toISOString()
+    }
+    if (body && body.close_date) {
+      body.close_date = body.close_date.toISOString()
+    }
     // We're not supporting web app mode right now, so it will always be using webview
     // if (!environment.useWebview) {
     //   return this.http.request<T>(method, path, httpOptions);

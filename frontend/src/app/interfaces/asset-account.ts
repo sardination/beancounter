@@ -4,4 +4,5 @@ export interface AssetAccount {
     description: string;
     open_date: Date;
     close_date: Date; // optional
+    currency: string;
 }

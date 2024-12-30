@@ -149,6 +149,18 @@ export class AssetAccountService extends ApiObjectService<AssetAccount> {
     constructor (protected http: HttpClient) {
         super(http, 'asset-account', 'asset account');
     }
+
+    convertDateIfComponent(object: AssetAccount): AssetAccount {
+        let dateParts = object.open_date.toString().split('-'); // YYYY-MM-DD
+        object.open_date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2])); // months are 0-indexed
+
+        if (object.close_date) {
+          dateParts = object.close_date.toString().split('-'); // YYYY-MM-DD
+          object.close_date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1])-1, parseInt(dateParts[2])); // months are 0-indexed
+        }
+
+        return object
+    }
 }
 
 @Injectable({
