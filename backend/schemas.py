@@ -8,6 +8,7 @@ from models import (
     AssetAccount,
     BalanceSheetEntry,
     Config,
+    ExchangeRate,
     Info,
     InvestmentIncome,
     MonthAssetAccountEntry,
@@ -32,6 +33,8 @@ from marshmallow_sqlalchemy import (
     SQLAlchemySchema,
     auto_field,
 )
+
+from decimal import Decimal
 
 
 class ConfigSchema(SQLAlchemySchema):
@@ -304,6 +307,14 @@ class MonthInfoSchema(SQLAlchemySchema):
 
         return data
 
+class ExchangeRateSchema(SQLAlchemySchema):
+    class Meta:
+        model = ExchangeRate
+
+    id = auto_field()
+    month_info_id = auto_field()
+    currency = auto_field()
+    rate = auto_field()
 
 class MonthCategorySchema(SQLAlchemySchema):
     class Meta:

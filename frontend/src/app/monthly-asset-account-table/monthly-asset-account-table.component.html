@@ -22,7 +22,7 @@
                 {{ getCurrencySymbol(account.currency) }}{{ accountEntryFromAccount(account).asset_value | number: '1.2-2' }}
             </div>
             <ng-template #editAssetValue>
-                <span matPrefix>$&nbsp;</span>
+                <span matPrefix>{{ getCurrencySymbol(account.currency) }}&nbsp;</span>
                 <input [formControl]="editingAssetValue" type="number" min="0" step="0.01" />
             </ng-template>
         </td>
@@ -35,7 +35,7 @@
                 {{ getCurrencySymbol(account.currency) }}{{ accountEntryFromAccount(account).liability_value | number: '1.2-2' }}
             </div>
             <ng-template #editLiabilityValue>
-                <span matPrefix>$&nbsp;</span>
+                <span matPrefix>{{ getCurrencySymbol(account.currency) }}&nbsp;</span>
                 <input [formControl]="editingLiabilityValue" type="number" min="0" step="0.01" />
             </ng-template>
         </td>

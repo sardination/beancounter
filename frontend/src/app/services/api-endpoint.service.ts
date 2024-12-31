@@ -29,6 +29,7 @@ export class ApiEndpointService {
       params: params,
       body: body,
     };
+    // TODO: probably need better specific handling for this...
     if (body && body.date) {
       // Need to pass in zulu string
       body.date = body.date.toISOString()
@@ -38,6 +39,9 @@ export class ApiEndpointService {
     }
     if (body && body.close_date) {
       body.close_date = body.close_date.toISOString()
+    }
+    if (body && body.rate) {
+      body.rate = body.rate.toString()
     }
     // We're not supporting web app mode right now, so it will always be using webview
     // if (!environment.useWebview) {

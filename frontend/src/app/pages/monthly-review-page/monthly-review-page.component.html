@@ -93,8 +93,29 @@
 
         <app-monthly-asset-account-table
             *ngIf="selectedMonthInfo != undefined"
+            [assetAccounts]="selectedAssetAccounts"
             [monthAssetAccountEntries]="selectedMonthAssetAccountEntries"
             [monthInfoId]="selectedMonthInfo.id"
         ></app-monthly-asset-account-table>
+    </mat-tab>
+
+    <mat-tab *ngIf="existsNonUSDCurrencies()">
+        <ng-template mat-tab-label>
+            Exchange Rates&nbsp;<sup>
+                <fa-icon
+                    [icon]="faQuestionCircle"
+                    class="info-icon"
+                    matTooltip="Enter the end-of-month exchange rate between USD and each of the used currencies from this month"
+                    matTooltipPosition="above"
+                ></fa-icon>
+            </sup>
+        </ng-template>
+
+        <app-exchange-rate-table
+            *ngIf="selectedMonthInfo != undefined"
+            [exchangeRates]="selectedExchangeRates"
+            [currencies]="selectedCurrencies"
+            [monthInfoId]="selectedMonthInfo.id"
+        ></app-exchange-rate-table>
     </mat-tab>
 </mat-tab-group>

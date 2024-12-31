@@ -16,6 +16,7 @@ import { MonthInfo } from '../interfaces/month-info';
 import { MonthReflection } from '../interfaces/month-reflection';
 import { MonthCategory } from '../interfaces/month-category';
 import { InvestmentIncome } from '../interfaces/investment-income';
+import { ExchangeRate } from '../interfaces/exchange-rate';
 
 
 @Injectable({
@@ -47,13 +48,18 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
     return object
   }
 
+  convertCustomComponent(object: any): any {
+    // Need to override where necessary
+    return object
+  }
+
   getObjectsWithParams(params: any): Observable<T[]> {
       // return this.http.get<T[]>(this.apiUrl, {params: params})
       return this.sendRequest<T[]>("GET", this.apiUrl, params)
                 .pipe(
                   map(objects => {
                     objects.forEach(object => {
-                      return this.convertDateIfComponent(object);
+                      return this.convertCustomComponent(this.convertDateIfComponent(object));
                     })
                     return objects;
                   })
@@ -64,7 +70,7 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
       // return this.http.post<T>(this.apiUrl, object, this.httpOptions).pipe(
       return this.sendRequest<T>("POST", this.apiUrl, undefined, object).pipe(
           map(newObject => {
-            return this.convertDateIfComponent(newObject);
+            return this.convertCustomComponent(this.convertDateIfComponent(newObject));
           }),
           tap((newObject: T) => console.log(`added ${this.paramType} with id=${newObject.id}`)),
           catchError(this.handleError<T>('addObject'))
@@ -75,7 +81,7 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
       // return this.http.put<T>(this.apiUrl, object, this.httpOptions).pipe(
       return this.sendRequest<T>("PUT", this.apiUrl, undefined, object).pipe(
           map(updatedObject => {
-            return this.convertDateIfComponent(updatedObject);
+            return this.convertCustomComponent(this.convertDateIfComponent(updatedObject));
           }),
           tap((updatedObject: T) => console.log(`updated ${this.paramType} with id=${updatedObject.id}`)),
           catchError(this.handleError<T>('updateObject'))
@@ -89,7 +95,7 @@ class ApiObjectService<T extends {id: number}> extends ApiEndpointService {
     // return this.http.delete<T>(this.apiUrl, this.httpOptions).pipe(
     return this.sendRequest<T>("DELETE", this.apiUrl, params, object).pipe(
       map(removedObject => {
-          return this.convertDateIfComponent(removedObject);
+          return this.convertCustomComponent(this.convertDateIfComponent(removedObject));
         }),
       tap((removedObject: T) => console.log(`removed ${this.paramType} with id=${removedObject.id}`)),
       catchError(this.handleError<T>('deleteObject'))
@@ -205,5 +211,14 @@ export class MonthCategoryService extends ApiObjectService<MonthCategory> {
 export class MonthAssetAccountEntryService extends ApiObjectService<MonthAssetAccountEntry> {
     constructor (protected http: HttpClient) {
         super(http, 'month-asset-account-entry', 'month-asset account relation');
+    }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ExchangeRateService extends ApiObjectService<ExchangeRate> {
+    constructor (protected http: HttpClient) {
+        super(http, 'exchange-rate', 'exchange rate');
     }
 }

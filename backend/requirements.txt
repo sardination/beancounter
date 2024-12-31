@@ -12,8 +12,10 @@ bottle==0.13.2
 bs4==0.0.1
 cachetools==4.2.1
 certifi==2020.12.5
+cffi==1.17.1
 chardet==4.0.0
 click==8.1.7
+clr_loader==0.2.7.post0
 cssselect==1.1.0
 decorator==4.4.2
 exceptiongroup==1.2.2
@@ -24,6 +26,7 @@ Flask-Migrate==2.5.3
 Flask-RESTful==0.3.10
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.4
+future==0.18.2
 google-auth==1.24.0
 greenlet==3.1.1
 h11==0.14.0
@@ -49,6 +52,7 @@ modulegraph==0.19.6
 packaging==20.8
 parse==1.19.0
 parso==0.8.1
+pefile==2019.4.18
 pexpect==4.8.0
 pickleshare==0.7.5
 pip-review==1.1.0
@@ -60,6 +64,7 @@ py2app==0.28.8
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycairo==1.21.0
+pycparser==2.20
 pyee==8.1.0
 Pygments==2.7.4
 PyGObject==3.42.0
@@ -229,16 +234,20 @@ PyQtWebEngine-Qt5==5.15.15
 pyquery==1.4.3
 python-dateutil==2.8.1
 python-editor==1.0.4
+pythonnet==3.0.1
 pytz==2020.5
 -e git+ssh://git@github.com/sardination/pywebview.git@ba0880cf74334af6ec21670bec8cea6de4cdff5b#egg=pywebview
+pywin32-ctypes==0.2.0
 QtPy==2.0.1
 requests==2.25.1
 rfc3986==1.4.0
 rsa==4.7
+simplejson==3.19.3
 six==1.15.0
 sniffio==1.2.0
 soupsieve==2.1
 SQLAlchemy==1.3.18
+sqlparse==0.3.0
 tk==0.1.0
 tornado==6.1
 tqdm==4.56.0

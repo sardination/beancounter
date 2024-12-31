@@ -48,6 +48,7 @@ import { FIProjectionPageComponent } from './pages/fi-projection-page/fi-project
 import { NetWorthPageComponent } from './pages/net-worth-page/net-worth-page.component';
 import { PageDirective } from './pages/page.directive';
 import { CurrencySelectorComponent } from './currency/currency-selector/currency-selector.component';
+import { ExchangeRateTableComponent } from './exchange-rate-table/exchange-rate-table.component';
 
 @NgModule({
     declarations: [
@@ -80,6 +81,7 @@ import { CurrencySelectorComponent } from './currency/currency-selector/currency
         NetWorthPageComponent,
         PageDirective,
         CurrencySelectorComponent,
+        ExchangeRateTableComponent,
     ],
     imports: [
         BrowserModule,

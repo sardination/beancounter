@@ -7,6 +7,7 @@ from flask_restful import (
 from sqlalchemy import (
     desc,
     exc,
+    func,
     or_,
 )
 
@@ -18,6 +19,7 @@ from models import (
     AssetAccount,
     BalanceSheetEntry,
     Config,
+    ExchangeRate,
     Info,
     InvestmentIncome,
     MonthAssetAccountEntry,
@@ -33,6 +35,7 @@ from schemas import (
     AssetAccountSchema,
     BalanceSheetEntrySchema,
     ConfigSchema,
+    ExchangeRateSchema,
     InfoSchema,
     InvestmentIncomeSchema,
     MonthAssetAccountEntrySchema,
@@ -579,6 +582,66 @@ class MonthInfoResource(Resource):
 
         return try_commit(month_info, month_info_schema)
 
+exchange_rates_schema = ExchangeRateSchema(many=True)
+exchange_rate_schema = ExchangeRateSchema()
+@api.resource("/exchange-rate")
+class ExchangeRateResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            return abort(400, description='Month info id is not valid')
+
+        exchange_rates = ExchangeRate.query.filter_by(**filter_kwargs).all()
+        return exchange_rates_schema.dump(exchange_rates)
+
+    def post(self):
+        request_dict = exchange_rate_schema.load(request.json)
+
+        month_info_id = request_dict['month_info_id']
+        currency = request_dict['currency']
+        rate = request_dict['rate']
+
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
+
+        new_exchange_rate = ExchangeRate(
+            month_info_id=month_info_id,
+            currency=currency,
+            rate=rate,
+        )
+        db.session.add(new_exchange_rate)
+
+        return try_commit(new_exchange_rate, exchange_rate_schema)
+
+    def put(self):
+        request_dict = exchange_rate_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for exchange rate')
+        month_info_id = request_dict['month_info_id']
+        currency = request_dict['currency']
+        rate = request_dict['rate']
+
+        exchange_rate = ExchangeRate.query.filter_by(id=id).first_or_404()
+
+        if exchange_rate.month_info_id != month_info_id:
+            return abort(400, description='Cannot change month info for exchange rate')
+
+        if exchange_rate.currency != currency:
+            return abort(400, description='Cannot change currency for exchange rate')
+
+        exchange_rate.rate = rate
+
+        return try_commit(exchange_rate, exchange_rate_schema)
+
 
 month_categories_schema = MonthCategorySchema(many=True)
 month_category_schema = MonthCategorySchema()
@@ -697,7 +760,7 @@ class InvestmentIncomeResource(Resource):
 
         month_total = total_investment_income_query = InvestmentIncome.query.with_entities(
             func.sum(InvestmentIncome.value).label('income_total')
-        ).filter_by(month_info_id=month_info_id).first()
+        ).filter_by(month_info_id=month_info_id).first().income_total
         month_info.investment_income = month_total if month_total is not None else 0
 
         return try_commit(new_investment_income, investment_income_schema)
@@ -737,11 +800,11 @@ class InvestmentIncomeResource(Resource):
 
         # update old month info investment income total
         old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
-        old_month_total = total_investment_income_query.filter_by(month_info_id=old_month_info.id).first()
+        old_month_total = total_investment_income_query.filter_by(month_info_id=old_month_info.id).first().income_total
         old_month_info.investment_income = old_month_total if old_month_total is not None else 0
 
         # update new month info investment income total
-        new_month_total = total_investment_income_query.filter_by(month_info_id=month_info.id).first()
+        new_month_total = total_investment_income_query.filter_by(month_info_id=month_info.id).first().income_total
         month_info.investment_income = new_month_total if new_month_total is not None else 0
 
         return try_commit(investment_income, investment_income_schema)
@@ -772,18 +835,6 @@ class MonthAssetAccountEntryResource(Resource):
         request_dict = request.args
         month_info_id = request_dict.get('month_info_id')
 
-        # try:
-        #     if (month_info_id == 'latest'):
-        #         # get the latest completed MonthInfo
-        #         month_info_id = MonthInfo.query.filter_by(completed=True).join(MonthAssetAccountEntry).order_by(
-        #             desc(MonthInfo.year),
-        #             desc(MonthInfo.month)
-        #         ).limit(1).all()[0].id
-        #     else:
-        #         month_info_id = int(month_info_id)
-        #     filter_kwargs['month_info_id'] = month_info_id
-        # except (IndexError, TypeError, ValueError):
-        #     pass
         try:
             month_info_id = int(month_info_id)
             filter_kwargs['month_info_id'] = month_info_id
@@ -834,8 +885,13 @@ class MonthAssetAccountEntryResource(Resource):
         )
         db.session.add(new_month_asset_account_entry)
 
-        month_info.assets += asset_value
-        month_info.liabilities += liability_value
+        # Recalculate asset and liability totals for the corresponding month
+        total_values = MonthAssetAccountEntry.query.with_entities(
+            func.sum(MonthAssetAccountEntry.asset_value).label('asset_total'),
+            func.sum(MonthAssetAccountEntry.liability_value).label('liability_total')
+        ).filter_by(month_info_id=month_info_id).first()
+        month_info.assets = total_values.asset_total if total_values.asset_total is not None else 0
+        month_info.liabilities = total_values.liability_total if total_values.liability_total is not None else 0
 
         return try_commit(new_month_asset_account_entry, month_asset_account_entry_schema)
 
@@ -859,20 +915,21 @@ class MonthAssetAccountEntryResource(Resource):
         if asset_account is None:
             return abort(400, description='Asset account with this id does not exist')
 
-        # remove old value from month-info for old income
+        # Recalculate asset and liability totals for this month
         month_info = MonthInfo.query.filter_by(id=month_info_id).first()
         if month_info is None:
             return abort(400, description='Month info with this id does not exist')
-        month_info.assets -= month_asset_account_entry.asset_value
-        month_info.liabilities -= month_asset_account_entry.liability_value
 
         month_asset_account_entry.asset_account_id = asset_account_id
         month_asset_account_entry.asset_value = asset_value
         month_asset_account_entry.liability_value = liability_value
 
-        # add value back to appropriate month-info
-        month_info.assets += month_asset_account_entry.asset_value
-        month_info.liabilities += month_asset_account_entry.liability_value
+        total_values = MonthAssetAccountEntry.query.with_entities(
+            func.sum(MonthAssetAccountEntry.asset_value).label('asset_total'),
+            func.sum(MonthAssetAccountEntry.liability_value).label('liability_total')
+        ).filter_by(month_info_id=month_info_id).first()
+        month_info.assets = total_values.asset_total if total_values.asset_total is not None else 0
+        month_info.liabilities = total_values.liability_total if total_values.liability_total is not None else 0
 
         return try_commit(month_asset_account_entry, month_asset_account_entry_schema)
 

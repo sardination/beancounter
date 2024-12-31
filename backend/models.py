@@ -5,8 +5,10 @@ from sqlalchemy import  (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy import types
 
 import datetime
+from decimal import Decimal
 
 from db import db
 from enums import (
@@ -15,6 +17,24 @@ from enums import (
     InvestmentIncomeType,
     TransactionType,
 )
+
+# -- CUSTOM TYPES --
+
+class SqliteNumeric(types.TypeDecorator):
+    impl = types.String
+
+    def load_dialect_impl(self, dialect):
+        return dialect.type_descriptor(types.VARCHAR(100))
+
+    def process_bind_param(self, value, dialect):
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return Decimal(value)
+
+# -- END CUSTOM TYPES --
 
 
 class Config(db.Model):
@@ -189,7 +209,7 @@ class ExchangeRate(db.Model):
     month_info = relationship("MonthInfo")
 
     currency = db.Column(db.String(3), nullable=False)
-    rate = db.Column(db.Numeric(14,6), nullable=False) # How much of this currency = 1 USD
+    rate = db.Column(SqliteNumeric(14,6), nullable=False) # How much of this currency = 1 USD
 
     __table_args__ = (UniqueConstraint('month_info_id', 'currency', name='_month_currency_uc'),)
 

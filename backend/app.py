@@ -6,6 +6,8 @@ from flask_cors import CORS
 from flask_migrate import Migrate, upgrade
 from flask_restful import Api
 
+import simplejson as json
+
 import datetime
 
 from api import api

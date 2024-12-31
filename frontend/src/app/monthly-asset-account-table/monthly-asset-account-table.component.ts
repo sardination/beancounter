@@ -4,10 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { UntypedFormControl } from '@angular/forms';
 import { faEdit, faCheck, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
-import {
-  AssetAccountService,
-  MonthAssetAccountEntryService
-} from '../services/api-object.service';
+import { MonthAssetAccountEntryService } from '../services/api-object.service';
 
 import { getCurrencySymbol } from '../currency/utils'
 
@@ -34,18 +31,30 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
     this.fillMap();
   }
   private _monthAssetAccountEntries: MonthAssetAccountEntry[];
-  editingAccount: AssetAccount;
+
+  @Input()
+  get assetAccounts(): AssetAccount[] { return this._assetAccounts };
+  set assetAccounts(assetAccounts: AssetAccount[]) {
+    this._assetAccounts = assetAccounts;
+    this.fillMap();
+    if (!this.tableDataSource) {
+      this.tableDataSource = new MatTableDataSource<AssetAccount>(this._assetAccounts)
+    } else {
+      this.tableDataSource.data = this._assetAccounts;
+    }
+  }
+  private _assetAccounts: AssetAccount[];
 
   @Input()
   get monthInfoId(): number { return this._monthInfoId };
   set monthInfoId(monthInfoId: number) {
       this.cancelEditAccountEntry();
       this._monthInfoId = monthInfoId;
-      this.getAssetAccounts();
+      this.fillMap()
   }
   private _monthInfoId: number;
 
-  assetAccounts: AssetAccount[];
+  editingAccount: AssetAccount;
   assetAccountToEntryMap: Map<number, MonthAssetAccountEntry> = new Map<number, MonthAssetAccountEntry>();
 
   tableDataSource: MatTableDataSource<AssetAccount>;
@@ -55,29 +64,13 @@ export class MonthlyAssetAccountTableComponent implements OnInit {
   editingLiabilityValue: UntypedFormControl;
 
   constructor(
-    private assetAccountService: AssetAccountService,
     private monthAssetAccountEntryService: MonthAssetAccountEntryService
   ) { }
 
   ngOnInit(): void { }
 
-  getAssetAccounts(): void {
-    this.assetAccountService.getObjectsWithParams({'month_info_id': this.monthInfoId})
-        .subscribe(assetAccountList => {
-            this.assetAccounts = assetAccountList;
-            this.fillMap();
-
-            if (!this.tableDataSource) {
-              this.tableDataSource = new MatTableDataSource<AssetAccount>(this.assetAccounts);
-            } else {
-              this.tableDataSource.data = this.assetAccounts;
-              this.tableDataSource._updateChangeSubscription();
-            }
-        })
-  }
-
   fillMap(): void {
-      if (this.monthAssetAccountEntries == undefined || this.assetAccounts == undefined) {
+      if (this.monthAssetAccountEntries == undefined || this.assetAccounts == undefined || this.monthInfoId == undefined) {
         return;
       }
 
