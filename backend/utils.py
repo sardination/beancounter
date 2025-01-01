@@ -201,7 +201,7 @@ def backup_database(config):
 
     # If there are more than 3 files in the backups directory, delete the earliest N-3 files
     MAX_BACKUP_COUNT = 3
-    backup_list = os.listdir(backup_folder_path)
+    backup_list = list(filter(lambda x: x[-3:] == ".db", os.listdir(backup_folder_path)))
     if len(backup_list) > MAX_BACKUP_COUNT:
         timestamp_backup_map = {}
         for backup_filename in backup_list:
