@@ -142,7 +142,6 @@ export class AddAssetAccountDialog {
   ngOnInit() {
     this.currencyFormControl = new UntypedFormControl(this.data.currency)
     this.currencyFormControl.valueChanges.subscribe(value => {
-      console.log(value)
       this.data.currency = value
     })
   }

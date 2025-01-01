@@ -25,13 +25,16 @@
         <app-monthly-reflection
             [monthInfo]="selectedMonthInfo"
             (updateMonthInfo)="updateMonthInfoAndCategories()"
+            [disableSaveButton]="!allExchangeRatesSet()"
+            [disableSaveMessage]="'All exchange rates must be set before saving!'"
         ></app-monthly-reflection>
         <br />
         <hr />
     </div>
 
     <app-category-totals
-        [transactions]="selectedTransactions"
+        [exchangeRates]="selectedExchangeRates"
+        [transactions]="selectedExpenditures"
         [categories]="transactionCategories"
         [monthCategories]="monthCategories"
         [selectedMonthInfo]="selectedMonthInfo"
@@ -54,7 +57,7 @@
         </ng-template>
 
         <app-monthly-tabulation
-            [transactions]="selectedTransactions"
+            [transactions]="selectedExpenditures"
             [categories]="transactionCategories">
         </app-monthly-tabulation>
     </mat-tab>
@@ -99,7 +102,7 @@
         ></app-monthly-asset-account-table>
     </mat-tab>
 
-    <mat-tab *ngIf="existsNonUSDCurrencies()">
+    <mat-tab *ngIf="existsNonUSDCurrencies()" [labelClass]="allExchangeRatesSet() ? '' : 'warning-tab'">
         <ng-template mat-tab-label>
             Exchange Rates&nbsp;<sup>
                 <fa-icon
@@ -116,6 +119,7 @@
             [exchangeRates]="selectedExchangeRates"
             [currencies]="selectedCurrencies"
             [monthInfoId]="selectedMonthInfo.id"
+            (updateExchangeRates)="setSelectedExchangeRates($event)"
         ></app-exchange-rate-table>
     </mat-tab>
 </mat-tab-group>

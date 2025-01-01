@@ -63,6 +63,7 @@ export class MonthlyReviewPageComponent implements OnInit {
 
    selectedMonthInfo: MonthInfo;
    selectedTransactions: Transaction[] = [];
+   selectedExpenditures: Transaction[] = [];
    selectedInvestmentIncomes: InvestmentIncome[] = [];
    selectedMonthAssetAccountEntries: MonthAssetAccountEntry[] = [];
    selectedAssetAccounts: AssetAccount[] = [];
@@ -110,6 +111,19 @@ export class MonthlyReviewPageComponent implements OnInit {
     return this.selectedCurrencies.length > 0
   }
 
+  allExchangeRatesSet(): boolean {
+    var exchangeRateMap = new Map<string, number>()
+    this.selectedExchangeRates.forEach(exchangeRate => {
+      exchangeRateMap.set(exchangeRate.currency, exchangeRate.rate)
+    })
+    for (var i = 0; i < this.selectedCurrencies.length; i++) {
+      if (!exchangeRateMap.get(this.selectedCurrencies[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   setStartDate(): void {
       this.infoService.getInfo("start_date")
           .subscribe(info => {
@@ -121,7 +135,8 @@ export class MonthlyReviewPageComponent implements OnInit {
       // TODO: should we only be getting the transactions for that month?
       this.transactionService.getObjects()
           .subscribe(transactions => {
-              this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
+              this.transactions = transactions;
+              // this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
               if (this.selectedMonthInfo !== undefined) {
                   this.getTransactionsByMonth(
                       this.selectedMonthInfo.year,
@@ -146,6 +161,9 @@ export class MonthlyReviewPageComponent implements OnInit {
   getTransactionsByMonth(year: number, month: number): void {
       this.selectedTransactions = this.transactions.filter(transaction => {
           return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
+      )
+      this.selectedExpenditures = this.selectedTransactions.filter(
+        transaction => transaction.transaction_type == "expenditure"
       )
       this.getSelectedCurrencies()
   }
@@ -182,6 +200,10 @@ export class MonthlyReviewPageComponent implements OnInit {
         .subscribe(exchangeRateList => {
           this.selectedExchangeRates = exchangeRateList
         })
+  }
+
+  setSelectedExchangeRates(exchangeRates: ExchangeRate[]): void {
+    this.selectedExchangeRates = [].concat(exchangeRates)
   }
 
   getSelectedCurrencies(): void {

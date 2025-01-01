@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { UntypedFormControl } from '@angular/forms';
@@ -17,6 +17,9 @@ export class ExchangeRateTableComponent implements OnInit {
   faEdit = faEdit;
   faCheck = faCheck;
   faQuestionCircle = faQuestionCircle;
+
+  @Output()
+  updateExchangeRates = new EventEmitter<ExchangeRate[]>();
 
   @Input()
   get currencies(): string[] { return this._currencies };
@@ -139,8 +142,6 @@ export class ExchangeRateTableComponent implements OnInit {
       this.updateEditingExchangeRateFromFormControls();
       var exchangeRate = this.exchangeRateFromCurrency(this.editingCurrency);
 
-      console.log(exchangeRate)
-
       if (!exchangeRate.id) {
         this.exchangeRateService.addObject(exchangeRate)
             .subscribe(newExchangeRate => {
@@ -148,6 +149,8 @@ export class ExchangeRateTableComponent implements OnInit {
                 this.exchangeRates = this.exchangeRates;
                 this.tableDataSource.data = this.currencies;
                 this.editingCurrency = null;
+
+                this.updateExchangeRates.emit(this.exchangeRates);
             })
       } else {
         this.exchangeRateService.updateObject(exchangeRate)
@@ -156,6 +159,8 @@ export class ExchangeRateTableComponent implements OnInit {
                 this.exchangeRates = this.exchangeRates;
                 this.tableDataSource.data = this.currencies;
                 this.editingCurrency = null;
+
+                this.updateExchangeRates.emit(this.exchangeRates);
             })
       }
 

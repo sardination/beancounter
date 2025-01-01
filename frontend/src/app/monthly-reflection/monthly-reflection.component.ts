@@ -22,6 +22,11 @@ export class MonthlyReflectionComponent implements OnInit {
   @Output() updateMonthInfo = new EventEmitter();
 
   @Input()
+  disableSaveButton: boolean = false;
+  @Input()
+  disableSaveMessage: string = '';
+
+  @Input()
   get monthInfo(): MonthInfo {return this._monthInfo;}
   set monthInfo(monthInfo: MonthInfo) {
       let oldMonthInfo = this._monthInfo;

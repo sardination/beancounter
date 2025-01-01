@@ -89,6 +89,12 @@ button.add:hover {
     color: #ffffff;
 }
 
+button.add:disabled {
+    background-color: red;
+    color: #ffffff;
+    cursor: default;
+}
+
 button.add-single:hover {
     color: #6aa84f;
 }
@@ -146,4 +152,8 @@ button.add-single:hover {
 
 .asterisk-notice {
   color: red;
+}
+
+.warning-tab {
+    background-color: red;
 }

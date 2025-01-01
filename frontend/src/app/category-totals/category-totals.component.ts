@@ -7,6 +7,7 @@ import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
 import { MonthCategory } from '../interfaces/month-category';
 import { MonthInfo } from '../interfaces/month-info';
+import { ExchangeRate } from '../interfaces/exchange-rate';
 
 import {
     MonthCategoryService,
@@ -58,6 +59,18 @@ export class CategoryTotalsComponent implements OnInit {
     'neutral': faCheck
   }
 
+  @Input()
+  get exchangeRates(): ExchangeRate[] { return this._exchangeRates };
+  set exchangeRates(exchangeRates: ExchangeRate[]) {
+    this._exchangeRates = exchangeRates;
+    this.exchangeRateMap = new Map<string, number>()
+    this._exchangeRates.forEach(exchangeRate => {
+      this.exchangeRateMap.set(exchangeRate.currency, exchangeRate.rate)
+    })
+  }
+  private _exchangeRates: ExchangeRate[];
+  exchangeRateMap: Map<string, number>;
+
   constructor(private transactionCategoryService: TransactionCategoryService,
               private monthCategoryService: MonthCategoryService,
               private infoService: InfoService) { }
@@ -74,6 +87,21 @@ export class CategoryTotalsComponent implements OnInit {
   //         })
   // }
 
+  categoryTotalInaccurate(category: TransactionCategory): boolean {
+    // Return true if we have calculated a total excluding values due to an unset exchange rate
+    var useTransactions;
+    if (!category.id) {
+        useTransactions = this.transactions.filter(transaction => !transaction.category_id);
+    } else {
+        useTransactions = this.transactions.filter(transaction => transaction.category_id == category.id);
+    }
+    for (var i = 0; i < useTransactions.length; i++) {
+      var transaction = useTransactions[i]
+      if (transaction.currency != "USD" && !this.exchangeRateMap.get(transaction.currency)) return true;
+    }
+    return false
+  }
+
   categoryTotal(category: TransactionCategory): number {
       var useTransactions;
       if (!category.id) {
@@ -81,11 +109,14 @@ export class CategoryTotalsComponent implements OnInit {
       } else {
           useTransactions = this.transactions.filter(transaction => transaction.category_id == category.id);
       }
-      return useTransactions.reduce((sum, current) => {return sum + current.value}, 0);
-      // return useTransactions
-      //            .reduce((sum, current) => {
-      //                return (current.transaction_type == "income") ? (sum + current.value) : (sum - current.value);
-      //            }, 0)
+      return useTransactions.reduce(
+        (sum, current) => {
+          let rate = this.exchangeRateMap.get(current.currency);
+          if (!rate) return sum; // Don't add the value if the currency is not set
+          return sum + current.value / rate
+        },
+        0
+      );
   }
 
   addCategory(categoryName: string): void {

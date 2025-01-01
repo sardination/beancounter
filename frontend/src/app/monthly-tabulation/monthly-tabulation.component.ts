@@ -59,7 +59,7 @@ export class MonthlyTabulationComponent implements OnInit {
   updateTransactionCategory(transaction: Transaction, categoryID: number): void {
       transaction.category_id = categoryID;
       this.transactionService.updateObject(transaction)
-          .subscribe(newTransaction => Object.assign(transaction,newTransaction));
+          .subscribe(newTransaction => Object.assign(transaction, newTransaction));
   }
 
 }

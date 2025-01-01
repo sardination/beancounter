@@ -22,4 +22,10 @@
     <textarea matInput [formControl]="livingDyingEntry"></textarea>
 </mat-form-field>
 <br />
-<button mat-button class="add" (click)="saveReflection()">Save Responses</button>
+<button
+    [disabled]="disableSaveButton"
+    [matTooltip]="disableSaveButton ? disableSaveMessage : ''"
+    matTooltipPosition="above"
+    mat-button class="add"
+    (click)="saveReflection()"
+>Save Responses</button>
