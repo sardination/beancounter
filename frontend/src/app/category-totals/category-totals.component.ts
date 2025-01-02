@@ -64,6 +64,7 @@ export class CategoryTotalsComponent implements OnInit {
   set exchangeRates(exchangeRates: ExchangeRate[]) {
     this._exchangeRates = exchangeRates;
     this.exchangeRateMap = new Map<string, number>()
+    this.exchangeRateMap.set('USD', 1.0)
     this._exchangeRates.forEach(exchangeRate => {
       this.exchangeRateMap.set(exchangeRate.currency, exchangeRate.rate)
     })
@@ -97,7 +98,7 @@ export class CategoryTotalsComponent implements OnInit {
     }
     for (var i = 0; i < useTransactions.length; i++) {
       var transaction = useTransactions[i]
-      if (transaction.currency != "USD" && !this.exchangeRateMap.get(transaction.currency)) return true;
+      if (!this.exchangeRateMap.get(transaction.currency)) return true;
     }
     return false
   }
