@@ -2,7 +2,7 @@ import os
 import py2app
 import shutil
 
-from distutils.core import setup
+from setuptools import setup
 
 def tree(src):
     return [(root, [os.path.join(root, f) for f in files])
@@ -22,9 +22,10 @@ DATA_FILES.extend(tree('backend/migrations')) # alembic migrations
 
 OPTIONS = {
     'argv_emulation': False,
+    'argv_inject': ['-p'],
     'strip': True,
     'iconfile': 'assets/logo.icns',
-    'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn'],
+    'includes': ['WebKit', 'Foundation', 'webview'],
     'excludes': ['psycopg2']
 }
 

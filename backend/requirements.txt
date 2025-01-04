@@ -60,7 +60,7 @@ prompt-toolkit==3.0.10
 proxy-tools==0.1.0
 psycopg2-binary==2.8.6
 ptyprocess==0.7.0
-py2app==0.28.8
+py2app==0.23
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycairo==1.21.0
@@ -236,7 +236,7 @@ python-dateutil==2.8.1
 python-editor==1.0.4
 pythonnet==3.0.1
 pytz==2020.5
--e git+ssh://git@github.com/sardination/pywebview.git@ba0880cf74334af6ec21670bec8cea6de4cdff5b#egg=pywebview
+pywebview==4.4.1
 pywin32-ctypes==0.2.0
 QtPy==2.0.1
 requests==2.25.1

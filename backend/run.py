@@ -1,4 +1,3 @@
-# from datetime import datetime
 from httpx import Client, Response, WSGITransport
 import getopt
 import json
