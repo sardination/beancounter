@@ -2,7 +2,6 @@ import {
   Component,
   Input,
   OnInit,
-  AfterViewInit,
   ViewChild,
   ComponentFactoryResolver,
   isDevMode,
@@ -24,7 +23,7 @@ import { environment } from '../environments/environment';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   title: string = 'Bean Counter';
   version: string = 'DEV';
   currentPath: string = "/";

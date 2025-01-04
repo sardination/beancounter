@@ -2,7 +2,7 @@ import os
 import py2app
 import shutil
 
-from setuptools import setup
+from distutils.core import setup
 
 def tree(src):
     return [(root, [os.path.join(root, f) for f in files])
@@ -26,7 +26,8 @@ OPTIONS = {
     'strip': True,
     'iconfile': 'assets/logo.icns',
     'includes': ['WebKit', 'Foundation', 'webview'],
-    'excludes': ['psycopg2']
+    'excludes': ['psycopg2'],
+    'plist': {'CFBundleShortVersionString':'1.1.0'}
 }
 
 setup(
