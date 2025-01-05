@@ -13,6 +13,11 @@
             <textarea matInput [(ngModel)]="data.description"></textarea>
         </mat-form-field>
     </div>
+
+    <div>
+        <app-currency-selector [useFormControl]="currencyFormControl">
+        </app-currency-selector>
+    </div>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()" class="button-red">Cancel</button>

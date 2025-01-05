@@ -25,13 +25,16 @@
         <app-monthly-reflection
             [monthInfo]="selectedMonthInfo"
             (updateMonthInfo)="updateMonthInfoAndCategories()"
+            [disableSaveButton]="!allExchangeRatesSet()"
+            [disableSaveMessage]="'All exchange rates must be set before saving!'"
         ></app-monthly-reflection>
         <br />
         <hr />
     </div>
 
     <app-category-totals
-        [transactions]="selectedTransactions"
+        [exchangeRates]="selectedExchangeRates"
+        [transactions]="selectedExpenditures"
         [categories]="transactionCategories"
         [monthCategories]="monthCategories"
         [selectedMonthInfo]="selectedMonthInfo"
@@ -54,7 +57,7 @@
         </ng-template>
 
         <app-monthly-tabulation
-            [transactions]="selectedTransactions"
+            [transactions]="selectedExpenditures"
             [categories]="transactionCategories">
         </app-monthly-tabulation>
     </mat-tab>
@@ -93,8 +96,30 @@
 
         <app-monthly-asset-account-table
             *ngIf="selectedMonthInfo != undefined"
+            [assetAccounts]="selectedAssetAccounts"
             [monthAssetAccountEntries]="selectedMonthAssetAccountEntries"
             [monthInfoId]="selectedMonthInfo.id"
         ></app-monthly-asset-account-table>
+    </mat-tab>
+
+    <mat-tab *ngIf="existsNonUSDCurrencies()" [labelClass]="allExchangeRatesSet() ? '' : 'warning-tab'">
+        <ng-template mat-tab-label>
+            Exchange Rates&nbsp;<sup>
+                <fa-icon
+                    [icon]="faQuestionCircle"
+                    class="info-icon"
+                    matTooltip="Enter the end-of-month exchange rate between USD and each of the used currencies from this month"
+                    matTooltipPosition="above"
+                ></fa-icon>
+            </sup>
+        </ng-template>
+
+        <app-exchange-rate-table
+            *ngIf="selectedMonthInfo != undefined"
+            [exchangeRates]="selectedExchangeRates"
+            [currencies]="selectedCurrencies"
+            [monthInfoId]="selectedMonthInfo.id"
+            (updateExchangeRates)="setSelectedExchangeRates($event)"
+        ></app-exchange-rate-table>
     </mat-tab>
 </mat-tab-group>

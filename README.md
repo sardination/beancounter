@@ -13,9 +13,12 @@ I made this as a side project to keep track of my own finances following these p
 * Method 1 (develop in browser):
     * In `frontend/`, run `ng serve`
     * In `backend/`, run `python manage.py runserver` and navigate to http://localhost:4200/
-* Method 2 (develop in app):
+* Method 2.a (develop in app with built frontend):
     * In `frontend/` run `npm run build:dev`
-    * Run `python run.py -d` to launch the pywebview application in dev mode
+    * Run `python run.py` to launch the pywebview application in dev mode
+* Method 2.b (develop in app with live frontend):
+    * In `frontend/` run `ng serve`
+    * Run `python run.py -s` to launch the pywebview application in dev mode
 
 
 ## Build Notes
@@ -26,8 +29,9 @@ I made this as a side project to keep track of my own finances following these p
 
 ## Notes on updating `pywebview`
 * Clone your fork of [`pywebview`](https://github.com/r0x0r/pywebview) into any folder (does not have to be a subdirectory of this repo)
-* When testing your changes to `pywebview` on this application, first run `pip install <path-to-local-pywebview>`
+* When testing your changes to `pywebview` on this application, first run `pip install -e <path-to-local-pywebview>`
 * If your changes to `pywebview` have not been merged upstream on the parent repo, then update pip package path to `pip install git@github:<username>/pywebview.git` to use the path to your forked repo with the changes you want.
+* When packaging with `py2app`, you cannot use an editing version of `pywebview`. If editing using `pip install -e`, first `pip uninstall pywebview` and then reinstall without the `-e` option.
 
 
 ## App and database upgrade

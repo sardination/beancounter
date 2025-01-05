@@ -11,6 +11,8 @@ import { faChevronCircleLeft, faChevronCircleRight, faQuestionCircle } from '@fo
 import * as moment from 'moment';
 
 import {
+    AssetAccountService,
+    ExchangeRateService,
     InvestmentIncomeService,
     MonthAssetAccountEntryService,
     MonthCategoryService,
@@ -26,6 +28,8 @@ import { MonthAssetAccountEntry } from '../../interfaces/month-asset-account-ent
 import { MonthCategory } from '../../interfaces/month-category';
 import { MonthInfo } from '../../interfaces/month-info';
 import { InvestmentIncome } from '../../interfaces/investment-income';
+import { AssetAccount } from '../../interfaces/asset-account';
+import { ExchangeRate } from '../../interfaces/exchange-rate';
 
 export const YEARMONTH_FORMATS = {
   parse: {
@@ -54,14 +58,17 @@ export class MonthlyReviewPageComponent implements OnInit {
   faQuestionCircle = faQuestionCircle;
 
    transactions: Transaction[] = [];
-   // investmentIncomes: InvestmentIncome[] = [];
 
    normalizedSelectedDate = new UntypedFormControl(moment());
 
    selectedMonthInfo: MonthInfo;
    selectedTransactions: Transaction[] = [];
+   selectedExpenditures: Transaction[] = [];
    selectedInvestmentIncomes: InvestmentIncome[] = [];
    selectedMonthAssetAccountEntries: MonthAssetAccountEntry[] = [];
+   selectedAssetAccounts: AssetAccount[] = [];
+   selectedExchangeRates: ExchangeRate[] = [];
+   selectedCurrencies: string[] = [];
 
    get transactionCategories(): TransactionCategory[] {
        return this._transactionCategories;
@@ -71,21 +78,6 @@ export class MonthlyReviewPageComponent implements OnInit {
    }
    private _transactionCategories = [];
 
-   // NOTE: frontend has month zero-indexed and backend has month one-indexed
-   // months = [
-   //   "January",
-   //   "February",
-   //   "March",
-   //   "April",
-   //   "May",
-   //   "June",
-   //   "July",
-   //   "August",
-   //   "September",
-   //   "October",
-   //   "November",
-   //   "December"
-   // ]
    startDate: Date = new Date();
    todayDate: Date = new Date();
    selectedYear: number;
@@ -95,24 +87,6 @@ export class MonthlyReviewPageComponent implements OnInit {
    // key category_id, value month-category
    monthCategories: Map<number, MonthCategory> = new Map<number, MonthCategory>();
 
-   // dateClass: MatCalendarCellClassFunction<Moment> = (cellDate, view) => {
-   //    // highlight any months or years with months that are not complete
-   //    const year = cellDate.year();
-   //    const month = cellDate.month();
-
-   //    // Highlight dates in the past that are not complete
-   //    return (
-   //      !this.selectedMonthInfo.completed &&
-   //      (this.todayDate.getFullYear() > this.selectedMonthInfo.year ||
-   //       (this.todayDate.getFullYear() == this.selectedMonthInfo.year &&
-   //        this.todayDate.getMonth() > this.selectedMonthInfo.month
-   //       )
-   //      )
-   //    ) ? 'unfinished-month' : '';
-
-   //    return '';
-   //  }
-
   constructor(
       private transactionCategoryService: TransactionCategoryService,
       private transactionService: TransactionService,
@@ -120,6 +94,8 @@ export class MonthlyReviewPageComponent implements OnInit {
       private monthCategoryService: MonthCategoryService,
       private monthInfoService: MonthInfoService,
       private investmentIncomeService: InvestmentIncomeService,
+      private assetAccountService: AssetAccountService,
+      private exchangeRateService: ExchangeRateService,
       private infoService: InfoService
    ) { }
 
@@ -127,22 +103,26 @@ export class MonthlyReviewPageComponent implements OnInit {
       this.setStartDate();
       this.selectedMonth = this.todayDate.getMonth();
       this.selectYear(this.todayDate.getFullYear());
-      // this.selectMonth(this.todayDate.getMonth());
       this.getTransactions();
       this.getTransactionCategories();
-      // this.getInvestmentIncomes();
   }
 
-  // showCompleteButton(): boolean {
-  //     if (this.selectedMonthInfo == undefined) return false;
-  //     if (this.monthInProgress()) return false;
-  //     if (!this.selectedMonthInfo.completed) return true;
-  //     return false;
-  // }
+  existsNonUSDCurrencies(): boolean {
+    return this.selectedCurrencies.length > 0
+  }
 
-  // monthInProgress(): boolean {
-  //   return (this.selectedYear == this.todayDate.getFullYear()) && (this.selectedMonth == this.todayDate.getMonth());
-  // }
+  allExchangeRatesSet(): boolean {
+    var exchangeRateMap = new Map<string, number>()
+    this.selectedExchangeRates.forEach(exchangeRate => {
+      exchangeRateMap.set(exchangeRate.currency, exchangeRate.rate)
+    })
+    for (var i = 0; i < this.selectedCurrencies.length; i++) {
+      if (!exchangeRateMap.get(this.selectedCurrencies[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   setStartDate(): void {
       this.infoService.getInfo("start_date")
@@ -152,9 +132,11 @@ export class MonthlyReviewPageComponent implements OnInit {
   }
 
   getTransactions(): void {
+      // TODO: should we only be getting the transactions for that month?
       this.transactionService.getObjects()
           .subscribe(transactions => {
-              this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
+              this.transactions = transactions;
+              // this.transactions = transactions.filter(transaction => transaction.transaction_type == "expenditure");
               if (this.selectedMonthInfo !== undefined) {
                   this.getTransactionsByMonth(
                       this.selectedMonthInfo.year,
@@ -171,17 +153,6 @@ export class MonthlyReviewPageComponent implements OnInit {
           })
   }
 
-  // getInvestmentIncomes(): void {
-  //     this.investmentIncomeService.getObjects()
-  //         .subscribe(investmentIncomes => {
-  //             this.investmentIncomes = investmentIncomes;
-
-  //             if (this.selectedMonthInfo !== undefined) {
-  //                 this.selectedInvestmentIncomes = this.getInvestmentIncomesByMonthInfo();
-  //             }
-  //         })
-  // }
-
   setTransactionCategories(categories: TransactionCategory[]): void {
       this.transactionCategories = categories;
   }
@@ -191,18 +162,19 @@ export class MonthlyReviewPageComponent implements OnInit {
       this.selectedTransactions = this.transactions.filter(transaction => {
           return transaction.date.getMonth() == month && transaction.date.getFullYear() == year}
       )
+      this.selectedExpenditures = this.selectedTransactions.filter(
+        transaction => transaction.transaction_type == "expenditure"
+      )
+      this.getSelectedCurrencies()
   }
 
-  // getInvestmentIncomesByMonthInfo(): InvestmentIncome[] {
   getInvestmentIncomesByMonthInfo(): void {
       if (this.selectedMonthInfo == undefined) return;
       this.investmentIncomeService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
           .subscribe(investmentIncomeList => {
               this.selectedInvestmentIncomes = investmentIncomeList;
+              this.getSelectedCurrencies()
           })
-      // return this.investmentIncomes.filter(investmentIncome => {
-      //     return investmentIncome.month_info_id == this.selectedMonthInfo.id;
-      // })
   }
 
   getAssetAccountEntriesByMonthInfo(): void {
@@ -211,6 +183,40 @@ export class MonthlyReviewPageComponent implements OnInit {
         .subscribe(assetAccountEntryList => {
             this.selectedMonthAssetAccountEntries = assetAccountEntryList;
         })
+  }
+
+  getAssetAccountsByMonthInfo(): void {
+    if (this.selectedMonthInfo == undefined) return;
+    this.assetAccountService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
+        .subscribe(assetAccountList => {
+          this.selectedAssetAccounts = assetAccountList;
+          this.getSelectedCurrencies()
+        })
+  }
+
+  getExchangeRatesByMonthInfo(): void {
+    if (this.selectedMonthInfo == undefined) return;
+    this.exchangeRateService.getObjectsWithParams({'month_info_id': this.selectedMonthInfo.id})
+        .subscribe(exchangeRateList => {
+          this.selectedExchangeRates = exchangeRateList
+        })
+  }
+
+  setSelectedExchangeRates(exchangeRates: ExchangeRate[]): void {
+    this.selectedExchangeRates = [].concat(exchangeRates)
+  }
+
+  getSelectedCurrencies(): void {
+    var selectedCurrencies: string[] = []
+    selectedCurrencies = selectedCurrencies.concat(this.selectedTransactions.map(transaction => transaction.currency))
+    selectedCurrencies = selectedCurrencies.concat(this.selectedAssetAccounts.map(assetAccount => assetAccount.currency))
+    selectedCurrencies = selectedCurrencies.concat(this.selectedInvestmentIncomes.map(investmentIncome => investmentIncome.currency))
+    selectedCurrencies = [...new Set(selectedCurrencies)]
+    const usdIndex = selectedCurrencies.indexOf("USD");
+    if (usdIndex > -1) { // only splice array when item is found
+      selectedCurrencies.splice(usdIndex, 1); // 2nd parameter means remove one item only
+    }
+    this.selectedCurrencies = selectedCurrencies
   }
 
   getMonthCategories(): void {
@@ -402,8 +408,6 @@ export class MonthlyReviewPageComponent implements OnInit {
                 if (!monthInfos[0].completed) {
                   this.selectedMonth = prevMonth;
                   this.selectYear(prevYear);
-                  // this.selectedMonthInfo = monthInfos[0];
-                  // this.updateArrays();
                 }
               }
           })
@@ -411,19 +415,11 @@ export class MonthlyReviewPageComponent implements OnInit {
 
   updateArrays(): void {
       this.getMonthCategories();
-      // this.selectedInvestmentIncomes = this.getInvestmentIncomesByMonthInfo();
       this.getInvestmentIncomesByMonthInfo();
       this.getTransactionsByMonth(this.selectedMonthInfo.year, this.selectedMonthInfo.month);
       this.getAssetAccountEntriesByMonthInfo();
+      this.getAssetAccountsByMonthInfo();
+      this.getExchangeRatesByMonthInfo();
   }
-
-  // markCurrentMonthComplete(): void {
-  //     if (this.selectedMonthInfo == undefined) return;
-  //     this.selectedMonthInfo.completed = true;
-  //     this.monthInfoService.updateObject(this.selectedMonthInfo)
-  //         .subscribe(updatedMonthInfo => {
-  //             this.selectedMonthInfo = updatedMonthInfo;
-  //         })
-  // }
 
 }

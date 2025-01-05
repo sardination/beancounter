@@ -5,4 +5,5 @@ export interface InvestmentIncome {
     value: number;
     description: string;
     date: Date; // optional
+    currency: string;
 }

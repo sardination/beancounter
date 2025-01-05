@@ -4,12 +4,16 @@ import { MatTableDataSource } from '@angular/material/table';
 import { AssetAccount } from '../../interfaces/asset-account';
 import { MonthAssetAccountEntry } from '../../interfaces/month-asset-account-entry';
 
+import { getCurrencySymbol } from '../../currency/utils';
+
 @Component({
   selector: 'app-asset-account-table',
   templateUrl: './asset-account-table.component.html',
   styleUrls: ['./asset-account-table.component.css']
 })
 export class AssetAccountTableComponent implements OnInit {
+
+  getCurrencySymbol = getCurrencySymbol
 
   @Input()
   get latestAssetAccountEntries(): MonthAssetAccountEntry[] { return this._latestAssetAccountEntries; }

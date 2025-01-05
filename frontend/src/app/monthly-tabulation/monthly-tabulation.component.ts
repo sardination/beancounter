@@ -2,6 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 
+import { getCurrencySymbol } from '../currency/utils'
+
 import { Transaction } from '../interfaces/transaction';
 import { TransactionCategory } from '../interfaces/transaction-category';
 
@@ -13,6 +15,8 @@ import { TransactionService } from '../services/api-object.service';
   styleUrls: ['./monthly-tabulation.component.css']
 })
 export class MonthlyTabulationComponent implements OnInit {
+
+  getCurrencySymbol = getCurrencySymbol
 
   @Input()
   get transactions(): Transaction[] { return this._transactions };
@@ -55,7 +59,7 @@ export class MonthlyTabulationComponent implements OnInit {
   updateTransactionCategory(transaction: Transaction, categoryID: number): void {
       transaction.category_id = categoryID;
       this.transactionService.updateObject(transaction)
-          .subscribe(newTransaction => transaction = newTransaction);
+          .subscribe(newTransaction => Object.assign(transaction, newTransaction));
   }
 
 }

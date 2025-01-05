@@ -3,6 +3,7 @@ export interface Transaction {
     transaction_type: 'income' | 'expenditure';
     value: number;
     date: Date;
-    description: string,
+    description: string;
     category_id: number;
+    currency: string;
 }

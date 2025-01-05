@@ -22,10 +22,12 @@ DATA_FILES.extend(tree('backend/migrations')) # alembic migrations
 
 OPTIONS = {
     'argv_emulation': False,
+    'argv_inject': ['-p'],
     'strip': True,
     'iconfile': 'assets/logo.icns',
-    'includes': ['WebKit', 'Foundation', 'webview', 'pkg_resources.py2_warn'],
-    'excludes': ['psycopg2']
+    'includes': ['WebKit', 'Foundation', 'webview'],
+    'excludes': ['psycopg2'],
+    'plist': {'CFBundleShortVersionString':'1.1.0'}
 }
 
 setup(

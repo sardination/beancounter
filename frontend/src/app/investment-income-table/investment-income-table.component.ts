@@ -8,6 +8,8 @@ import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/fr
 
 import { InvestmentIncomeService } from '../services/api-object.service';
 
+import { getCurrencySymbol } from '../currency/utils'
+
 import { InvestmentIncome } from '../interfaces/investment-income';
 import { MonthInfo } from '../interfaces/month-info';
 
@@ -26,6 +28,8 @@ export class InvestmentIncomeTableComponent implements OnInit {
   faTrash = faTrash;
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
+
+  getCurrencySymbol = getCurrencySymbol
 
   @Input()
   get investmentIncomes(): InvestmentIncome[] { return this._investmentIncomes };
@@ -90,6 +94,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
   editingIncomeType: UntypedFormControl;
   editingIncomeValue: UntypedFormControl;
   editingIncomeDescription: UntypedFormControl;
+  editingIncomeCurrency: UntypedFormControl;
 
   constructor(private investmentIncomeService: InvestmentIncomeService) { }
 
@@ -120,6 +125,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
     this.editingIncomeType = new UntypedFormControl("interest");
     this.editingIncomeValue = new UntypedFormControl(0);
     this.editingIncomeDescription = new UntypedFormControl("");
+    this.editingIncomeCurrency = new UntypedFormControl("USD");
   }
 
   setFormControls(income: InvestmentIncome): void {
@@ -131,6 +137,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
     this.editingIncomeType = new UntypedFormControl(income.investment_income_type);
     this.editingIncomeValue = new UntypedFormControl(income.value);
     this.editingIncomeDescription = new UntypedFormControl(income.description);
+    this.editingIncomeCurrency = new UntypedFormControl(income.currency);
   }
 
   addNewEmptyIncome(): void {
@@ -195,7 +202,7 @@ export class InvestmentIncomeTableComponent implements OnInit {
       } else {
         this.investmentIncomeService.updateObject(income)
             .subscribe(updatedIncome => {
-                income = updatedIncome;
+                Object.assign(income, updatedIncome);
                 this.investmentIncomes = this.sortIncomes(this.investmentIncomes);
                 this.tableDataSource.data = this.investmentIncomes;
                 this.editingIncome = null;
@@ -211,13 +218,15 @@ export class InvestmentIncomeTableComponent implements OnInit {
         date: this.editingIncomeDate.value,
         value: this.editingIncomeValue.value,
         investment_income_type: this.editingIncomeType.value,
-        description: this.editingIncomeDescription.value.trim()
+        description: this.editingIncomeDescription.value.trim(),
+        currency: this.editingIncomeCurrency.value
       } as InvestmentIncome;
     } else {
       this.editingIncome.date = this.editingIncomeDate.value;
       this.editingIncome.value = this.editingIncomeValue.value;
       this.editingIncome.investment_income_type = this.editingIncomeType.value;
       this.editingIncome.description = this.editingIncomeDescription.value.trim();
+      this.editingIncome.currency = this.editingIncomeCurrency.value;
     }
   }
 

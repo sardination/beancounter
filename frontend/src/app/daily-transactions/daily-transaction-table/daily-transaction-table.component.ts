@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { faEdit, faCheck, faTrash, faTimes, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import { TransactionService } from '../../services/api-object.service';
+import { getCurrencySymbol } from '../../currency/utils';
 
 import { Transaction } from '../../interfaces/transaction';
 
@@ -22,6 +23,8 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   faTimes = faTimes;
   faPlusSquare = faPlusSquare;
 
+  getCurrencySymbol = getCurrencySymbol
+
   todayDate: Date = new Date();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -34,6 +37,9 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
   get transactions(): Transaction[] { return this._transactions };
   set transactions(transactions: Transaction[]) {
     this._transactions = this.sortTransactions(transactions);
+    if (this._transactions[0]) {
+      this.lastUsedCurrency = this._transactions[0].currency
+    }
     if (!this.tableDataSource) {
       this.tableDataSource = new MatTableDataSource<Transaction>(this._transactions);
     } else {
@@ -52,10 +58,13 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     {key:'expenditure', label:"Expenditure"},
   ]
 
+  lastUsedCurrency = 'USD'
+
   editingTransactionDate: UntypedFormControl;
   editingTransactionType: UntypedFormControl;
   editingTransactionValue: UntypedFormControl;
   editingTransactionDescription: UntypedFormControl;
+  editingTransactionCurrency: UntypedFormControl;
 
   constructor(private transactionService: TransactionService) { }
 
@@ -90,6 +99,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     this.editingTransactionType = new UntypedFormControl("expenditure");
     this.editingTransactionValue = new UntypedFormControl(0);
     this.editingTransactionDescription = new UntypedFormControl("");
+    this.editingTransactionCurrency = new UntypedFormControl(this.lastUsedCurrency);
   }
 
   setFormControls(transaction: Transaction): void {
@@ -101,6 +111,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
     }
     this.editingTransactionValue = new UntypedFormControl(transaction.value);
     this.editingTransactionDescription = new UntypedFormControl(transaction.description);
+    this.editingTransactionCurrency = new UntypedFormControl(transaction.currency);
   }
 
   addNewEmptyTransaction(): void {
@@ -163,7 +174,7 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
       } else {
         this.transactionService.updateObject(transaction)
             .subscribe(updatedTransaction => {
-                transaction = updatedTransaction;
+                Object.assign(transaction, updatedTransaction);
                 this.transactions = this.sortTransactions(this.transactions);
                 this.editingTransaction = null;
                 this.updateTransactions.emit(this.transactions);
@@ -178,13 +189,15 @@ export class DailyTransactionTableComponent implements OnInit, AfterViewInit {
         date: this.editingTransactionDate.value,
         value: this.editingTransactionValue.value,
         transaction_type: this.editingTransactionType.value,
-        description: this.editingTransactionDescription.value.trim()
+        description: this.editingTransactionDescription.value.trim(),
+        currency: this.editingTransactionCurrency.value
       } as Transaction;
     } else {
       this.editingTransaction.date = this.editingTransactionDate.value;
       this.editingTransaction.value = this.editingTransactionValue.value;
       this.editingTransaction.transaction_type = this.editingTransactionType.value;
       this.editingTransaction.description = this.editingTransactionDescription.value.trim();
+      this.editingTransaction.currency = this.editingTransactionCurrency.value;
     }
   }
 

@@ -128,7 +128,7 @@ export class PriorIncomeTableComponent implements OnInit {
       } else {
         this.priorIncomeService.updateObject(priorIncome)
             .subscribe(updatedPriorIncome => {
-                priorIncome = updatedPriorIncome;
+                Object.assign(priorIncome, updatedPriorIncome);
                 this.priorIncomes = this.sortIncomes(this.priorIncomes);
                 this.tableDataSource.data = this.priorIncomes;
                 this.editingIncome = null;

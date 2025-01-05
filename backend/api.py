@@ -7,6 +7,7 @@ from flask_restful import (
 from sqlalchemy import (
     desc,
     exc,
+    func,
     or_,
 )
 
@@ -18,6 +19,7 @@ from models import (
     AssetAccount,
     BalanceSheetEntry,
     Config,
+    ExchangeRate,
     Info,
     InvestmentIncome,
     MonthAssetAccountEntry,
@@ -33,6 +35,7 @@ from schemas import (
     AssetAccountSchema,
     BalanceSheetEntrySchema,
     ConfigSchema,
+    ExchangeRateSchema,
     InfoSchema,
     InvestmentIncomeSchema,
     MonthAssetAccountEntrySchema,
@@ -45,8 +48,11 @@ from schemas import (
     WeeklyJobTransactionSchema,
 )
 from utils import (
+    calculate_month_info_transaction_totals,
+    calculate_month_info_investment_income_total,
+    calculate_month_info_asset_totals,
     get_start_date,
-    get_month_info,
+    get_or_create_month_info,
     month_year_between_dates,
 )
 
@@ -287,26 +293,24 @@ class TransactionResource(Resource):
         value = request_dict['value']
         description = request_dict['description']
         date = request_dict['date']
+        currency = request_dict.get('currency', 'USD')
 
         if value <= 0:
             return abort(400, description='Value must be greater than 0.')
         if date > datetime.date.today() or date < get_start_date():
             return abort(400, description='Cannot save future transaction or transaction prior to start date')
 
-        month_info = get_month_info(date.year, date.month)
-
         new_transaction = Transaction(
             transaction_type=transaction_type,
             value=value,
             description=description,
-            date=date
+            date=date,
+            currency=currency
         )
         db.session.add(new_transaction)
 
-        if transaction_type == TransactionType.income:
-            month_info.income += value
-        else:
-            month_info.expenditure += value
+        month_info = get_or_create_month_info(date.year, date.month)
+        calculate_month_info_transaction_totals(month_info, update=True)
 
         return try_commit(new_transaction, transaction_schema)
 
@@ -320,6 +324,7 @@ class TransactionResource(Resource):
         description = request_dict['description']
         date = request_dict['date']
         transaction_type = request_dict['transaction_type']
+        currency = request_dict.get('currency', 'USD')
 
         category_id = request_dict.get('category_id')
 
@@ -330,34 +335,20 @@ class TransactionResource(Resource):
 
         transaction = Transaction.query.filter_by(id=id).first_or_404()
         old_date = transaction.date
-        old_type = transaction.transaction_type
-        old_value = transaction.value
-
-        # remove old value from month-info for old transaction
-        old_month_info = get_month_info(transaction.date.year, transaction.date.month)
-        if transaction.transaction_type == TransactionType.income:
-            old_month_info.income -= transaction.value
-        else:
-            old_month_info.expenditure -= transaction.value
 
         transaction.transaction_type = transaction_type
         transaction.value = value
         transaction.description = description
         transaction.date = date
+        transaction.currency = currency
         if category_id is not None:
             transaction.category_id = category_id
 
-        update_month_info = old_month_info
-        # if month and/or year have changed, then update the corresponding monthinfo
-        if old_date.month != date.month or old_date.year != date.year:
-            new_month_info = get_month_info(date.year, date.month)
-            update_month_info = new_month_info
+        old_month_info = get_or_create_month_info(old_date.year, old_date.month)
+        calculate_month_info_transaction_totals(old_month_info, update=True)
 
-        # add value back to appropriate month-info
-        if transaction_type == TransactionType.income:
-            update_month_info.income += value
-        else:
-            update_month_info.expenditure += value
+        month_info = get_or_create_month_info(date.year, date.month)
+        calculate_month_info_transaction_totals(month_info, update=True)
 
         return try_commit(transaction, transaction_schema)
 
@@ -367,14 +358,13 @@ class TransactionResource(Resource):
             return abort(400, description='No id to delete')
         transaction = Transaction.query.filter_by(id=id).first_or_404()
 
-        month_info = get_month_info(transaction.date.year, transaction.date.month)
+        transaction_year = transaction.date.year
+        transaction_month = transaction.date.month
 
         db.session.delete(transaction)
 
-        if transaction.transaction_type == TransactionType.income:
-            month_info.income -= transaction.value
-        else:
-            month_info.expenditure -= transaction.value
+        month_info = get_or_create_month_info(transaction_year, transaction_month)
+        calculate_month_info_transaction_totals(month_info, update=True)
 
         db.session.commit()
 
@@ -466,6 +456,7 @@ class AssetAccountResource(Resource):
         description = request_dict['description']
         open_date = request_dict['open_date']
         close_date = request_dict['close_date']
+        currency = request_dict.get('currency', 'USD')
 
         if len(name) == 0:
             return abort(400, description='Supplied empty name for new asset account.')
@@ -474,7 +465,8 @@ class AssetAccountResource(Resource):
             name=name,
             description=description,
             open_date=open_date,
-            close_date=close_date
+            close_date=close_date,
+            currency=currency
         )
         db.session.add(new_asset_account)
 
@@ -491,12 +483,14 @@ class AssetAccountResource(Resource):
         description = request_dict['description']
         open_date = request_dict['open_date']
         close_date = request_dict['close_date']
+        currency = request_dict.get('currency', 'USD')
 
         asset_account = AssetAccount.query.filter_by(id=id).first_or_404()
         asset_account.name = name
         asset_account.description = description
         asset_account.open_date = open_date
         asset_account.close_date = close_date
+        asset_account.currency = currency
 
         return try_commit(asset_account, asset_account_schema)
 
@@ -594,6 +588,82 @@ class MonthInfoResource(Resource):
 
         return try_commit(month_info, month_info_schema)
 
+exchange_rates_schema = ExchangeRateSchema(many=True)
+exchange_rate_schema = ExchangeRateSchema()
+@api.resource("/exchange-rate")
+class ExchangeRateResource(Resource):
+    def get(self):
+        filter_kwargs = {}
+        request_dict = request.args
+        month_info_id = request_dict.get('month_info_id')
+
+        try:
+            month_info_id = int(month_info_id)
+            filter_kwargs['month_info_id'] = month_info_id
+        except (TypeError, ValueError):
+            return abort(400, description='Month info id is not valid')
+
+        exchange_rates = ExchangeRate.query.filter_by(**filter_kwargs).all()
+        return exchange_rates_schema.dump(exchange_rates)
+
+    def post(self):
+        request_dict = exchange_rate_schema.load(request.json)
+
+        month_info_id = request_dict['month_info_id']
+        currency = request_dict['currency']
+        rate = request_dict['rate']
+
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
+
+        new_exchange_rate = ExchangeRate(
+            month_info_id=month_info_id,
+            currency=currency,
+            rate=rate,
+        )
+        db.session.add(new_exchange_rate)
+
+        # Update all month_info totals - income, expenditure, investment income, assets, liabilities
+        calculate_month_info_transaction_totals(month_info, update=True)
+        calculate_month_info_investment_income_total(month_info, update=True)
+        calculate_month_info_asset_totals(month_info, update=True)
+
+        return try_commit(new_exchange_rate, exchange_rate_schema)
+
+    def put(self):
+        request_dict = exchange_rate_schema.load(request.json)
+
+        id = request_dict.get('id')
+        if id is None:
+            return abort(400, description='No id for exchange rate')
+        month_info_id = request_dict['month_info_id']
+        currency = request_dict['currency']
+        rate = request_dict['rate']
+
+        exchange_rate = ExchangeRate.query.filter_by(id=id).first_or_404()
+
+        if exchange_rate.month_info_id != month_info_id:
+            return abort(400, description='Cannot change month info for exchange rate')
+
+        if exchange_rate.currency != currency:
+            return abort(400, description='Cannot change currency for exchange rate')
+
+        exchange_rate.rate = rate
+
+        # Update all month_info totals - income, expenditure, investment income, assets, liabilities
+        month_info = MonthInfo.query.filter_by(id=month_info_id).first()
+        if month_info is None:
+            return abort(400, description='Month info with this id does not exist')
+
+        calculate_month_info_transaction_totals(month_info, update=True)
+        calculate_month_info_investment_income_total(month_info, update=True)
+        calculate_month_info_asset_totals(month_info, update=True)
+
+        return try_commit(exchange_rate, exchange_rate_schema)
+
+    # TODO: do we want to be able to delete an exchange rate if it is no longer relevant to this month?
+    #       when would be the appropriate time to do this?
 
 month_categories_schema = MonthCategorySchema(many=True)
 month_category_schema = MonthCategorySchema()
@@ -685,6 +755,7 @@ class InvestmentIncomeResource(Resource):
         value = request_dict['value']
         description = request_dict['description']
         date = request_dict['date']
+        currency = request_dict.get('currency', 'USD')
 
         if date is not None and (date > datetime.date.today() or date < get_start_date()):
             return abort(400, description='Cannot save future investment income or investment income prior to start date')
@@ -702,13 +773,14 @@ class InvestmentIncomeResource(Resource):
             month_info_id=month_info_id,
             investment_income_type=investment_income_type,
             value=value,
-            description=description
+            description=description,
+            currency=currency
         )
         if date is not None:
             new_investment_income.date = date
         db.session.add(new_investment_income)
 
-        month_info.investment_income += value
+        calculate_month_info_investment_income_total(month_info, update=True)
 
         return try_commit(new_investment_income, investment_income_schema)
 
@@ -722,6 +794,7 @@ class InvestmentIncomeResource(Resource):
         description = request_dict['description']
         date = request_dict['date']
         investment_income_type = request_dict['investment_income_type']
+        currency = request_dict.get('currency', 'USD')
 
         month_info_id = request_dict.get('month_info_id') # don't update month
         month_info = MonthInfo.query.filter_by(id=month_info_id).first_or_404();
@@ -734,17 +807,22 @@ class InvestmentIncomeResource(Resource):
 
         investment_income = InvestmentIncome.query.filter_by(id=id).first_or_404()
 
-        # remove old value from month-info for old income
-        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
-        old_month_info.investment_income -= investment_income.value
-
         investment_income.investment_income_type = investment_income_type
         investment_income.value = value
         investment_income.description = description
         investment_income.date = date
+        investment_income.currency = currency
 
-        # add value back to appropriate month-info
-        month_info.investment_income += investment_income.value
+        total_investment_income_query = InvestmentIncome.query.with_entities(
+            func.sum(InvestmentIncome.value).label('income_total')
+        )
+
+        # update old month info investment income total
+        old_month_info = MonthInfo.query.filter_by(id=investment_income.month_info_id).first_or_404()
+        calculate_month_info_investment_income_total(old_month_info, update=True)
+
+        # update new month info investment income total
+        calculate_month_info_investment_income_total(month_info, update=True)
 
         return try_commit(investment_income, investment_income_schema)
 
@@ -758,7 +836,7 @@ class InvestmentIncomeResource(Resource):
 
         db.session.delete(investment_income)
 
-        month_info.investment_income -= investment_income.value
+        calculate_month_info_investment_income_total(month_info, update=True)
 
         db.session.commit()
 
@@ -774,18 +852,6 @@ class MonthAssetAccountEntryResource(Resource):
         request_dict = request.args
         month_info_id = request_dict.get('month_info_id')
 
-        # try:
-        #     if (month_info_id == 'latest'):
-        #         # get the latest completed MonthInfo
-        #         month_info_id = MonthInfo.query.filter_by(completed=True).join(MonthAssetAccountEntry).order_by(
-        #             desc(MonthInfo.year),
-        #             desc(MonthInfo.month)
-        #         ).limit(1).all()[0].id
-        #     else:
-        #         month_info_id = int(month_info_id)
-        #     filter_kwargs['month_info_id'] = month_info_id
-        # except (IndexError, TypeError, ValueError):
-        #     pass
         try:
             month_info_id = int(month_info_id)
             filter_kwargs['month_info_id'] = month_info_id
@@ -836,8 +902,8 @@ class MonthAssetAccountEntryResource(Resource):
         )
         db.session.add(new_month_asset_account_entry)
 
-        month_info.assets += asset_value
-        month_info.liabilities += liability_value
+        # Recalculate asset and liability totals for the corresponding month
+        calculate_month_info_asset_totals(month_info, update=True)
 
         return try_commit(new_month_asset_account_entry, month_asset_account_entry_schema)
 
@@ -861,20 +927,17 @@ class MonthAssetAccountEntryResource(Resource):
         if asset_account is None:
             return abort(400, description='Asset account with this id does not exist')
 
-        # remove old value from month-info for old income
+        # Recalculate asset and liability totals for this month
         month_info = MonthInfo.query.filter_by(id=month_info_id).first()
         if month_info is None:
             return abort(400, description='Month info with this id does not exist')
-        month_info.assets -= month_asset_account_entry.asset_value
-        month_info.liabilities -= month_asset_account_entry.liability_value
 
         month_asset_account_entry.asset_account_id = asset_account_id
         month_asset_account_entry.asset_value = asset_value
         month_asset_account_entry.liability_value = liability_value
 
-        # add value back to appropriate month-info
-        month_info.assets += month_asset_account_entry.asset_value
-        month_info.liabilities += month_asset_account_entry.liability_value
+        # Recalculate asset and liability totals for the corresponding month
+        calculate_month_info_asset_totals(month_info, update=True)
 
         return try_commit(month_asset_account_entry, month_asset_account_entry_schema)
 
@@ -888,8 +951,8 @@ class MonthAssetAccountEntryResource(Resource):
 
         db.session.delete(month_asset_account_entry)
 
-        month_info.assets -= month_asset_account_entry.asset_value
-        month_info.liabilities += month_asset_account_entry.liability_value
+        # Recalculate asset and liability totals for the corresponding month
+        calculate_month_info_asset_totals(month_info, update=True)
 
         db.session.commit()
 

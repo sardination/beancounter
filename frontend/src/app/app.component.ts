@@ -2,10 +2,10 @@ import {
   Component,
   Input,
   OnInit,
-  AfterViewInit,
   ViewChild,
   ComponentFactoryResolver,
   isDevMode,
+  HostListener,
 } from '@angular/core';
 
 import { PageDirective } from './pages/page.directive';
@@ -23,7 +23,7 @@ import { environment } from '../environments/environment';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   title: string = 'Bean Counter';
   version: string = 'DEV';
   currentPath: string = "/";
@@ -42,27 +42,18 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.availablePages.set("fi-projection", FIProjectionPageComponent);
   }
 
-  ngAfterViewInit(): void {
-      // We're not supporting web app mode right now, so it will always be using webview
-      // if (!environment.useWebview) {
-      //   setTimeout(() => {
-      //     this.loadPage(this.currentPath)
-      //   });
-      // } else {
-        let _this = this;
-        window.addEventListener('pywebviewready', function() {
-          setTimeout(() => {
-            window.pywebview.api.resize(window.screen.width, window.screen.height);
-            // TODO: modify this so that dev also has versions?
-            if (!isDevMode()) {
-              window.pywebview.api.get_version().then(
-                (version) => {_this.version = version;}
-              );
-            }
-            _this.loadPage(_this.currentPath);
-          });
-        })
-      // }
+  @HostListener('window:pywebviewready', ['$event'])
+  webviewReadyEvent(event: any) {
+    setTimeout(() => {
+      window.pywebview.api.resize(window.screen.width, window.screen.height);
+      // TODO: modify this so that dev also has versions?
+      if (!isDevMode()) {
+        window.pywebview.api.get_version().then(
+          (version) => {this.version = version;}
+        );
+      }
+      this.loadPage(this.currentPath);
+    });
   }
 
   normalizePath(path: string): string {

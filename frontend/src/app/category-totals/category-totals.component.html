@@ -19,7 +19,7 @@
             ></fa-icon></sup>
         </th>
     </tr>
-    <tr *ngFor="let category of displayCategories">
+    <tr *ngFor="let category of displayCategories" [ngClass]="categoryTotalInaccurate(category) ? 'red-category' : ''">
         <td>{{ category.name }}</td>
         <td>${{ categoryTotal(category) | number: '1.2-2' }}</td>
         <td>{{ calculateLifeEnergyHours(category) | number: '1.2-2' }}</td>

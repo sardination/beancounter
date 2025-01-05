@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormControl } from '@angular/forms';
 import { faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -129,10 +130,21 @@ export class NetWorthComponent implements OnInit {
 })
 export class AddAssetAccountDialog {
 
+  currencyFormControl: UntypedFormControl
+
   constructor(
     public dialogRef: MatDialogRef<AddAssetAccountDialog>,
     @Inject(MAT_DIALOG_DATA) public data: AssetAccount
-  ) {}
+  ) {
+    this.data.currency = "USD"
+  }
+
+  ngOnInit() {
+    this.currencyFormControl = new UntypedFormControl(this.data.currency)
+    this.currencyFormControl.valueChanges.subscribe(value => {
+      this.data.currency = value
+    })
+  }
 
   onNoClick(): void {
     this.dialogRef.close();

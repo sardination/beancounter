@@ -1,8 +1,12 @@
-from sqlalchemy import extract
+from sqlalchemy import extract, func
 
 from enums import TransactionType
 from models import (
+    AssetAccount,
+    ExchangeRate,
     Info,
+    InvestmentIncome,
+    MonthAssetAccountEntry,
     MonthInfo,
     Transaction,
 )
@@ -11,6 +15,7 @@ from db import db
 
 from datetime import datetime
 from dateutil import tz
+import decimal
 import os
 import shutil
 
@@ -19,33 +24,18 @@ def get_start_date():
     start_date = datetime.strptime(start_date_info.value, "%Y-%m-%d")
     return start_date.date()
 
-
-def get_month_info(year, month, commit=False, recalc_totals=False):
+def get_or_create_month_info(year, month):
     """
-    Get MonthInfo from specified year and month, create one if does not
-    already exist. If `commit` = True, then commit to db. If `recalc_totals`
-    = True, then recalculate sums even if MonthInfo object already exists.
-    If MonthInfo did not already exist, then add to session.
+    Get MonthInfo from specified year and month, or create one and
+    add to db session if it does not already exist.
     """
 
     month_info = MonthInfo.query.filter_by(
         year=year,
         month=month
     ).first()
-    if month_info is not None and not recalc_totals:
+    if month_info is not None:
         return month_info
-
-    transactions = Transaction.query.filter(
-        extract('year', Transaction.date) == year,
-        extract('month', Transaction.date) == month
-    ).all()
-    income = 0
-    expenditure = 0
-    for t in transactions:
-        if t.transaction_type == TransactionType.income:
-            income += t.value
-        else:
-            expenditure += t.value
 
     # get current real hourly wage to assign to this month
     real_hourly_wage = Info.query.filter_by(title="real_hourly_wage").first()
@@ -53,14 +43,6 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
         real_hourly_wage = 0
     else:
         real_hourly_wage = int(real_hourly_wage.value)
-
-    if month_info is not None and recalc_totals:
-        month_info.income = income
-        month_info.expenditure = expenditure
-        if not month_info.completed:
-            # keep real hourly wage the same unless the month is still uncompleted
-            month_info.real_hourly_wage = real_hourly_wage
-        return month_info
 
     month_info = MonthInfo(
         year=year,
@@ -71,11 +53,102 @@ def get_month_info(year, month, commit=False, recalc_totals=False):
     )
     db.session.add(month_info)
 
-    if commit:
-        db.session.commit()
-
     return month_info
 
+def get_exchange_rate_map(month_info):
+    exchange_rate_map = {'USD': decimal.Decimal(1.0)}
+
+    exchange_rates = ExchangeRate.query.filter(ExchangeRate.month_info_id == month_info.id).all()
+    for exchange_rate in exchange_rates:
+        exchange_rate_map[exchange_rate.currency] = decimal.Decimal(exchange_rate.rate)
+
+    return exchange_rate_map
+
+def calculate_month_info_transaction_totals(month_info, update=False):
+    """
+    Get the total income and expenditures for the given month.
+    If `update=True`, then update month_info with the calculated values.
+    """
+
+    exchange_rate_map = get_exchange_rate_map(month_info)
+    transactions = Transaction.query.filter(
+        extract('year', Transaction.date) == month_info.year,
+        extract('month', Transaction.date) == month_info.month
+    ).all()
+
+    income_total = 0
+    expenditure_total = 0
+    for transaction in transactions:
+        rate = exchange_rate_map.get(transaction.currency)
+        if rate is None:
+            continue
+        if transaction.transaction_type == TransactionType.income:
+            income_total += decimal.Decimal(transaction.value) / rate
+        elif transaction.transaction_type == TransactionType.expenditure:
+            expenditure_total += decimal.Decimal(transaction.value) / rate
+
+    if update:
+        decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+        month_info.income = round(income_total)
+        month_info.expenditure = round(expenditure_total)
+
+    return {'income': income_total, 'expenditure': expenditure_total}
+
+def calculate_month_info_investment_income_total(month_info, update=False):
+    """
+    Get the total investment income for the given month.
+    If `update=True`, then update month_info with the calculated values.
+    """
+
+    exchange_rate_map = get_exchange_rate_map(month_info)
+    investment_incomes = InvestmentIncome.query.filter_by(month_info_id=month_info.id).all()
+
+    total = 0
+    for investment_income in investment_incomes:
+        rate = exchange_rate_map.get(investment_income.currency)
+        if rate is None:
+            continue
+        total += decimal.Decimal(investment_income.value) / rate
+
+
+    if update:
+        decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+        month_info.investment_income = round(total)
+
+    return total
+
+def calculate_month_info_asset_totals(month_info, update=False):
+    """
+    Get the total assets and liabilities for the given month.
+    If `update=True`, then update month_info with the calculated values.
+    """
+
+    exchange_rate_map = get_exchange_rate_map(month_info)
+    asset_entries = db.session.query(
+        MonthAssetAccountEntry, AssetAccount
+    ).filter(
+        MonthAssetAccountEntry.month_info_id == month_info.id
+    ).filter(
+        AssetAccount.id == MonthAssetAccountEntry.asset_account_id
+    ).all()
+
+    asset_total = 0
+    liability_total = 0
+    for asset_entry in asset_entries:
+        month_entry = asset_entry[0]
+        asset_account = asset_entry[1]
+        rate = exchange_rate_map.get(asset_account.currency)
+        if rate is None:
+            continue
+        asset_total += decimal.Decimal(month_entry.asset_value) / rate
+        liability_total += decimal.Decimal(month_entry.liability_value) / rate
+
+    if update:
+        decimal.getcontext().rounding = decimal.ROUND_HALF_UP
+        month_info.assets = round(asset_total)
+        month_info.liability_total = round(liability_total)
+
+    return {'assets': asset_total, 'liabilities': liability_total}
 
 def month_year_between_dates(earliest_date, latest_date, month, year):
     """
@@ -85,7 +158,7 @@ def month_year_between_dates(earliest_date, latest_date, month, year):
         return month >= earliest_date.month
     if year == latest_date.year:
         return month <= latest_date.month
-    return year > earliest_date.year and year < latest_date.month
+    return year > earliest_date.year and year < latest_date.year
 
 def convert_zulu_timestamp_to_datestring(zulu_timestamp):
     """
@@ -128,7 +201,7 @@ def backup_database(config):
 
     # If there are more than 3 files in the backups directory, delete the earliest N-3 files
     MAX_BACKUP_COUNT = 3
-    backup_list = os.listdir(backup_folder_path)
+    backup_list = list(filter(lambda x: x[-3:] == ".db", os.listdir(backup_folder_path)))
     if len(backup_list) > MAX_BACKUP_COUNT:
         timestamp_backup_map = {}
         for backup_filename in backup_list:
