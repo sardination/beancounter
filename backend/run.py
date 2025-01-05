@@ -28,21 +28,25 @@ def get_entrypoint(serving=False):
     Return the entrypoint filepath
     """
 
+    entrypoint = None
+
     # If running frontend via ng serve, allow hot updates for dev
     if serving:
         return 'http://localhost:4200/'
 
     if exists('../frontend/dist/index.html'): # unfrozen development
-        return '../frontend/dist/index.html'
+        entrypoint = '../frontend/dist/index.html'
 
     if exists('../Resources/frontend/dist/index.html'): # frozen py2app
-        return '../Resources/frontend/dist/index.html'
+        entrypoint = '../Resources/frontend/dist/index.html'
 
     if exists('./frontend/dist/index.html'):
-        return './frontend/dist/index.html'
+        entrypoint = './frontend/dist/index.html'
 
-    raise Exception('No index.html found')
+    if entrypoint is None:
+        raise Exception('No index.html found')
 
+    return "file://" + os.path.abspath(entrypoint)
 
 def get_migrations_directory():
     """

@@ -44,7 +44,6 @@ export class AppComponent implements OnInit {
 
   @HostListener('window:pywebviewready', ['$event'])
   webviewReadyEvent(event: any) {
-    console.log('pywebviewready')
     setTimeout(() => {
       window.pywebview.api.resize(window.screen.width, window.screen.height);
       // TODO: modify this so that dev also has versions?
