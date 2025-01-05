@@ -146,7 +146,7 @@ def calculate_month_info_asset_totals(month_info, update=False):
     if update:
         decimal.getcontext().rounding = decimal.ROUND_HALF_UP
         month_info.assets = round(asset_total)
-        month_info.liability_total = round(liability_total)
+        month_info.liabilities = round(liability_total)
 
     return {'assets': asset_total, 'liabilities': liability_total}
 
