@@ -1,0 +1,18 @@
+.top-banner {
+    background-image: url("assets/bean_background.png");
+    background-color: #aacfa5;
+}
+
+nav {
+    background-color: #003300;
+}
+
+.questions {
+    color: #006600;
+}
+
+.card-body {
+    background-color: #e6ffe6;
+}
+
+h1, h2, .navbar { font-family: Optima, Segoe, Segoe UI, Candara, Calibri, Arial, sans-serif;}
