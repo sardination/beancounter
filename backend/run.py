@@ -141,19 +141,20 @@ def check_for_updates(startup=False, is_dev=False):
     window = webview.active_window()
     js_api = window._js_api
 
+    current_version = VERSION
+
     try:
-        latest_version = urllib.request.urlopen("https://beancounter.me/downloads/version.html").read().decode('UTF-8')
+        latest_version = urllib.request.urlopen("https://sardination.github.io/beancounter/version.html").read().decode('UTF-8')
+        update_available = not is_dev and current_version != latest_version
     except urllib.error.URLError:
         # If the request for the latest version failed and this is not an automated check,
         #     pop up a update failure dialog.
+        update_available = False
         if not startup:
             window.create_confirmation_dialog(
                 "Update check failed!", "Confirm that you have Internet access and try checking for updates again"
             )
             return
-
-    current_version = VERSION
-    update_available = not is_dev and current_version != latest_version
 
     if update_available:
         # If there is an update available but the latest skipped version is the same as the latest version,
@@ -167,7 +168,7 @@ def check_for_updates(startup=False, is_dev=False):
 
         if res == 1:
             # Redirect to the Bean Counter downloads page
-            webbrowser.open("https://beancounter.me/#downloads")
+            webbrowser.open("https://sardination.github.io/beancounter")
         else:
             # If user manually declines to update, save latest skipped version to db
             js_api.request("POST", "config/latest_skipped_version",
