@@ -27,7 +27,7 @@ OPTIONS = {
     'iconfile': 'assets/logo.icns',
     'includes': ['WebKit', 'Foundation', 'webview'],
     'excludes': ['psycopg2'],
-    'plist': {'CFBundleShortVersionString':'1.1.0'}
+    'plist': {'CFBundleShortVersionString':'1.1.1'}
 }
 
 setup(
